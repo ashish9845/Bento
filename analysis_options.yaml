@@ -1,0 +1,32 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+  errors:
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    # Keep very_good defaults, override project-specific preferences
+    public_member_api_docs: false
+    lines_longer_than_80_chars: false
+    avoid_redundant_argument_values: false
+    sort_pub_dependencies: false
+    sort_constructors_first: false
+    omit_local_variable_types: false
+    avoid_slow_async_io: false
+    always_use_package_imports: false
+    directives_ordering: false
+    noop_primitive_operations: false
+    flutter_style_todos: false
+    cascade_invocations: false
+    parameter_assignments: false
+    prefer_const_constructors: false
+    avoid_positional_boolean_parameters: false
