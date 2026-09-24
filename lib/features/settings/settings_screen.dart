@@ -278,7 +278,7 @@ class SettingsScreen extends ConsumerWidget {
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Privacy'),
-                      content: const Text('All PDF processing and scanning happens on-device. No file is uploaded. WASM modules and OCR data are bundled at install. Engine runs on 127.0.0.1 with COOP/COEP for SharedArrayBuffer.'),
+                      content: const Text('All PDF processing and scanning happens on-device. No file is uploaded. The native engine (pdf_manipulator, MIT) runs via FFI off the main thread — no WebView, no network.'),
                       actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
                     ),
                   ),
@@ -286,9 +286,9 @@ class SettingsScreen extends ConsumerWidget {
                 _InfoTile(
                   icon: Icons.code_rounded,
                   title: 'Engine',
-                  subtitle: 'assets/engine/ — Vite headless bundle',
+                  subtitle: 'Native FFI engine (pdf_manipulator, MIT)',
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Engine: 56 MB apparent (7 tools, no Tesseract) — see docs/engine-mapping.md')));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Native Rust engine over FFI — merge, split, organize, compress, render, all on-device')));
                   },
                 ),
                 const SizedBox(height: 24),
@@ -355,7 +355,7 @@ class _AboutCard extends StatelessWidget {
               context: context,
               applicationName: 'Bento',
               applicationVersion: '1.0.0+1',
-              applicationLegalese: 'AGPL-3.0. Bundled: PyMuPDF, Ghostscript, CoherentPDF (AGPL), BentoPDF engine, Tesseract (Apache 2.0 for v1.1).',
+              applicationLegalese: 'AGPL-3.0. Engine: pdf_manipulator (MIT). Scanner: ML Kit / VisionKit.',
               children: [
                 const SizedBox(height: 12),
                 Text('This app ships AGPL-3.0. Full source including UI is published with every build. Offline-only: no CDN, no download-on-first-use.',

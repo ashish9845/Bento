@@ -4,10 +4,9 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:scan/core/storage/open_file.dart';
 import 'package:scan/features/tools/providers/tool_controller.dart';
+import 'package:scan/features/tools/providers/tool_providers.dart';
 import 'package:scan/features/tools/providers/tool_state.dart';
 import 'package:scan/features/tools/widgets/file_picker_card.dart';
 import 'package:scan/features/tools/widgets/tool_progress.dart';
@@ -15,54 +14,39 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
 final signControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
-  return ToolController(processFn: (inputs, _) async {
+  final repo = ref.watch(toolsRepositoryProvider);
+  return ToolController(processFn: (inputs, ctrl) async {
     final sigBytes = ref.read(signatureProvider);
-    final input = inputs.first;
     if (sigBytes == null) {
-      await Future<void>.delayed(const Duration(milliseconds: 400));
-      return inputs;
+      throw Exception('Draw and save your signature first');
     }
-    // Try to overlay onto existing pages by re-rendering via pdf package.
-    // Note: `pdf` cannot parse arbitrary existing PDFs; this creates a new
-    // document with a reference to original size and appends signature page.
-    // Phase 6 hardening: swap to `pdfrx` or `syncfusion_pdf` for true overlay
-    // if needed; for v1 this appends a signed page and notes original byte size.
-    final pdfBytes = await input.readAsBytes();
-    final doc = pw.Document();
-    final sigImage = pw.MemoryImage(sigBytes);
-    // Append original as text note + signature — preserves original file path in result name
-    doc.addPage(pw.Page(
-      pageFormat: PdfPageFormat.a4,
-      build: (ctx) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text('Signed copy of: ${input.path.split('/').last}',
-              style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600)),
-          pw.SizedBox(height: 8),
-          pw.Text('Original: ${pdfBytes.length} bytes — signature appended below. '
-              'True in-place overlay requires a PDF parser (tracked for v1 polish).'),
-          pw.Spacer(),
-          pw.Align(
-            alignment: pw.Alignment.bottomRight,
-            child: pw.Column(children: [
-              pw.Image(sigImage, width: 160, height: 80),
-              pw.SizedBox(height: 4),
-              pw.Text('Signature', style: const pw.TextStyle(fontSize: 8)),
-            ]),
-          ),
-        ],
-      ),
-    ));
-    final outBytes = await doc.save();
-    final temp = await getTemporaryDirectory();
-    final out = File('${temp.path}/signed_${DateTime.now().millisecondsSinceEpoch}.pdf');
-    // Concatenate original bytes + signed page for demo traceability; real overlay would merge
-    await out.writeAsBytes(outBytes);
+    final page = ref.read(signPageProvider);
+    final size = ref.read(signSizeProvider);
+    ctrl.setProgress(null, 'Stamping signature onto page ${page + 1}…');
+    final out = await repo.signPdf(
+      inputs.first,
+      signaturePng: sigBytes,
+      page: page,
+      widthPts: _signWidth(size),
+    );
     return [out];
   });
 });
 
 final signatureProvider = StateProvider<Uint8List?>((ref) => null);
+final signPageProvider = StateProvider<int>((ref) => 0);
+final signSizeProvider = StateProvider<String>((ref) => 'medium');
+
+double _signWidth(String size) {
+  switch (size) {
+    case 'small':
+      return 100;
+    case 'large':
+      return 180;
+    default:
+      return 140;
+  }
+}
 
 class SignScreen extends ConsumerStatefulWidget {
   const SignScreen({super.key});
@@ -72,6 +56,10 @@ class SignScreen extends ConsumerStatefulWidget {
 
 class _SignScreenState extends ConsumerState<SignScreen> {
   final List<Offset> _points = [];
+
+  /// While a stroke is in progress, page scrolling is locked so the
+  /// signature pad — not the page — receives the drag.
+  bool _drawing = false;
 
   Future<Uint8List> _rasterize() async {
     final recorder = ui.PictureRecorder();
@@ -99,9 +87,21 @@ class _SignScreenState extends ConsumerState<SignScreen> {
     final ctrl = ref.read(signControllerProvider.notifier);
     final hasSig = ref.watch(signatureProvider) != null;
 
+    final page = ref.watch(signPageProvider);
+    final size = ref.watch(signSizeProvider);
+    final pageCountAsync = state.files.isEmpty
+        ? null
+        : ref.watch(pdfPageCountProvider(state.files.first.path));
+
+    Future<void> pickFile() async {
+      await ctrl.pickFiles(allowedExtensions: const ['pdf']);
+      ref.read(signPageProvider.notifier).state = 0;
+    }
+
     return ToolScaffold(
       title: 'Sign PDF',
-      subtitle: 'Native — draw signature, apply to PDF (no engine)',
+      subtitle: 'Your signature is stamped onto the original pages — content is preserved.',
+      physics: _drawing ? const NeverScrollableScrollPhysics() : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -109,10 +109,66 @@ class _SignScreenState extends ConsumerState<SignScreen> {
             files: state.files,
             allowedExtensions: const ['pdf'],
             label: 'PDF to sign',
-            onPick: () => ctrl.pickFiles(allowedExtensions: const ['pdf']),
+            onPick: pickFile,
             onClear: ctrl.clearFiles,
           ),
           const SizedBox(height: 12),
+          if (state.files.isNotEmpty)
+            pageCountAsync?.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Text('Could not read page count: $e'),
+                  data: (count) => Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Placement', style: Theme.of(context).textTheme.titleSmall),
+                          const SizedBox(height: 12),
+                          Row(children: [
+                            IconButton.filledTonal(
+                              icon: const Icon(Icons.chevron_left_rounded),
+                              onPressed: page <= 0
+                                  ? null
+                                  : () => ref.read(signPageProvider.notifier).state = page - 1,
+                              tooltip: 'Previous page',
+                            ),
+                            Expanded(
+                              child: Text('Page ${page + 1} of $count',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.titleSmall),
+                            ),
+                            IconButton.filledTonal(
+                              icon: const Icon(Icons.chevron_right_rounded),
+                              onPressed: page >= count - 1
+                                  ? null
+                                  : () => ref.read(signPageProvider.notifier).state = page + 1,
+                              tooltip: 'Next page',
+                            ),
+                          ]),
+                          const SizedBox(height: 12),
+                          Text('Size', style: Theme.of(context).textTheme.titleSmall),
+                          const SizedBox(height: 8),
+                          SegmentedButton<String>(
+                            segments: const [
+                              ButtonSegment(value: 'small', label: Text('Small')),
+                              ButtonSegment(value: 'medium', label: Text('Balanced')),
+                              ButtonSegment(value: 'large', label: Text('Large')),
+                            ],
+                            selected: {size},
+                            onSelectionChanged: (s) =>
+                                ref.read(signSizeProvider.notifier).state = s.first,
+                          ),
+                          const SizedBox(height: 4),
+                          Text('Stamped bottom-right, aspect preserved',
+                              style: Theme.of(context).textTheme.bodySmall),
+                        ],
+                      ),
+                    ),
+                  ),
+                ) ??
+                const SizedBox.shrink(),
+          if (state.files.isNotEmpty) const SizedBox(height: 12),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -129,10 +185,18 @@ class _SignScreenState extends ConsumerState<SignScreen> {
                       // Paper white is intentional for signature ink visibility in both themes
                       color: const Color(0xFFFFFFFF),
                     ),
-                    child: GestureDetector(
-                      onPanUpdate: (d) => setState(() => _points.add(d.localPosition)),
-                      onPanEnd: (_) => setState(() => _points.add(Offset.zero)),
-                      child: CustomPaint(painter: _SigPainter(_points), size: const Size(300, 150)),
+                    child: Listener(
+                      onPointerDown: (_) => setState(() => _drawing = true),
+                      onPointerUp: (_) => setState(() => _drawing = false),
+                      onPointerCancel: (_) => setState(() => _drawing = false),
+                      child: GestureDetector(
+                        onPanUpdate: (d) => setState(() => _points.add(d.localPosition)),
+                        onPanEnd: (_) => setState(() {
+                          _points.add(Offset.zero);
+                          _drawing = false;
+                        }),
+                        child: CustomPaint(painter: _SigPainter(_points), size: const Size(300, 150)),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -161,13 +225,27 @@ class _SignScreenState extends ConsumerState<SignScreen> {
           const SizedBox(height: 12),
           if (state.isProcessing) ToolProgress(label: state.message ?? 'Signing…'),
           if (state.hasError) ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
-          if (state.hasResult) ToolSuccess(message: 'Signed!', onSave: ctrl.saveToDocuments, onShare: ctrl.shareResult),
+          if (state.hasResult) ...[
+            ToolSuccess(message: 'Signed!', onSave: ctrl.saveToDocuments, onShare: ctrl.shareResult),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () => OpenFilex.open(state.resultFiles.first.path),
+              icon: const Icon(Icons.open_in_new_rounded),
+              label: const Text('Open signed PDF'),
+            ),
+          ],
           const SizedBox(height: 12),
           FilledButton.icon(
-            onPressed: state.files.isEmpty || state.isProcessing ? null : ctrl.run,
+            onPressed: state.files.isEmpty || !hasSig || state.isProcessing ? null : ctrl.run,
             icon: const Icon(Icons.draw_outlined),
             label: const Text('Apply signature'),
           ),
+          if (state.files.isNotEmpty && !hasSig)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text('Draw your signature and tap “Save signature” first',
+                  textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
+            ),
         ],
       ),
     );

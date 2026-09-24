@@ -1,31 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scan/features/tools/providers/tool_controller.dart';
+import 'package:scan/features/tools/providers/tool_providers.dart';
 import 'package:scan/features/tools/providers/tool_state.dart';
 import 'package:scan/features/tools/widgets/file_picker_card.dart';
 import 'package:scan/features/tools/widgets/pdf_thumbnail_grid.dart';
 import 'package:scan/features/tools/widgets/tool_progress.dart';
 import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
-final organizeControllerProvider = StateNotifierProvider<ToolController, ToolState>((ref) => ToolController());
+final organizeControllerProvider =
+    StateNotifierProvider<ToolController, ToolState>((ref) {
+  final repo = ref.watch(toolsRepositoryProvider);
+  return ToolController(processFn: (inputs, ctrl) async {
+    final deleted = ref.read(organizeDeleteProvider);
+    final rotations = ref.read(organizeRotationsProvider);
+    ctrl.setProgress(null, 'Applying changes…');
+    final out = await repo.organizePdf(inputs.first, delete: deleted, rotations: rotations);
+    return [out];
+  });
+});
 
-class OrganizeScreen extends ConsumerStatefulWidget {
+final organizeDeleteProvider = StateProvider<Set<int>>((ref) => {});
+final organizeRotationsProvider = StateProvider<Map<int, int>>((ref) => {});
+
+class OrganizeScreen extends ConsumerWidget {
   const OrganizeScreen({super.key});
-  @override
-  ConsumerState<OrganizeScreen> createState() => _OrganizeScreenState();
-}
-
-class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
-  final Set<int> _deleted = {};
-  final Map<int, int> _rotations = {};
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(organizeControllerProvider);
     final ctrl = ref.read(organizeControllerProvider.notifier);
+    final deleted = ref.watch(organizeDeleteProvider);
+    final rotations = ref.watch(organizeRotationsProvider);
+    final pageCountAsync = state.files.isEmpty
+        ? null
+        : ref.watch(pdfPageCountProvider(state.files.first.path));
+
+    void clearAll() {
+      ref.read(organizeDeleteProvider.notifier).state = {};
+      ref.read(organizeRotationsProvider.notifier).state = {};
+      ctrl.clearFiles();
+    }
+
     return ToolScaffold(
       title: 'Organize Pages',
-      subtitle: 'Rotate, delete, reorder — thumbnail grid',
+      subtitle: 'Rotate or delete pages, then apply',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -34,24 +53,37 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
             allowedExtensions: const ['pdf'],
             label: 'PDF to organize',
             onPick: () => ctrl.pickFiles(allowedExtensions: const ['pdf']),
-            onClear: () {
-              _deleted.clear();
-              _rotations.clear();
-              ctrl.clearFiles();
-            },
+            onClear: clearAll,
           ),
           const SizedBox(height: 12),
           if (state.files.isNotEmpty)
-            PdfThumbnailGrid(
-              pageCount: 6,
-              onDelete: (i) => setState(() => _deleted.add(i)),
-              onRotate: (i) => setState(() => _rotations[i] = ((_rotations[i] ?? 0) + 90) % 360),
-            ),
-          if (_deleted.isNotEmpty || _rotations.isNotEmpty)
+            pageCountAsync?.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Text('Could not read page count: $e'),
+                  data: (count) => PdfThumbnailGrid(
+                    pageCount: count,
+                    selectedPages: deleted,
+                    onDelete: (i) {
+                      if (deleted.contains(i)) {
+                        ref.read(organizeDeleteProvider.notifier).state = {...deleted}..remove(i);
+                      } else {
+                        ref.read(organizeDeleteProvider.notifier).state = {...deleted, i};
+                      }
+                    },
+                    onRotate: (i) {
+                      final next = {...rotations};
+                      next[i] = ((next[i] ?? 0) + 90) % 360;
+                      if (next[i] == 0) next.remove(i);
+                      ref.read(organizeRotationsProvider.notifier).state = next;
+                    },
+                  ),
+                ) ??
+                const SizedBox.shrink(),
+          if (deleted.isNotEmpty || rotations.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Pending: ${_deleted.length} deleted, ${_rotations.length} rotated',
+                'Pending: ${deleted.length} deleted, ${rotations.length} rotated',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),

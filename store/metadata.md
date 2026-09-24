@@ -1,17 +1,17 @@
-# Store Metadata — Beno PDF (com.benopdf.scan)
+# Store Metadata — Bento (com.benopdf.scan)
 
 ## Short description (80 chars)
 Offline PDF tools + scanner — Merge, Compress, Sign & more. 100% on-device.
 
 ## Full description
 
-Beno PDF is an offline-first PDF toolkit plus document scanner. All processing is on-device — no upload, no cloud. Built on the BentoPDF engine running headlessly (PyMuPDF, Ghostscript, CoherentPDF are AGPL) plus native scanning.
+Bento is an offline-first PDF toolkit plus document scanner. All processing is on-device — no upload, no cloud. Built on a native FFI engine (pdf_manipulator, MIT) plus native scanning.
 
 **Tools (v1):** Merge PDFs, Split, Organize/Rotate/Delete, Extract Pages, Compress PDF (balanced/high quality), Image→PDF, PDF→Image, Sign PDF (draw signature, native).
 
 **Scanner:** ML Kit GMS Document Scanner (Android) + VisionKit (iOS). Live border detection, auto-crop, multi-page, color/gray/B&W filters, compose to PDF, Send to tool (Compress/Sign). See docs/scanner-evaluation.md.
 
-**Offline:** All WASM bundled (~56 MB apparent engine); no CDN. VITE_USE_CDN=false. OCR (eng only) in v1.1.
+**Offline:** Native engine bundled with the app; no CDN, no downloads. OCR (eng only) in v1.1.
 
 **Privacy:** No network. See PRIVACY.md. AGPL-3.0 — full source published with every build.
 

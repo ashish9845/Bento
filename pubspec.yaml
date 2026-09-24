@@ -13,18 +13,16 @@ dependencies:
   cross_file: ^0.3.4+2
   cupertino_icons: ^1.0.8
   file_picker: ^10.1.0
-  flutter_inappwebview: ^6.1.5
   flutter_riverpod: ^2.6.1
   go_router: ^14.8.1
   http: ^1.2.2
   image: ^4.5.4
   path_provider: ^2.1.4
   pdf: ^3.11.1
+  pdf_manipulator: ^5.0.0
   permission_handler: ^11.3.1
   riverpod_annotation: ^2.6.1
   share_plus: ^12.0.0
-  shelf: ^1.4.1
-  shelf_static: ^1.1.2
   cunning_document_scanner: ^3.0.3
   shared_preferences: ^2.5.5
   google_fonts: ^8.2.1
@@ -48,5 +46,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/engine/

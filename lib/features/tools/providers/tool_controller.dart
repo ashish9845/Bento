@@ -9,7 +9,8 @@ import 'package:scan/core/storage/storage_location.dart';
 import 'tool_state.dart';
 
 /// Generic controller for file→options→progress→result flow.
-/// Each tool provides a `process` callback that may call EngineBridge or native pdf logic.
+/// Each tool provides a `process` callback that calls the FFI engine
+/// repository or native `pdf`-package logic.
 class ToolController extends StateNotifier<ToolState> {
   ToolController({this.processFn}) : super(const ToolState());
 

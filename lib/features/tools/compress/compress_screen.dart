@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:scan/engine/engine_providers.dart';
+import 'package:pdf_manipulator/pdf_manipulator.dart';
 import 'package:scan/features/tools/providers/tool_controller.dart';
+import 'package:scan/features/tools/providers/tool_providers.dart';
 import 'package:scan/features/tools/providers/tool_state.dart';
 import 'package:scan/features/tools/widgets/file_picker_card.dart';
 import 'package:scan/features/tools/widgets/send_to_tool.dart';
@@ -10,20 +11,38 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
 final compressControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
-  final bridge = ref.watch(engineBridgeProvider);
+  final repo = ref.watch(toolsRepositoryProvider);
   return ToolController(processFn: (inputs, ctrl) async {
-    if (bridge == null) {
-      ctrl.setProgress(null, 'Engine placeholder — echoing file');
-      await Future<void>.delayed(const Duration(milliseconds: 600));
-      return inputs;
-    }
     final quality = ref.read(compressQualityProvider);
-    final out = await bridge.compress(inputs.first, quality: quality);
+    ctrl.setProgress(null, 'Compressing (${_qualityLabel(quality)})…');
+    final out = await repo.compressPdf(inputs.first, _qualityPolicy(quality));
     return [out];
   });
 });
 
 final compressQualityProvider = StateProvider<String>((ref) => 'medium');
+
+PdfImagePolicy _qualityPolicy(String quality) {
+  switch (quality) {
+    case 'low':
+      return PdfImagePolicy.screen; // 72 ppi — smallest files
+    case 'high':
+      return PdfImagePolicy.lossless; // re-pack streams, no quality loss
+    default:
+      return PdfImagePolicy.ebook; // 150 ppi — balanced
+  }
+}
+
+String _qualityLabel(String quality) {
+  switch (quality) {
+    case 'low':
+      return 'high compression';
+    case 'high':
+      return 'high quality';
+    default:
+      return 'balanced';
+  }
+}
 
 class CompressScreen extends ConsumerWidget {
   const CompressScreen({super.key});
@@ -33,23 +52,13 @@ class CompressScreen extends ConsumerWidget {
     final state = ref.watch(compressControllerProvider);
     final ctrl = ref.read(compressControllerProvider.notifier);
     final quality = ref.watch(compressQualityProvider);
-    final engineReady = ref.watch(engineReadyProvider);
 
     return ToolScaffold(
       title: 'Compress PDF',
-      subtitle: 'Phase 2 spike — Ghostscript/LibreOffice + SharedArrayBuffer.',
+      subtitle: 'Shrink file size with the native engine — best for scanned & image PDFs.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (!engineReady)
-            Card(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              child: const ListTile(
-                leading: Icon(Icons.science_outlined),
-                title: Text('Spike mode'),
-                subtitle: Text('Engine bundle not yet built — result echoes input. Run vite build then airplane-mode QA.'),
-              ),
-            ),
           FilePickerCard(
             files: state.files,
             allowedExtensions: const ['pdf'],

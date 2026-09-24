@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/files/datasources/files_local_data_source.dart';
 import '../../data/files/repositories/files_repository_impl.dart';
-import '../../data/tools/datasources/tools_local_data_source.dart';
+import '../../data/tools/datasources/pdf_engine_data_source.dart';
 import '../../data/tools/repositories/tools_repository_impl.dart';
 import '../../presentation/files/bloc/mutation/files_mutation_bloc.dart';
 import '../../presentation/files/bloc/query/files_query_bloc.dart';
@@ -48,7 +48,7 @@ final appRouter = GoRouter(
                   pageBuilder: (context, state) => CustomTransitionPage(
                     key: state.pageKey,
                     child: RepositoryProvider(
-                      create: (_) => ToolsRepositoryImpl(ToolsLocalDataSourceImpl()),
+                      create: (_) => ToolsRepositoryImpl(PdfEngineDataSourceImpl()),
                       child: BlocProvider(
                         create: (c) => MergeMutationBloc(c.read<ToolsRepositoryImpl>()),
                         child: const MergePage(),
@@ -104,7 +104,7 @@ final appRouter = GoRouter(
                   pageBuilder: (context, state) => CustomTransitionPage(
                     key: state.pageKey,
                     child: RepositoryProvider(
-                      create: (_) => ToolsRepositoryImpl(ToolsLocalDataSourceImpl()),
+                      create: (_) => ToolsRepositoryImpl(PdfEngineDataSourceImpl()),
                       child: BlocProvider(
                         create: (c) => Image2PdfMutationBloc(c.read<ToolsRepositoryImpl>()),
                         child: const Image2PdfPage(),

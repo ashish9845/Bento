@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:scan/engine/engine_providers.dart';
+import 'package:scan/core/storage/open_file.dart';
 import 'package:scan/features/tools/providers/tool_controller.dart';
+import 'package:scan/features/tools/providers/tool_providers.dart';
 import 'package:scan/features/tools/providers/tool_state.dart';
 import 'package:scan/features/tools/widgets/file_picker_card.dart';
 import 'package:scan/features/tools/widgets/tool_progress.dart';
@@ -9,10 +10,10 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
 final pdf2imageControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
-  final bridge = ref.watch(engineBridgeProvider);
-  return ToolController(processFn: (inputs, _) async {
-    if (bridge == null) return inputs;
-    return bridge.pdfToImage(inputs.first);
+  final repo = ref.watch(toolsRepositoryProvider);
+  return ToolController(processFn: (inputs, ctrl) async {
+    ctrl.setProgress(null, 'Exporting pages as images…');
+    return repo.renderPages(inputs.first);
   });
 });
 
@@ -42,16 +43,27 @@ class Pdf2ImageScreen extends ConsumerWidget {
               child: Row(children: [
                 const Icon(Icons.image_outlined),
                 const SizedBox(width: 8),
-                Text('Format: PNG (engine default)', style: Theme.of(context).textTheme.bodyMedium),
+                Expanded(
+                  child: Text('PNG images, saved in a folder named after the PDF',
+                      style: Theme.of(context).textTheme.bodyMedium),
+                ),
               ]),
             ),
           ),
           const SizedBox(height: 12),
           if (state.isProcessing) ToolProgress(label: state.message ?? 'Exporting…'),
           if (state.hasError) ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
-          if (state.hasResult) ToolSuccess(message: 'Exported ${state.resultFiles.length} image(s)', onSave: ctrl.saveToDocuments, onShare: ctrl.shareResult),
-          const SizedBox(height: 12),
-          FilledButton.icon(onPressed: state.files.isEmpty || state.isProcessing ? null : ctrl.run, icon: const Icon(Icons.image), label: const Text('Export')),
+          if (state.hasResult)
+            ToolSuccess(
+              message:
+                  'Exported ${state.resultFiles.length} image(s) to ${state.resultFiles.first.parent.path.split('/').last}/',
+              onOpenFolder: () => openDoc(context, state.resultFiles.first.parent.path),
+              onShare: ctrl.shareResult,
+            ),
+          if (!state.hasResult) ...[
+            const SizedBox(height: 12),
+            FilledButton.icon(onPressed: state.files.isEmpty || state.isProcessing ? null : ctrl.run, icon: const Icon(Icons.image), label: const Text('Export')),
+          ],
         ],
       ),
     );

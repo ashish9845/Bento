@@ -103,11 +103,16 @@ class ToolError extends StatelessWidget {
 }
 
 class ToolSuccess extends StatefulWidget {
-  const ToolSuccess({required this.message, super.key, this.onSave, this.onShare, this.onSendTo});
+  const ToolSuccess(
+      {required this.message, super.key, this.onSave, this.onShare, this.onSendTo, this.onOpenFolder});
   final String message;
   final VoidCallback? onSave;
   final VoidCallback? onShare;
   final VoidCallback? onSendTo;
+
+  /// Opens the result folder (e.g. PDF→Image export). Replaces Save when the
+  /// files are already in their final location.
+  final VoidCallback? onOpenFolder;
 
   @override
   State<ToolSuccess> createState() => _ToolSuccessState();
@@ -161,6 +166,12 @@ class _ToolSuccessState extends State<ToolSuccess> with SingleTickerProviderStat
                 spacing: 10,
                 runSpacing: 8,
                 children: [
+                  if (widget.onOpenFolder != null)
+                    FilledButton.icon(
+                      onPressed: widget.onOpenFolder,
+                      icon: const Icon(Icons.folder_open_rounded, size: 18),
+                      label: const Text('Open folder'),
+                    ),
                   if (widget.onSave != null)
                     FilledButton.icon(
                       onPressed: widget.onSave,
