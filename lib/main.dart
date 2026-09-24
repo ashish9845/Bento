@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:scan/core/routing/app_router.dart';
+import 'package:scan/core/router/app_router.dart';
 import 'package:scan/core/server/local_engine_server.dart';
+import 'package:scan/core/theme/app_palettes.dart';
 import 'package:scan/core/theme/app_theme.dart';
+import 'package:scan/core/theme/theme_mode_provider.dart';
 import 'package:scan/engine/engine_host.dart';
 import 'package:scan/engine/engine_providers.dart';
 
@@ -49,11 +51,13 @@ class _BenoAppState extends ConsumerState<BenoApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeModeProvider);
+    final palette = ref.watch(appPaletteProvider);
     return MaterialApp.router(
       title: 'Bento',
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
+      theme: AppTheme.lightFor(palette),
+      darkTheme: AppTheme.darkFor(palette),
+      themeMode: themeMode,
       routerConfig: appRouter,
       builder: (context, child) {
         // Overlay invisible engine host above all routes.

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Animated tool card with Hero, scale press, fade in — per SKILL.md animations.
-class AnimatedToolCard extends StatefulWidget {
+/// Optimized tool card — no per-card Ticker, uses TweenAnimationBuilder for 60fps.
+/// Per SKILL.md: implicit animations, RepaintBoundary, avoid expensive controllers.
+class AnimatedToolCard extends StatelessWidget {
   const AnimatedToolCard({
     required this.label,
     required this.subtitle,
@@ -20,95 +21,63 @@ class AnimatedToolCard extends StatefulWidget {
   final int delayMs;
 
   @override
-  State<AnimatedToolCard> createState() => _AnimatedToolCardState();
-}
-
-class _AnimatedToolCardState extends State<AnimatedToolCard> with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _fade;
-  late Animation<double> _scale;
-  bool _pressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 420));
-    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic);
-    _scale = Tween<double>(begin: 0.96, end: 1).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
-    Future.delayed(Duration(milliseconds: widget.delayMs), () {
-      if (mounted) _ctrl.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _ctrl,
-      builder: (context, child) => FadeTransition(
-        opacity: _fade,
-        child: ScaleTransition(scale: _scale, child: child),
+    final scheme = Theme.of(context).colorScheme;
+    // Use TweenAnimationBuilder instead of AnimationController per card to reduce tickers (8 -> 0)
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: 320 + delayMs),
+      curve: Curves.easeOutCubic,
+      builder: (context, v, child) => Opacity(
+        opacity: v.clamp(0, 1),
+        child: Transform.translate(
+          offset: Offset(0, 10 * (1 - v)),
+          child: child,
+        ),
       ),
       child: RepaintBoundary(
-        child: Hero(
-          tag: 'tool_${widget.label}',
-          child: Material(
-            color: Colors.transparent,
-            child: Card(
-              clipBehavior: Clip.antiAlias,
-              elevation: 0,
-              child: InkWell(
-                onTap: widget.onTap,
-                onTapDown: (_) => setState(() => _pressed = true),
-                onTapCancel: () => setState(() => _pressed = false),
-                onTapUp: (_) => setState(() => _pressed = false),
-                child: AnimatedScale(
-                  scale: _pressed ? 0.97 : 1,
-                  duration: const Duration(milliseconds: 140),
-                  curve: Curves.easeOut,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.7),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(widget.icon, size: 24, color: Theme.of(context).colorScheme.onPrimaryContainer),
-                        ),
-                        const Spacer(),
-                        Text(widget.label, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
-                        const SizedBox(height: 2),
-                        Text(widget.subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.2), maxLines: 2, overflow: TextOverflow.ellipsis),
-                        const SizedBox(height: 10),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: widget.isEngine ? Theme.of(context).colorScheme.secondaryContainer : Theme.of(context).colorScheme.tertiaryContainer,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Row(mainAxisSize: MainAxisSize.min, children: [
-                              Icon(widget.isEngine ? Icons.bolt_rounded : Icons.draw_rounded, size: 12, color: widget.isEngine ? Theme.of(context).colorScheme.onSecondaryContainer : Theme.of(context).colorScheme.onTertiaryContainer),
-                              const SizedBox(width: 4),
-                              Text(widget.isEngine ? 'Engine' : 'Native', style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700, fontSize: 11)),
-                            ]),
-                          ),
-                        ),
-                      ],
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          elevation: 0,
+          color: scheme.surfaceContainerLow,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5), width: 1),
+          ),
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: scheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: Icon(icon, size: 22, color: scheme.onPrimaryContainer),
                   ),
-                ),
+                  const Spacer(),
+                  Text(label, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: scheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant, height: 1.25), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isEngine ? scheme.secondaryContainer : scheme.tertiaryContainer,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(isEngine ? Icons.bolt_rounded : Icons.draw_rounded, size: 12, color: isEngine ? scheme.onSecondaryContainer : scheme.onTertiaryContainer),
+                      const SizedBox(width: 4),
+                      Text(isEngine ? 'Engine' : 'Native', style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700, fontSize: 11, color: isEngine ? scheme.onSecondaryContainer : scheme.onTertiaryContainer)),
+                    ]),
+                  ),
+                ],
               ),
             ),
           ),

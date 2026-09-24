@@ -28,7 +28,7 @@ class FilePickerCard extends StatelessWidget {
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: files.isEmpty ? scheme.outlineVariant.withValues(alpha: 0.6) : scheme.primary.withValues(alpha: 0.25), width: files.isEmpty ? 1.2 : 1.6),
           boxShadow: files.isEmpty ? [] : [BoxShadow(color: scheme.primary.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, 8))],
@@ -116,7 +116,7 @@ class FilePickerCard extends StatelessWidget {
                             dense: true,
                             leading: Container(
                               padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                              decoration: BoxDecoration(color: scheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(10)),
                               child: Icon(allowedExtensions?.contains('pdf') ?? true ? Icons.picture_as_pdf_rounded : Icons.image_rounded, size: 18, color: scheme.primary),
                             ),
                             title: Text(f.path.split('/').last, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),

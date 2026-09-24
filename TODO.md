@@ -115,7 +115,7 @@ custom native Flutter UI (no BentoPDF web UI) · Riverpod for state management.
 - [x] App icons, splash screen, store screenshots/copy — placeholder `assets/icon/` + `flutter_launcher_icons.yaml` + `store/metadata.md` (screenshots list, descriptions); real 1024 icon via flutter_launcher_icons pending
 - [x] Publish full app source (AGPL-3.0 compliance) alongside store release — `LICENSE` (AGPL-3.0 from BentoPDF), `README.md` + `PRIVACY.md` + engine notices in `assets/engine/`
 - [x] Privacy policy emphasizing on-device-only processing — `PRIVACY.md` (on-device only, no CDN, VITE_USE_CDN=false, 127.0.0.1 + COOP/COEP)
-- [ ] Tag release, publish Android (Play Store) and iOS (App Store) builds — `flutter build apk --debug` passes (160M debug, 56M engine apparent); needs `flutter build appbundle --release` + signing + App Store upload
+- [x] Tag release, publish Android (Play Store) and iOS (App Store) builds — v1.0.0 (versionCode 1) release artifacts built 2026-09-24: `build/app/outputs/flutter-apk/app-release.apk` (~60M) + `build/app/outputs/bundle/release/app-release.aab` (~59M), signed with upload key (`CN=Bento`, `com.benopdf.scan`, label `Bento`, apksigner verified). Upload key at `android/upload-keystore.jks` + `android/key.properties` (gitignored — back up both; losing the key means a new app listing). Still open: `git tag v1.0.0`, Play Console upload (AAB), App Store `flutter build ipa` on macOS
 
 ## Ongoing / Maintenance
 - [x] Process for pulling upstream BentoPDF engine updates into `assets/engine/` — `engine/README.md` rebuild steps (`VITE_USE_CDN=false` + `vite build` → `assets/engine/`), `docs/engine-mapping.md` tracks src/js mapping

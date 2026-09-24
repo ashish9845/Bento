@@ -36,6 +36,11 @@ migrate_working_dir/
 # Symbolication related
 app.*.symbols
 
+# Release signing — never commit keys or passwords
+android/key.properties
+android/*.jks
+android/*.keystore
+
 # Obfuscation related
 app.*.map.json
 

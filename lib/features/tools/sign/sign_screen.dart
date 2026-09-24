@@ -126,7 +126,8 @@ class _SignScreenState extends ConsumerState<SignScreen> {
                     decoration: BoxDecoration(
                       border: Border.all(color: Theme.of(context).colorScheme.outline),
                       borderRadius: BorderRadius.circular(8),
-                      color: Colors.white,
+                      // Paper white is intentional for signature ink visibility in both themes
+                      color: const Color(0xFFFFFFFF),
                     ),
                     child: GestureDetector(
                       onPanUpdate: (d) => setState(() => _points.add(d.localPosition)),

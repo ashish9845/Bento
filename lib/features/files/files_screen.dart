@@ -4,14 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:scan/core/storage/storage_location.dart';
 import 'package:scan/features/tools/widgets/send_to_tool.dart';
 import 'package:share_plus/share_plus.dart';
 
 final recentFilesProvider = FutureProvider<List<File>>((ref) async {
   final docs = await getApplicationDocumentsDirectory();
   final tmp = await getTemporaryDirectory();
+  final defaultDir = await getDefaultSaveDirectory();
   final files = <File>[];
-  final dirs = <Directory>[docs, tmp];
+  final dirs = <Directory>[docs, tmp, defaultDir];
   try {
     final prefs = await SharedPreferences.getInstance();
     final custom = prefs.getString('storage_location');
@@ -134,7 +137,7 @@ class FilesScreen extends ConsumerWidget {
                                 style: IconButton.styleFrom(backgroundColor: scheme.primary, foregroundColor: scheme.onPrimary, minimumSize: const Size(36, 36)),
                               ),
                             ]),
-                            onTap: () => SharePlus.instance.share(ShareParams(files: [XFile(f.path)])),
+                            onTap: () => OpenFilex.open(f.path),
                           ),
                         ),
                       ),

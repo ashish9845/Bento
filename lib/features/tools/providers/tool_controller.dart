@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:scan/core/storage/storage_location.dart';
 
 import 'tool_state.dart';
 
@@ -94,22 +94,19 @@ class ToolController extends StateNotifier<ToolState> {
 
   Future<void> saveToDocuments() async {
     if (state.resultFiles.isEmpty) return;
-    String targetDir;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final custom = prefs.getString('storage_location');
-      if (custom != null && await Directory(custom).exists()) {
-        targetDir = custom;
-      } else {
-        targetDir = (await getApplicationDocumentsDirectory()).path;
-      }
-    } catch (_) {
-      targetDir = (await getApplicationDocumentsDirectory()).path;
-    }
+    final targetDir = await getSaveDirectory();
+    var actualDir = targetDir.path;
     for (final f in state.resultFiles) {
       final name = f.path.split('/').last;
-      await f.copy('$targetDir/$name');
+      try {
+        await f.copy('${targetDir.path}/$name');
+      } catch (_) {
+        // Shared storage blocked (scoped storage) — fall back to app documents.
+        final docs = await getApplicationDocumentsDirectory();
+        await f.copy('${docs.path}/$name');
+        actualDir = docs.path;
+      }
     }
-    state = state.copyWith(message: 'Saved to $targetDir');
+    state = state.copyWith(message: 'Saved to $actualDir');
   }
 }

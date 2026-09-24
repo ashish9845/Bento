@@ -68,10 +68,10 @@ class _PageTile extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: selected ? scheme.primaryContainer : Colors.white,
+        color: selected ? scheme.primaryContainer : scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: selected ? scheme.primary : scheme.outlineVariant.withValues(alpha: 0.5), width: selected ? 1.8 : 1),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: scheme.shadow.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
