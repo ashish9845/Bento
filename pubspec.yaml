@@ -54,11 +54,3 @@ flutter:
         - asset: assets/fonts/PixelifySans-Regular.ttf
         - asset: assets/fonts/PixelifySans-Medium.ttf
           weight: 500
-    # Google Sans Flex (user-provided, proprietary — see AppFonts).
-    # Only Regular 400 (normal text) + SemiBold 600 (headers) are declared,
-    # so every heavier weight renders as SemiBold per spec.
-    - family: GoogleSansFlex
-      fonts:
-        - asset: assets/fonts/GoogleSansFlex-Regular.ttf
-        - asset: assets/fonts/GoogleSansFlex-SemiBold.ttf
-          weight: 600

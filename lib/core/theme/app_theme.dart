@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'app_palettes.dart';
 
-/// Bundled app typeface: Google Sans Flex (user-provided files in
-/// assets/fonts — NOT an OFL font, do not redistribute the TTFs separately).
-/// Regular 400 for body text, SemiBold 600 for headers.
+/// App typeface: the platform system font (Roboto on Android, San Francisco
+/// on iOS). A previous build used user-provided Google Sans Flex files, but
+/// that face is proprietary and cannot be redistributed, so public clones
+/// fall back to system type — Regular 400 for body, SemiBold 600 for headers.
 class AppFonts {
-  static const family = 'GoogleSansFlex';
+  static const String? family = null;
 
-  static const regular = TextStyle(fontFamily: family, fontWeight: FontWeight.w400);
-  static const semiBold = TextStyle(fontFamily: family, fontWeight: FontWeight.w600);
+  static const regular = TextStyle(fontWeight: FontWeight.w400);
+  static const semiBold = TextStyle(fontWeight: FontWeight.w600);
 }
 
 /// Bento theming — builds Material 3 ThemeData from the selected [AppPalette].

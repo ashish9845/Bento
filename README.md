@@ -114,7 +114,9 @@ Bento stands on the shoulders of these projects — thank you:
   and scheme-derivation rules ported in `lib/core/theme/app_palettes.dart`.
 - [Material Symbols](https://fonts.google.com/icons) (Apache 2.0) and
   [Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) (OFL 1.1,
-  bundled in `assets/fonts/`) for icons and the Tools-tab footer.
+  bundled in `assets/fonts/`) for icons and the Tools-tab footer. Body text
+  uses the platform system font (no custom body font is bundled, keeping the
+  public repo free of proprietary type).
 
 See also `PRIVACY.md` (offline guarantee), `docs/ffi-engine.md`, and
 `store/metadata.md`.
