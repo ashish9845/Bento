@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MergeMutationState {
 
- MergeMutationStatus get status; String? get errorMessage;
+ MergeMutationStatus get status; String? get errorMessage; String? get resultPath;
 /// Create a copy of MergeMutationState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $MergeMutationStateCopyWith<MergeMutationState> get copyWith => _$MergeMutationS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.resultPath, resultPath) || other.resultPath == resultPath));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,errorMessage,resultPath);
 
 @override
 String toString() {
-  return 'MergeMutationState(status: $status, errorMessage: $errorMessage)';
+  return 'MergeMutationState(status: $status, errorMessage: $errorMessage, resultPath: $resultPath)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $MergeMutationStateCopyWith<$Res>  {
   factory $MergeMutationStateCopyWith(MergeMutationState value, $Res Function(MergeMutationState) _then) = _$MergeMutationStateCopyWithImpl;
 @useResult
 $Res call({
- MergeMutationStatus status, String? errorMessage
+ MergeMutationStatus status, String? errorMessage, String? resultPath
 });
 
 
@@ -62,10 +62,11 @@ class _$MergeMutationStateCopyWithImpl<$Res>
 
 /// Create a copy of MergeMutationState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as MergeMutationStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,resultPath: freezed == resultPath ? _self.resultPath : resultPath // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -151,10 +152,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( MergeMutationStatus status,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( MergeMutationStatus status,  String? errorMessage,  String? resultPath)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MergeMutationState() when $default != null:
-return $default(_that.status,_that.errorMessage);case _:
+return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
   return orElse();
 
 }
@@ -172,10 +173,10 @@ return $default(_that.status,_that.errorMessage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( MergeMutationStatus status,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( MergeMutationStatus status,  String? errorMessage,  String? resultPath)  $default,) {final _that = this;
 switch (_that) {
 case _MergeMutationState():
-return $default(_that.status,_that.errorMessage);case _:
+return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -192,10 +193,10 @@ return $default(_that.status,_that.errorMessage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( MergeMutationStatus status,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( MergeMutationStatus status,  String? errorMessage,  String? resultPath)?  $default,) {final _that = this;
 switch (_that) {
 case _MergeMutationState() when $default != null:
-return $default(_that.status,_that.errorMessage);case _:
+return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
   return null;
 
 }
@@ -207,11 +208,12 @@ return $default(_that.status,_that.errorMessage);case _:
 
 
 class _MergeMutationState implements MergeMutationState {
-  const _MergeMutationState({this.status = MergeMutationStatus.idle, this.errorMessage});
+  const _MergeMutationState({this.status = MergeMutationStatus.idle, this.errorMessage, this.resultPath});
   
 
 @override@JsonKey() final  MergeMutationStatus status;
 @override final  String? errorMessage;
+@override final  String? resultPath;
 
 /// Create a copy of MergeMutationState
 /// with the given fields replaced by the non-null parameter values.
@@ -223,16 +225,16 @@ _$MergeMutationStateCopyWith<_MergeMutationState> get copyWith => __$MergeMutati
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MergeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MergeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.resultPath, resultPath) || other.resultPath == resultPath));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,errorMessage,resultPath);
 
 @override
 String toString() {
-  return 'MergeMutationState(status: $status, errorMessage: $errorMessage)';
+  return 'MergeMutationState(status: $status, errorMessage: $errorMessage, resultPath: $resultPath)';
 }
 
 
@@ -243,7 +245,7 @@ abstract mixin class _$MergeMutationStateCopyWith<$Res> implements $MergeMutatio
   factory _$MergeMutationStateCopyWith(_MergeMutationState value, $Res Function(_MergeMutationState) _then) = __$MergeMutationStateCopyWithImpl;
 @override @useResult
 $Res call({
- MergeMutationStatus status, String? errorMessage
+ MergeMutationStatus status, String? errorMessage, String? resultPath
 });
 
 
@@ -260,10 +262,11 @@ class __$MergeMutationStateCopyWithImpl<$Res>
 
 /// Create a copy of MergeMutationState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,}) {
   return _then(_MergeMutationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as MergeMutationStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,resultPath: freezed == resultPath ? _self.resultPath : resultPath // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

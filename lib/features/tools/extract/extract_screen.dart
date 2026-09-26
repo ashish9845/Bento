@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:scan/core/storage/open_file.dart';
 import 'package:scan/features/tools/providers/tool_controller.dart';
 import 'package:scan/features/tools/providers/tool_providers.dart';
 import 'package:scan/features/tools/providers/tool_state.dart';
 import 'package:scan/features/tools/widgets/file_picker_card.dart';
+import 'package:scan/features/tools/widgets/rename_dialog.dart';
 import 'package:scan/features/tools/widgets/pdf_thumbnail_grid.dart';
 import 'package:scan/features/tools/widgets/tool_progress.dart';
 import 'package:scan/features/tools/widgets/tool_scaffold.dart';
@@ -11,10 +13,11 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 final extractControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
   final repo = ref.watch(toolsRepositoryProvider);
-  return ToolController(processFn: (inputs, ctrl) async {
+  return ToolController(persistenceKey: 'extract', processFn: (inputs, ctrl) async {
     final selected = ref.read(extractSelectionProvider).toList();
+    if (selected.isEmpty) throw Exception('Tap pages to select at least one');
     ctrl.setProgress(null, 'Extracting ${selected.length} pages…');
-    final out = await repo.extractPages(inputs.first, selected);
+    final out = await repo.extractPages(inputs.first, selected, outputName: ctrl.outputName);
     return [out];
   });
 });
@@ -38,6 +41,21 @@ class ExtractScreen extends ConsumerWidget {
       ctrl.clearFiles();
     }
 
+    Future<void> pickFile() async {
+      // Drop stale selection — page indices belong to the previous file.
+      ref.read(extractSelectionProvider.notifier).state = {};
+      await ctrl.pickFiles(allowedExtensions: const ['pdf']);
+    }
+
+    void toggle(int i) {
+      final current = ref.read(extractSelectionProvider);
+      if (current.contains(i)) {
+        ref.read(extractSelectionProvider.notifier).state = {...current}..remove(i);
+      } else {
+        ref.read(extractSelectionProvider.notifier).state = {...current, i};
+      }
+    }
+
     return ToolScaffold(
       title: 'Extract Pages',
       subtitle: 'Tap pages to select, then extract',
@@ -48,7 +66,7 @@ class ExtractScreen extends ConsumerWidget {
             files: state.files,
             allowedExtensions: const ['pdf'],
             label: 'PDF to extract from',
-            onPick: () => ctrl.pickFiles(allowedExtensions: const ['pdf']),
+            onPick: pickFile,
             onClear: clearAll,
           ),
           const SizedBox(height: 12),
@@ -59,13 +77,7 @@ class ExtractScreen extends ConsumerWidget {
                   data: (count) => PdfThumbnailGrid(
                     pageCount: count,
                     selectedPages: selected,
-                    onDelete: (i) {
-                      if (selected.contains(i)) {
-                        ref.read(extractSelectionProvider.notifier).state = {...selected}..remove(i);
-                      } else {
-                        ref.read(extractSelectionProvider.notifier).state = {...selected, i};
-                      }
-                    },
+                    onTap: toggle,
                   ),
                 ) ??
                 const SizedBox.shrink(),
@@ -76,10 +88,18 @@ class ExtractScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           if (state.isProcessing) const ToolProgress(label: 'Extracting…'),
           if (state.hasError) ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
-          if (state.hasResult) ToolSuccess(message: 'Extracted ${selected.length} pages', onSave: ctrl.saveToDocuments, onShare: ctrl.shareResult),
+          if (state.hasResult)
+            ToolSuccess(
+              message: 'Extracted ${selected.length} pages',
+              onOpen: () => openDoc(context, state.resultFiles.first.path),
+              onShare: ctrl.shareResult,
+            ),
           const SizedBox(height: 12),
           FilledButton.icon(
-              onPressed: state.files.isEmpty || selected.isEmpty || state.isProcessing ? null : ctrl.run,
+              onPressed: state.files.isEmpty || selected.isEmpty || state.isProcessing
+                  ? null
+                  : () => runWithRename(
+                      context: context, ctrl: ctrl, defaultName: defaultOutputName('Extracted')),
               icon: const Icon(Icons.filter_none),
               label: const Text('Extract')),
         ],

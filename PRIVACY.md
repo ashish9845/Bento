@@ -5,7 +5,7 @@
 - All PDF processing (Merge, Split, Organize, Extract, Compress, Image→PDF, PDF→Image)
   runs on-device in a native engine (`pdf_manipulator`, MIT Rust core over FFI) off the
   main thread. No WebView, no file is uploaded.
-- Document scanning uses on-device ML Kit (Android) / VisionKit (iOS). No cloud.
+- Document scanning uses Google ML Kit on Android and an on-device camera + image-processing pipeline (OpenScan core, BSD-3-Clause) on iOS. No cloud.
 - No analytics, no tracking, no ads.
 - Results are saved to your chosen location (Documents/Bento by default) when you choose Save/Share.
 - Permissions: Storage (pick/save), Camera (scanner only, when you tap Scan). No background access.

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../datasources/files_local_data_source.dart';
 import '../models/bento_file.dart';
 import 'files_repository.dart';
@@ -20,6 +22,15 @@ class FilesRepositoryImpl implements FilesRepository {
   Future<void> deleteFile(String path) async {
     try {
       await local.deleteFile(path);
+    } catch (e) {
+      throw CacheException(e.toString());
+    }
+  }
+
+  @override
+  Future<List<BentoFile>> importFiles(List<File> picked) async {
+    try {
+      return await local.importFiles(picked);
     } catch (e) {
       throw CacheException(e.toString());
     }

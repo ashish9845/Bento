@@ -46,6 +46,20 @@ void main() {
       expect(await repository.splitPdf(input, '1-1, 2-end'), [output]);
     });
 
+    test('splitPdf forwards the chosen base name', () async {
+      when(() => mockEngine.split(any(), any(), baseName: any(named: 'baseName')))
+          .thenAnswer((_) async => [output]);
+      await repository.splitPdf(input, '1-end', baseName: 'MySplit');
+      verify(() => mockEngine.split(input, '1-end', baseName: 'MySplit')).called(1);
+    });
+
+    test('extract forwards the chosen output name', () async {
+      when(() => mockEngine.extract(any(), any(), outputName: any(named: 'outputName')))
+          .thenAnswer((_) async => output);
+      await repository.extractPages(input, [0], outputName: 'MyExtract');
+      verify(() => mockEngine.extract(input, [0], outputName: 'MyExtract')).called(1);
+    });
+
     test('extractPages delegates to engine', () async {
       when(() => mockEngine.extract(any(), any())).thenAnswer((_) async => output);
       expect(await repository.extractPages(input, [0, 2]), output);
@@ -93,6 +107,30 @@ void main() {
       );
       verify(() => mockEngine.signPdf(input,
           signaturePng: sig, page: 1, widthPts: any(named: 'widthPts'))).called(1);
+    });
+
+    test('renderThumbnails delegates to engine', () async {
+      when(() => mockEngine.renderThumbnails(any())).thenAnswer((_) async => [output]);
+      expect(await repository.renderThumbnails(input), [output]);
+    });
+
+    test('protectPdf delegates to engine with passwords', () async {
+      when(() => mockEngine.protectPdf(any(),
+              userPassword: any(named: 'userPassword'),
+              ownerPassword: any(named: 'ownerPassword')))
+          .thenAnswer((_) async => output);
+      expect(
+        await repository.protectPdf(input, userPassword: 'user-123', ownerPassword: 'owner-123'),
+        output,
+      );
+      verify(() => mockEngine.protectPdf(input, userPassword: 'user-123', ownerPassword: 'owner-123')).called(1);
+    });
+
+    test('unlockPdf delegates to engine with password', () async {
+      when(() => mockEngine.unlockPdf(any(), password: any(named: 'password')))
+          .thenAnswer((_) async => output);
+      expect(await repository.unlockPdf(input, password: 'user-123'), output);
+      verify(() => mockEngine.unlockPdf(input, password: 'user-123')).called(1);
     });
 
     test('engine errors surface as CacheException', () async {

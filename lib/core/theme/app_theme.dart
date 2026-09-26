@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_palettes.dart';
+
+/// Bundled app typeface: Google Sans Flex (user-provided files in
+/// assets/fonts — NOT an OFL font, do not redistribute the TTFs separately).
+/// Regular 400 for body text, SemiBold 600 for headers.
+class AppFonts {
+  static const family = 'GoogleSansFlex';
+
+  static const regular = TextStyle(fontFamily: family, fontWeight: FontWeight.w400);
+  static const semiBold = TextStyle(fontFamily: family, fontWeight: FontWeight.w600);
+}
 
 /// Bento theming — builds Material 3 ThemeData from the selected [AppPalette].
 /// All component colors come from scheme roles so every palette stays consistent.
 class AppTheme {
-  static ThemeData lightFor(AppPalette palette) => _build(palette.lightScheme);
+  /// [dynamicScheme] is the OS Material You scheme (null where unsupported);
+  /// it only takes effect when [palette] is [AppPalette.dynamic].
+  static ThemeData lightFor(AppPalette palette, {ColorScheme? dynamicScheme}) =>
+      _build(palette.resolve(Brightness.light, dynamicScheme: dynamicScheme));
 
-  static ThemeData darkFor(AppPalette palette) => _build(palette.darkScheme);
+  static ThemeData darkFor(AppPalette palette, {ColorScheme? dynamicScheme}) =>
+      _build(palette.resolve(Brightness.dark, dynamicScheme: dynamicScheme));
 
   static ThemeData _build(ColorScheme scheme) {
     final base = ThemeData(useMaterial3: true, brightness: scheme.brightness);
@@ -16,10 +29,19 @@ class AppTheme {
     return base.copyWith(
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
-      textTheme: GoogleFonts.dmSansTextTheme(base.textTheme).copyWith(
-        displaySmall: GoogleFonts.dmSans(fontWeight: FontWeight.w700, letterSpacing: -0.5),
-        titleLarge: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
-        titleMedium: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
+      // Title colors are pinned to onSurface explicitly (not inherited):
+      // inherited colors break under MIUI's text/background adjustments,
+      // which left titles invisible white-on-white in light mode.
+      textTheme: base.textTheme.apply(fontFamily: AppFonts.family).copyWith(
+        displaySmall: base.textTheme.displaySmall?.copyWith(
+            fontFamily: AppFonts.family,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.5,
+            color: scheme.onSurface),
+        titleLarge: base.textTheme.titleLarge?.copyWith(
+            fontFamily: AppFonts.family, fontWeight: FontWeight.w700, color: scheme.onSurface),
+        titleMedium: base.textTheme.titleMedium?.copyWith(
+            fontFamily: AppFonts.family, fontWeight: FontWeight.w600, color: scheme.onSurface),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,
@@ -27,9 +49,10 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 1,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.dmSans(
+        titleTextStyle: TextStyle(
+          fontFamily: AppFonts.family,
           fontSize: 22,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w600,
           color: scheme.primary,
         ),
       ),
@@ -42,8 +65,8 @@ class AppTheme {
         backgroundColor: scheme.surface,
         indicatorColor: scheme.primaryContainer,
         elevation: isLight ? 1 : 0,
-        labelTextStyle: WidgetStatePropertyAll(
-          GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 12),
+        labelTextStyle: const WidgetStatePropertyAll(
+          TextStyle(fontFamily: AppFonts.family, fontWeight: FontWeight.w500, fontSize: 12),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -52,13 +75,14 @@ class AppTheme {
           foregroundColor: scheme.onPrimary,
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontFamily: AppFonts.family, fontWeight: FontWeight.w600),
         ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: scheme.secondaryContainer,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        labelStyle: GoogleFonts.dmSans(
+        labelStyle: TextStyle(
+          fontFamily: AppFonts.family,
           fontWeight: FontWeight.w600,
           fontSize: 12,
           color: scheme.onSecondaryContainer,
@@ -66,7 +90,7 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: scheme.inverseSurface,
-        contentTextStyle: GoogleFonts.dmSans(color: scheme.onInverseSurface),
+        contentTextStyle: TextStyle(fontFamily: AppFonts.family, color: scheme.onInverseSurface),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),

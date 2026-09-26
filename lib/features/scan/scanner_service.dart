@@ -2,24 +2,16 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:cunning_document_scanner/cunning_document_scanner.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:scan/core/storage/storage_location.dart';
 
-/// Abstraction over native scanner plugins.
-///
-/// Phase 4 spike evaluates 2-3 plugins:
-///   cunning_document_scanner, flutter_doc_scanner, document_scanner
-/// Fallback: thin platform-channel wrapper (~200 LOC)
-///   Android GmsDocumentScanner, iOS VNDocumentCameraViewController
-abstract class ScannerService {
-  /// Launch native scanner, return temp image paths (or PDF path).
-  Future<List<String>> scanDocument();
-
+/// Composes scanned page images into a PDF via `pdf` + `image`
+/// (native, no engine) — off main thread for 60fps.
+/// Page capture itself is handled by the OpenScan capture screen, which
+/// returns ready JPEG paths consumed by the Scan review flow.
+class ScannerService {
   /// Compose image paths to PDF via `pdf` + `image` (native, no engine) — off main thread for 60fps.
   /// Saves once to the save directory (custom/default Documents) with [outputName].
   Future<File> imagesToPdf(List<String> imagePaths, {String? outputName}) async {
@@ -68,75 +60,6 @@ abstract class ScannerService {
   }
 }
 
-/// Thrown when the user backs out of the native scanner UI.
-class ScanCancelledException implements Exception {
-  const ScanCancelledException();
-}
-
-/// Thrown when camera permission is denied (asks caller to guide to Settings).
-class ScanPermissionException implements Exception {
-  final String message;
-  const ScanPermissionException(this.message);
-  @override
-  String toString() => message;
-}
-
-/// Plugin-backed impl — cunning_document_scanner 3.0.3 (preferred per docs/scanner-evaluation.md).
-///
-/// Throws [ScanCancelledException] on user cancel, [ScanPermissionException]
-/// on camera denial, and [Exception] with the native error code/message
-/// otherwise — never silently returns [] on failure.
-class PluginScannerService extends ScannerService {
-  @override
-  Future<List<String>> scanDocument() async {
-    // ignore: avoid_print
-    print('[ScannerService] launching CunningDocumentScanner');
-    try {
-      final result = await CunningDocumentScanner.getPictures();
-      // null => user cancelled
-      if (result == null) throw const ScanCancelledException();
-      final paths = result.whereType<String>().toList();
-      // ignore: avoid_print
-      print('[ScannerService] scanned ${paths.length} page(s)');
-      return paths;
-    } on ScanCancelledException {
-      rethrow;
-    } on CunningDocumentScannerException catch (e) {
-      debugPrint('[ScannerService] CunningDocumentScannerException ${e.code}: ${e.message}');
-      if (e.code == 'permission_denied') {
-        throw const ScanPermissionException(
-            'Camera permission denied — allow camera access to scan documents');
-      }
-      throw Exception('Scanner failed [${e.code}]: ${e.message}');
-    } catch (e) {
-      debugPrint('[ScannerService] unexpected $e');
-      if (e is MissingPluginException) {
-        throw Exception('Scanner plugin not available — reinstall the app');
-      }
-      throw Exception('Scanner failed: $e');
-    }
-  }
-
-}
-
-/// Fallback platform-channel wrapper (documented in TODO.md Phase 4).
-/// Stub — real impl would use MethodChannel to invoke native scanners.
-class PlatformChannelScannerService extends ScannerService {
-  static const _channel = 'com.benopdf.scan/scanner';
-  @override
-  Future<List<String>> scanDocument() async {
-    try {
-      const channel = MethodChannel(_channel);
-      final result = await channel.invokeMethod<List<dynamic>>('scanDocument');
-      return result?.cast<String>() ?? [];
-    } catch (e) {
-      debugPrint('[PlatformChannelScannerService] $e');
-      return [];
-    }
-  }
-
-}
-
-final scannerServiceProvider = Provider<ScannerService>((ref) => PluginScannerService());
+final scannerServiceProvider = Provider<ScannerService>((ref) => ScannerService());
 
 final scanResultsProvider = StateProvider<List<String>>((ref) => []);

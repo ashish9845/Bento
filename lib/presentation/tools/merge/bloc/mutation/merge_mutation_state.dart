@@ -9,5 +9,6 @@ abstract class MergeMutationState with _$MergeMutationState {
   const factory MergeMutationState({
     @Default(MergeMutationStatus.idle) MergeMutationStatus status,
     String? errorMessage,
+    String? resultPath,
   }) = _MergeMutationState;
 }

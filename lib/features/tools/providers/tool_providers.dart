@@ -16,3 +16,11 @@ final pdfPageCountProvider = FutureProvider.family<int, String>((ref, path) asyn
   final repo = ref.watch(toolsRepositoryProvider);
   return repo.pageCount(File(path));
 });
+
+/// Real page thumbnails (temp PNG paths, original-page order) for the
+/// Organize grid, keyed by file path.
+final pdfThumbsProvider = FutureProvider.family<List<String>, String>((ref, path) async {
+  final repo = ref.watch(toolsRepositoryProvider);
+  final files = await repo.renderThumbnails(File(path));
+  return files.map((f) => f.path).toList();
+});

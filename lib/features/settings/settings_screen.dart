@@ -1,9 +1,10 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:scan/core/storage/storage_location.dart';
-import 'package:scan/core/theme/app_palettes.dart';
-import 'package:scan/core/theme/theme_mode_provider.dart';
+
+import 'widgets/theme_settings_card.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -63,7 +64,7 @@ class SettingsScreen extends ConsumerWidget {
                             Row(children: [
                               _MiniBadge(icon: Icons.offline_bolt_rounded, label: 'Offline'),
                               const SizedBox(width: 6),
-                              _MiniBadge(icon: Icons.picture_as_pdf_rounded, label: '8 tools'),
+                              _MiniBadge(icon: Icons.picture_as_pdf_rounded, label: '10 tools'),
                             ]),
                           ],
                         ),
@@ -78,143 +79,7 @@ class SettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             sliver: SliverList.list(
               children: [
-                _SectionHeader(icon: Icons.palette_rounded, title: 'Appearance'),
-                RepaintBoundary(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(10)),
-                              child: Icon(Icons.palette_rounded, size: 20, color: scheme.onPrimaryContainer),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text('Theme', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
-                                Text('Pick light, dark, or follow system',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-                              ]),
-                            ),
-                          ]),
-                          const SizedBox(height: 14),
-                          Consumer(builder: (context, ref, _) {
-                            final mode = ref.watch(themeModeProvider);
-                            return SegmentedButton<ThemeMode>(
-                              segments: const [
-                                ButtonSegment(value: ThemeMode.light, label: Text('Light'), icon: Icon(Icons.light_mode_rounded, size: 18)),
-                                ButtonSegment(value: ThemeMode.system, label: Text('System'), icon: Icon(Icons.settings_suggest_rounded, size: 18)),
-                                ButtonSegment(value: ThemeMode.dark, label: Text('Dark'), icon: Icon(Icons.dark_mode_rounded, size: 18)),
-                              ],
-                              selected: {mode},
-                              onSelectionChanged: (s) => ref.read(themeModeProvider.notifier).setMode(s.first),
-                              style: SegmentedButton.styleFrom(visualDensity: VisualDensity.compact),
-                            );
-                          }),
-                          const SizedBox(height: 16),
-                          Text('Color theme',
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 4),
-                          Text('Applies instantly to light and dark mode',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-                          const SizedBox(height: 10),
-                          Consumer(builder: (context, ref, _) {
-                            final selected = ref.watch(appPaletteProvider);
-                            final isLight = Theme.of(context).brightness == Brightness.light;
-                            return Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              children: AppPalette.values.map((p) {
-                                final preview = isLight ? p.lightScheme : p.darkScheme;
-                                final isSelected = p == selected;
-                                return Semantics(
-                                  label: '${p.label} theme',
-                                  button: true,
-                                  selected: isSelected,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(14),
-                                    onTap: () => ref.read(appPaletteProvider.notifier).setPalette(p),
-                                    child: Container(
-                                      width: 88,
-                                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? preview.primaryContainer
-                                            : scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                                        borderRadius: BorderRadius.circular(14),
-                                        border: Border.all(
-                                          color: isSelected ? preview.primary : scheme.outlineVariant,
-                                          width: isSelected ? 2 : 1,
-                                        ),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Stack(
-                                            alignment: Alignment.center,
-                                            children: [
-                                              Container(
-                                                width: 38,
-                                                height: 38,
-                                                decoration: BoxDecoration(
-                                                  color: preview.primary,
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(color: preview.onPrimary.withValues(alpha: 0.25)),
-                                                ),
-                                              ),
-                                              Container(
-                                                width: 16,
-                                                height: 16,
-                                                decoration: BoxDecoration(
-                                                  color: preview.tertiary,
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(color: preview.surface, width: 2),
-                                                ),
-                                              ),
-                                              if (isSelected)
-                                                Positioned(
-                                                  right: 0,
-                                                  bottom: 0,
-                                                  child: Container(
-                                                    padding: const EdgeInsets.all(2),
-                                                    decoration: BoxDecoration(
-                                                        color: preview.primary, shape: BoxShape.circle),
-                                                    child: Icon(Icons.check_rounded,
-                                                        size: 12, color: preview.onPrimary),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            p == AppPalette.neutralBlue ? 'Blue' : p.label.replaceFirst('Warm Orange', 'Orange').replaceFirst('Royal Purple', 'Purple').replaceFirst('Bento Warm', 'Bento').replaceFirst('Deep Teal', 'Teal'),
-                                            textAlign: TextAlign.center,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                                  fontWeight: FontWeight.w700,
-                                                  color: isSelected
-                                                      ? preview.onPrimaryContainer
-                                                      : scheme.onSurfaceVariant,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                const ThemeSettingsCard(),
                 const SizedBox(height: 16),
                 _SectionHeader(icon: Icons.storage_rounded, title: 'Storage'),
                 RepaintBoundary(
@@ -355,10 +220,12 @@ class _AboutCard extends StatelessWidget {
               context: context,
               applicationName: 'Bento',
               applicationVersion: '1.0.0+1',
-              applicationLegalese: 'AGPL-3.0. Engine: pdf_manipulator (MIT). Scanner: ML Kit / VisionKit.',
+              applicationLegalese: 'AGPL-3.0. Engine: pdf_manipulator (MIT). Scanner: ML Kit (Android) / OpenScan (iOS, BSD-3-Clause).',
               children: [
                 const SizedBox(height: 12),
                 Text('This app ships AGPL-3.0. Full source including UI is published with every build. Offline-only: no CDN, no download-on-first-use.',
+                    style: Theme.of(context).textTheme.bodySmall),
+                Text('Document scanner: Google ML Kit on Android; OpenScan pipeline by Vijay T S and Vikram H (BSD-3-Clause, see third_party/openscan/LICENSE) on iOS.',
                     style: Theme.of(context).textTheme.bodySmall),
               ],
             );

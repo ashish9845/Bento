@@ -1,6 +1,8 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scan/core/router/app_router.dart';
+import 'package:scan/core/theme/dynamic_scheme.dart';
 import 'package:scan/core/theme/app_palettes.dart';
 import 'package:scan/core/theme/app_theme.dart';
 import 'package:scan/core/theme/theme_mode_provider.dart';
@@ -17,12 +19,23 @@ class BenoApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final palette = ref.watch(appPaletteProvider);
-    return MaterialApp.router(
-      title: 'Bento',
-      theme: AppTheme.lightFor(palette),
-      darkTheme: AppTheme.darkFor(palette),
-      themeMode: themeMode,
-      routerConfig: appRouter,
+    // DynamicColorBuilder supplies the OS Material You schemes (null where
+    // unsupported); only AppPalette.dynamic consumes them, everything else
+    // ignores them and uses its static scheme.
+    return DynamicColorBuilder(
+      builder: (lightDynamic, darkDynamic) => MaterialApp.router(
+        title: 'Bento',
+        theme: AppTheme.lightFor(
+          palette,
+          dynamicScheme: lightDynamic == null ? null : toMaterialScheme(lightDynamic),
+        ),
+        darkTheme: AppTheme.darkFor(
+          palette,
+          dynamicScheme: darkDynamic == null ? null : toMaterialScheme(darkDynamic),
+        ),
+        themeMode: themeMode,
+        routerConfig: appRouter,
+      ),
     );
   }
 }

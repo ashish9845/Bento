@@ -1,4 +1,4 @@
-# Scanner Plugin Evaluation — Phase 4
+# Scanner Plugin Evaluation — Phase 4 (SUPERSEDED 2026-09-25: OpenScan promoted, plugin + fallback removed)
 
 Date: 2026-09-23. Target: Android minSdk 24 (GMS) + iOS 13+ (VisionKit). Requires returns image paths or PDF path on both platforms.
 

@@ -45,10 +45,26 @@ void main() {
         await doc.dispose();
       }
 
-      // split into single pages
+      // split into single pages — and prove each part re-opens as valid PDF
       final part1 = MemorySink();
       await pdf.extractPages(MemorySource(merged), part1, pages: [0]);
-      expect(part1.takeBytes().isNotEmpty, isTrue);
+      final part1Bytes = part1.takeBytes();
+      expect(part1Bytes.isNotEmpty, isTrue);
+      final partDoc = await pdf.open(MemorySource(part1Bytes));
+      try {
+        expect(partDoc.pageCount, 1);
+        var rendered = 0;
+        await for (final page in partDoc.render(
+          pages: PdfPages.all(),
+          size: const PdfRenderSize.thumbnail(200),
+        )) {
+          expect(page.data.isNotEmpty, isTrue);
+          rendered++;
+        }
+        expect(rendered, 1);
+      } finally {
+        await partDoc.dispose();
+      }
 
       // compress
       final compOut = MemorySink();
@@ -91,6 +107,104 @@ void main() {
         final check = await pdf.open(MemorySource(stamped));
         try {
           expect(check.pageCount, 1);
+        } finally {
+          await check.dispose();
+        }
+      } finally {
+        await editor.dispose();
+      }
+    } finally {
+      await pdf.dispose();
+    }
+  });
+
+  test('protect → unlock round-trip with AES-256', () async {
+    final pdf = Pdf();
+    try {
+      final bytes = await _makePdf('secret');
+
+      // protect with distinct user + owner passwords
+      final editor = await pdf.edit(MemorySource(bytes));
+      late final Uint8List locked;
+      try {
+        final out = MemorySink();
+        await editor.save(
+          out,
+          options: const PdfSaveOptions.fullRewrite(
+            encryption: PdfEncryption.config(
+              ownerPassword: 'owner-123',
+              userPassword: 'user-123',
+            ),
+          ),
+        );
+        locked = out.takeBytes();
+        expect(locked.isNotEmpty, isTrue);
+      } finally {
+        await editor.dispose();
+      }
+
+      // locked file refuses to open without a password, or with a wrong one.
+      // (The 5.x bridge reports these as PdfEngineError with Rust messages,
+      // not the typed PdfPasswordRequired/PdfWrongPassword — the app's
+      // datasource maps the text to friendly errors.)
+      await expectLater(
+        pdf.open(MemorySource(locked)),
+        throwsA(isA<PdfEngineError>().having((e) => e.message, 'message', contains('password required'))),
+      );
+      await expectLater(
+        pdf.open(MemorySource(locked), password: 'nope'),
+        throwsA(isA<PdfEngineError>().having((e) => e.message, 'message', contains('wrong password'))),
+      );
+
+      // right password opens: content intact
+      final doc = await pdf.open(MemorySource(locked), password: 'user-123');
+      try {
+        expect(doc.pageCount, 1);
+      } finally {
+        await doc.dispose();
+      }
+
+      // unlock strips all encryption
+      final editor2 = await pdf.edit(MemorySource(locked), password: 'user-123');
+      try {
+        final plainOut = MemorySink();
+        await editor2.save(
+          plainOut,
+          options: const PdfSaveOptions.fullRewrite(encryption: PdfEncryption.remove()),
+        );
+        final plain = plainOut.takeBytes();
+        expect(plain.isNotEmpty, isTrue);
+        final check = await pdf.open(MemorySource(plain));
+        try {
+          expect(check.pageCount, 1);
+        } finally {
+          await check.dispose();
+        }
+      } finally {
+        await editor2.dispose();
+      }
+    } finally {
+      await pdf.dispose();
+    }
+  });
+
+  test('selectPages allows duplicate indices', () async {
+    final pdf = Pdf();
+    try {
+      final bytes = await _makePdf('dup');
+      final threeOut = MemorySink();
+      await pdf.merge(
+        [MemorySource(bytes), MemorySource(bytes), MemorySource(bytes)],
+        threeOut,
+      );
+      final editor = await pdf.edit(MemorySource(threeOut.takeBytes()));
+      try {
+        await editor.selectPages([0, 0, 1]);
+        final out = MemorySink();
+        await editor.save(out);
+        final check = await pdf.open(MemorySource(out.takeBytes()));
+        try {
+          expect(check.pageCount, 3);
         } finally {
           await check.dispose();
         }

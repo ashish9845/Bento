@@ -1,59 +1,128 @@
-# Bento — Scan & Tools
+# Bento — Offline PDF Tools & Document Scanner
 
-Offline-first Flutter app with **fully custom native UI**, powered by a native PDF engine
-over FFI (`pdf_manipulator` 5.0.0, MIT Rust core), plus native document scanning.
-**AGPL-3.0** — entire app including custom UI ships AGPL-3.0 (see Licensing below).
+Bento is an **offline-first** Flutter app for everyday PDF work: merge, split,
+organize, compress, convert, protect, unlock, sign — plus a native document
+scanner. Every screen is built natively in Flutter, and all PDF processing
+runs **on-device** through a native Rust engine over FFI. No accounts, no
+uploads, no network calls. Airplane mode works.
 
-Package: `com.benopdf.scan` · Android minSdk 24 · iOS 13+ · Riverpod + `go_router` + Material 3.
+**License: AGPL-3.0** (see [License](#license)).
 
-## MVP v1 — 8 tools (7 engine + 1 native)
+## Features
 
-- Engine (native FFI, off main thread): Merge, Split, Organize/Rotate/Delete, Extract,
-  Compress, Image→PDF, PDF→Image (PNG render)
-- Native (`pdf` + signature canvas, no engine): Sign PDF
-- Deferred: OCR PDF → v1.1
+**10 PDF tools** (Tools tab, 4-per-row launcher grid with search):
 
-## Quick start
+| Tool | What it does |
+|---|---|
+| Merge PDFs | Combine multiple PDFs into one |
+| Split PDF | Split by page ranges (`1-2, 3, 4-end`) |
+| Organize Pages | Rotate / delete / reorder with thumbnails |
+| Extract Pages | Pull selected pages into a new PDF |
+| Compress PDF | Shrink file size (Low / Medium / High) |
+| Image → PDF | Convert images into a PDF |
+| PDF → Image | Export pages as PNGs |
+| Protect PDF | Password-protect with AES-256 |
+| Unlock PDF | Remove password protection |
+| Sign PDF | Draw a signature and stamp it on a page |
+
+Plus:
+
+- **Smart Scan** — Google ML Kit document scanner on Android (edge detection,
+  crop, filters built in); OpenScan pipeline (custom camera + pure-Dart edge
+  detection) on iOS. Review, reorder, rename, export to PDF, or send straight
+  into another tool (e.g. Compress, Sign).
+- **Files tab** — local file browser with tap-to-open, share, delete, and a
+  long-press menu (Open / Share / Send to… / Details / Delete).
+- **Home dashboard** — search across tools, shortcut grid, recent files, scan FAB.
+- **Theming** — Dark / Light / System plus 32 app themes (Default, Dynamic /
+  Material You, Catppuccin, Lavender, Mocha, Dracula, Nord, Gruvbox and more)
+  with swipeable live previews. Swipe left/right to switch tabs.
+- **Fully offline** — every engine module and font is bundled at build time.
+  Nothing is downloaded on first use.
+
+## Getting started
+
+Requirements: Flutter 3.47+ / Dart 3.13+ (see CI), Android SDK 37 for release
+builds.
 
 ```bash
 flutter pub get
 flutter analyze
 flutter test
-flutter run  # needs Android emulator / iOS simulator, airplane mode works
+flutter run            # debug build on a connected device / emulator
 ```
 
-No engine build step — the native library ships with the `pdf_manipulator` package
-(build hook downloads it on first build).
+Release builds:
+
+```bash
+flutter build apk --release --split-per-abi   # per-ABI APKs
+flutter build appbundle --release             # Play Store bundle
+```
+
+No engine build step — the native library ships with the `pdf_manipulator`
+package (its build hook fetches it on first build). Android needs
+`minSdk 24`; iOS needs 13+. The upload keystore (`android/upload-keystore.jks`
++ `android/key.properties`) is gitignored — back both up; losing the key
+means a new store listing.
 
 ## Architecture
 
 ```
-lib/core/{theme,router,storage}  # themes, go_router table, save-location helpers
-lib/data/tools/{datasources,repositories}  # FFI engine data source + ToolsRepository
-lib/data/files/...               # Files repository (local docs/tmp/Documents)
-lib/presentation/{files,tools}   # Bloc screens (strict Repository → Bloc → UI)
-lib/features/tools/{home,split,organize,extract,compress,pdf2image,sign,widgets,providers}
-lib/features/scan/  # scanner_service.dart (cunning_document_scanner + fallback com.benopdf.scan/scanner)
-lib/features/files|settings
+lib/
+  core/            # theme (32 palettes + mode), go_router table + transitions,
+                   # storage location, file opener, shared widgets
+  data/tools/      # FFI engine data source + ToolsRepository (all PDF ops)
+  data/files/      # local file repository
+  presentation/    # Repository → Bloc → UI screens (files, merge, image2pdf)
+  features/
+    tools/         # native per-tool screens (file picker → options → progress → result)
+    scan/          # scanner UI + review flow; openscan/ (iOS pipeline)
+    files/         # file browser UI
+    settings/      # theme picker, storage location, about/licensing
 ```
 
-## Offline & Licensing
+- **State management:** Riverpod (`ToolController` per tool) + flutter_bloc in
+  the presentation layer. No other patterns.
+- **PDF engine:** [`pdf_manipulator`](https://pub.dev/packages/pdf_manipulator)
+  5.0.0 (MIT-licensed Rust core over FFI). Single shared instance in
+  `lib/data/tools/datasources/pdf_engine_data_source.dart`; outputs are
+  verified (page count + render check) before reaching the user.
+- **Scanner:** [`google_mlkit_document_scanner`](https://pub.dev/packages/google_mlkit_document_scanner)
+  on Android; vendored OpenScan CV core on iOS
+  (`lib/features/scan/openscan/`, BSD-3-Clause, see `third_party/openscan/`).
 
-Fully offline, no download-on-first-use. See `PRIVACY.md` and `docs/ffi-engine.md`.
-Full source published with every store build.
+Tests: `flutter test` (unit + widget + real-engine smoke tests).
+CI runs analyze + tests on PRs (`.github/workflows/ci.yaml`).
 
-> Licensing note: the AGPL WASM components (PyMuPDF, Ghostscript, CoherentPDF) were removed
-> with the old WebView engine. The current engine is MIT-licensed, so AGPL is no longer
-> forced by the engine — the repo still ships AGPL-3.0 until the owner decides otherwise.
+## Credits
 
-## Scanner
+Bento stands on the shoulders of these projects — thank you:
 
-Native bridge: ML Kit GMS DocumentScanner (Android) + VisionKit VNDocumentCameraViewController (iOS) via `cunning_document_scanner` preferred; fallback `PlatformChannelScannerService` (~200 LOC) documented in `TODO.md` Phase 4 and `docs/scanner-evaluation.md`.
+- **[BentoPDF](https://www.bentopdf.com/)** ([github.com/alam00000/bentopdf](https://github.com/alam00000/bentopdf))
+  — the open-source web PDF toolkit whose processing logic inspired this app's
+  toolset. Bento reimplements that experience as a fully native, offline
+  mobile app; only the ideas are reused, none of BentoPDF's site UI or code
+  is bundled here.
+- [pdf_manipulator](https://pub.dev/packages/pdf_manipulator) — MIT-licensed
+  Rust PDF engine (merge, split, organize, compress, encrypt, render).
+- [google_mlkit_document_scanner](https://pub.dev/packages/google_mlkit_document_scanner)
+  — Google ML Kit document scanner (Android).
+- [OpenScan](https://github.com/ethereal-developers/OpenScan) (ethereal-developers,
+  BSD-3-Clause) — camera document-scanning pipeline vendored for iOS
+  (`third_party/openscan/`).
+- mpvRx theme system (AGPL-3.0) — the 32-theme table
+  and scheme-derivation rules ported in `lib/core/theme/app_palettes.dart`.
+- [Material Symbols](https://fonts.google.com/icons) (Apache 2.0) and
+  [Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) (OFL 1.1,
+  bundled in `assets/fonts/`) for icons and the Tools-tab footer.
 
-## CI
-
-`flutter analyze` + `flutter test` on PR via `.github/workflows/ci.yaml`.
+See also `PRIVACY.md` (offline guarantee), `docs/ffi-engine.md`, and
+`store/metadata.md`.
 
 ## License
 
-AGPL-3.0. See `LICENSE`.
+**AGPL-3.0-or-later.** The entire app, including all custom Flutter/UI code,
+is open source under AGPL-3.0 — see [`LICENSE`](LICENSE). (Historical note:
+the AGPL WASM processing components were removed with the old WebView engine;
+the current engine is MIT — but the repo stays AGPL-3.0 until the owner
+decides otherwise. Do not add AGPL/GPL PDF libraries without flagging it.)

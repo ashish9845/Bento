@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scan/core/storage/storage_location.dart';
 
 import 'tool_state.dart';
@@ -11,21 +12,72 @@ import 'tool_state.dart';
 /// Generic controller for file→options→progress→result flow.
 /// Each tool provides a `process` callback that calls the FFI engine
 /// repository or native `pdf`-package logic.
+///
+/// When [persistenceKey] is set, picked input files are mirrored to
+/// SharedPreferences and restored on next launch — so a picked document
+/// survives Android killing the app while a picker/scanner activity is in
+/// front. Passwords and other options are never persisted.
 class ToolController extends StateNotifier<ToolState> {
-  ToolController({this.processFn}) : super(const ToolState());
+  ToolController({this.processFn, this.persistenceKey}) : super(const ToolState()) {
+    if (persistenceKey != null) _hydrate();
+  }
 
   final Future<List<File>> Function(List<File> inputs, ToolController ctrl)? processFn;
 
+  /// Stable id per tool ('merge', 'split', …). Null disables persistence.
+  final String? persistenceKey;
+
+  /// Max restored paths — guards against unbounded growth.
+  static const _maxPersisted = 20;
+
+  String get _prefsKey => 'pending_tool_files_$persistenceKey';
+
+  Future<void> _hydrate() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final paths = prefs.getStringList(_prefsKey) ?? const [];
+      final existing = paths.where((p) => p.isNotEmpty && File(p).existsSync()).take(_maxPersisted).toList();
+      if (existing.isNotEmpty && mounted) {
+        state = state.copyWith(files: existing.map(File.new).toList());
+      } else if (existing.length != paths.length) {
+        // Drop stale entries pointing at deleted files.
+        await prefs.setStringList(_prefsKey, existing);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _persist() async {
+    final key = persistenceKey;
+    if (key == null) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(
+        _prefsKey,
+        state.files.map((f) => f.path).take(_maxPersisted).toList(),
+      );
+    } catch (_) {}
+  }
+
+  /// File name chosen in the rename dialog before running. Read by each
+  /// tool's `processFn` and forwarded to the repository as `outputName`.
+  /// Persists across retries until files change or it is set again.
+  String? outputName;
+
+  void setOutputName(String? name) => outputName = name;
+
   void setFiles(List<File> files) {
     state = state.copyWith(files: files, status: ToolStatus.idle, message: null, resultFiles: []);
+    _persist();
   }
 
   void addFiles(List<File> files) {
     state = state.copyWith(files: [...state.files, ...files], status: ToolStatus.idle);
+    _persist();
   }
 
   void clearFiles() {
     state = const ToolState();
+    _persist();
   }
 
   void setError(String msg) {

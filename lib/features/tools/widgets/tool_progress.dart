@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scan/core/widgets/entrance.dart';
 
 class ToolProgress extends StatelessWidget {
   const ToolProgress({required this.label, super.key, this.progress, this.onCancel});
@@ -65,9 +66,7 @@ class ToolError extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return RepaintBoundary(
-      child: AnimatedOpacity(
-        opacity: 1,
-        duration: const Duration(milliseconds: 250),
+      child: EntranceFadeSlide(
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -104,7 +103,13 @@ class ToolError extends StatelessWidget {
 
 class ToolSuccess extends StatefulWidget {
   const ToolSuccess(
-      {required this.message, super.key, this.onSave, this.onShare, this.onSendTo, this.onOpenFolder});
+      {required this.message,
+      super.key,
+      this.onSave,
+      this.onShare,
+      this.onSendTo,
+      this.onOpenFolder,
+      this.onOpen});
   final String message;
   final VoidCallback? onSave;
   final VoidCallback? onShare;
@@ -113,6 +118,9 @@ class ToolSuccess extends StatefulWidget {
   /// Opens the result folder (e.g. PDF→Image export). Replaces Save when the
   /// files are already in their final location.
   final VoidCallback? onOpenFolder;
+
+  /// Opens the single result file. Replaces Save for the same reason.
+  final VoidCallback? onOpen;
 
   @override
   State<ToolSuccess> createState() => _ToolSuccessState();
@@ -171,6 +179,12 @@ class _ToolSuccessState extends State<ToolSuccess> with SingleTickerProviderStat
                       onPressed: widget.onOpenFolder,
                       icon: const Icon(Icons.folder_open_rounded, size: 18),
                       label: const Text('Open folder'),
+                    ),
+                  if (widget.onOpen != null)
+                    FilledButton.icon(
+                      onPressed: widget.onOpen,
+                      icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                      label: const Text('Open'),
                     ),
                   if (widget.onSave != null)
                     FilledButton.icon(

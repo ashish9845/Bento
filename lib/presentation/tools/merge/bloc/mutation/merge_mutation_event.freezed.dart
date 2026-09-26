@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MergeMutationEvent {
 
- List<String> get filePaths;
+ List<String> get filePaths; String? get outputName;
 /// Create a copy of MergeMutationEvent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $MergeMutationEventCopyWith<MergeMutationEvent> get copyWith => _$MergeMutationE
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationEvent&&const DeepCollectionEquality().equals(other.filePaths, filePaths));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationEvent&&const DeepCollectionEquality().equals(other.filePaths, filePaths)&&(identical(other.outputName, outputName) || other.outputName == outputName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(filePaths));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(filePaths),outputName);
 
 @override
 String toString() {
-  return 'MergeMutationEvent(filePaths: $filePaths)';
+  return 'MergeMutationEvent(filePaths: $filePaths, outputName: $outputName)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $MergeMutationEventCopyWith<$Res>  {
   factory $MergeMutationEventCopyWith(MergeMutationEvent value, $Res Function(MergeMutationEvent) _then) = _$MergeMutationEventCopyWithImpl;
 @useResult
 $Res call({
- List<String> filePaths
+ List<String> filePaths, String? outputName
 });
 
 
@@ -62,10 +62,11 @@ class _$MergeMutationEventCopyWithImpl<$Res>
 
 /// Create a copy of MergeMutationEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? filePaths = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? filePaths = null,Object? outputName = freezed,}) {
   return _then(_self.copyWith(
 filePaths: null == filePaths ? _self.filePaths : filePaths // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,outputName: freezed == outputName ? _self.outputName : outputName // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -150,10 +151,10 @@ return submitMerge(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<String> filePaths)?  submitMerge,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<String> filePaths,  String? outputName)?  submitMerge,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SubmitMerge() when submitMerge != null:
-return submitMerge(_that.filePaths);case _:
+return submitMerge(_that.filePaths,_that.outputName);case _:
   return orElse();
 
 }
@@ -171,10 +172,10 @@ return submitMerge(_that.filePaths);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<String> filePaths)  submitMerge,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<String> filePaths,  String? outputName)  submitMerge,}) {final _that = this;
 switch (_that) {
 case SubmitMerge():
-return submitMerge(_that.filePaths);case _:
+return submitMerge(_that.filePaths,_that.outputName);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -191,10 +192,10 @@ return submitMerge(_that.filePaths);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<String> filePaths)?  submitMerge,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<String> filePaths,  String? outputName)?  submitMerge,}) {final _that = this;
 switch (_that) {
 case SubmitMerge() when submitMerge != null:
-return submitMerge(_that.filePaths);case _:
+return submitMerge(_that.filePaths,_that.outputName);case _:
   return null;
 
 }
@@ -206,10 +207,11 @@ return submitMerge(_that.filePaths);case _:
 
 
 class SubmitMerge implements MergeMutationEvent {
-  const SubmitMerge(this.filePaths);
+  const SubmitMerge(this.filePaths, {this.outputName});
   
 
 @override final  List<String> filePaths;
+@override final  String? outputName;
 
 /// Create a copy of MergeMutationEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -221,16 +223,16 @@ $SubmitMergeCopyWith<SubmitMerge> get copyWith => _$SubmitMergeCopyWithImpl<Subm
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmitMerge&&const DeepCollectionEquality().equals(other.filePaths, filePaths));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmitMerge&&const DeepCollectionEquality().equals(other.filePaths, filePaths)&&(identical(other.outputName, outputName) || other.outputName == outputName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(filePaths));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(filePaths),outputName);
 
 @override
 String toString() {
-  return 'MergeMutationEvent.submitMerge(filePaths: $filePaths)';
+  return 'MergeMutationEvent.submitMerge(filePaths: $filePaths, outputName: $outputName)';
 }
 
 
@@ -241,7 +243,7 @@ abstract mixin class $SubmitMergeCopyWith<$Res> implements $MergeMutationEventCo
   factory $SubmitMergeCopyWith(SubmitMerge value, $Res Function(SubmitMerge) _then) = _$SubmitMergeCopyWithImpl;
 @override @useResult
 $Res call({
- List<String> filePaths
+ List<String> filePaths, String? outputName
 });
 
 
@@ -258,10 +260,11 @@ class _$SubmitMergeCopyWithImpl<$Res>
 
 /// Create a copy of MergeMutationEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? filePaths = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? filePaths = null,Object? outputName = freezed,}) {
   return _then(SubmitMerge(
 null == filePaths ? _self.filePaths : filePaths // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,outputName: freezed == outputName ? _self.outputName : outputName // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

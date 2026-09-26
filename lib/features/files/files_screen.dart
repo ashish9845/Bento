@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:open_filex/open_filex.dart';
+import 'package:scan/core/storage/open_file.dart';
 import 'package:scan/core/storage/storage_location.dart';
 import 'package:scan/features/tools/widgets/send_to_tool.dart';
 import 'package:share_plus/share_plus.dart';
@@ -137,7 +137,7 @@ class FilesScreen extends ConsumerWidget {
                                 style: IconButton.styleFrom(backgroundColor: scheme.primary, foregroundColor: scheme.onPrimary, minimumSize: const Size(36, 36)),
                               ),
                             ]),
-                            onTap: () => OpenFilex.open(f.path),
+                            onTap: () => openDoc(context, f.path),
                           ),
                         ),
                       ),

@@ -8,6 +8,8 @@ abstract class RoutePaths {
   static const toolsCompress = '/tools/compress';
   static const toolsImage2Pdf = '/tools/image2pdf';
   static const toolsPdf2Image = '/tools/pdf2image';
+  static const toolsProtect = '/tools/protect';
+  static const toolsUnlock = '/tools/unlock';
   static const toolsSign = '/tools/sign';
   static const scan = '/scan';
   static const files = '/files';

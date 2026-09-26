@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scan/core/storage/open_file.dart';
 import 'package:scan/features/tools/providers/tool_controller.dart';
+import 'package:scan/features/tools/widgets/rename_dialog.dart';
 import 'package:scan/features/tools/providers/tool_providers.dart';
 import 'package:scan/features/tools/providers/tool_state.dart';
 import 'package:scan/features/tools/widgets/file_picker_card.dart';
@@ -15,7 +16,7 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 final signControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
   final repo = ref.watch(toolsRepositoryProvider);
-  return ToolController(processFn: (inputs, ctrl) async {
+  return ToolController(persistenceKey: 'sign', processFn: (inputs, ctrl) async {
     final sigBytes = ref.read(signatureProvider);
     if (sigBytes == null) {
       throw Exception('Draw and save your signature first');
@@ -28,6 +29,7 @@ final signControllerProvider =
       signaturePng: sigBytes,
       page: page,
       widthPts: _signWidth(size),
+      outputName: ctrl.outputName,
     );
     return [out];
   });
@@ -61,10 +63,17 @@ class _SignScreenState extends ConsumerState<SignScreen> {
   /// signature pad — not the page — receives the drag.
   bool _drawing = false;
 
+  /// Actual pad width in logical pixels (full available width). Points are
+  /// recorded in this same space, so rasterizing at this width is 1:1 —
+  /// nothing is clipped on wide screens.
+  double _padWidth = 300;
+
   Future<Uint8List> _rasterize() async {
+    final w = _padWidth > 0 ? _padWidth : 300.0;
+    const h = 150.0;
     final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 300, 150));
-    canvas.drawRect(const Rect.fromLTWH(0, 0, 300, 150), Paint()..color = const Color(0xFFFFFFFF));
+    final canvas = Canvas(recorder, Rect.fromLTWH(0, 0, w, h));
+    canvas.drawRect(Rect.fromLTWH(0, 0, w, h), Paint()..color = const Color(0xFFFFFFFF));
     final paint = Paint()
       ..color = const Color(0xFF000000)
       ..strokeWidth = 2
@@ -76,7 +85,7 @@ class _SignScreenState extends ConsumerState<SignScreen> {
       }
     }
     final picture = recorder.endRecording();
-    final img = await picture.toImage(300, 150);
+    final img = await picture.toImage(w.toInt(), h.toInt());
     final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
     return bytes!.buffer.asUint8List();
   }
@@ -85,7 +94,8 @@ class _SignScreenState extends ConsumerState<SignScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(signControllerProvider);
     final ctrl = ref.read(signControllerProvider.notifier);
-    final hasSig = ref.watch(signatureProvider) != null;
+    final sigBytes = ref.watch(signatureProvider);
+    final hasSig = sigBytes != null;
 
     final page = ref.watch(signPageProvider);
     final size = ref.watch(signSizeProvider);
@@ -152,12 +162,14 @@ class _SignScreenState extends ConsumerState<SignScreen> {
                           SegmentedButton<String>(
                             segments: const [
                               ButtonSegment(value: 'small', label: Text('Small')),
-                              ButtonSegment(value: 'medium', label: Text('Balanced')),
+                              ButtonSegment(value: 'medium', label: Text('Medium')),
                               ButtonSegment(value: 'large', label: Text('Large')),
                             ],
                             selected: {size},
+                            showSelectedIcon: false,
                             onSelectionChanged: (s) =>
                                 ref.read(signSizeProvider.notifier).state = s.first,
+                            style: SegmentedButton.styleFrom(visualDensity: VisualDensity.compact),
                           ),
                           const SizedBox(height: 4),
                           Text('Stamped bottom-right, aspect preserved',
@@ -185,19 +197,26 @@ class _SignScreenState extends ConsumerState<SignScreen> {
                       // Paper white is intentional for signature ink visibility in both themes
                       color: const Color(0xFFFFFFFF),
                     ),
-                    child: Listener(
-                      onPointerDown: (_) => setState(() => _drawing = true),
-                      onPointerUp: (_) => setState(() => _drawing = false),
-                      onPointerCancel: (_) => setState(() => _drawing = false),
-                      child: GestureDetector(
-                        onPanUpdate: (d) => setState(() => _points.add(d.localPosition)),
-                        onPanEnd: (_) => setState(() {
-                          _points.add(Offset.zero);
-                          _drawing = false;
-                        }),
-                        child: CustomPaint(painter: _SigPainter(_points), size: const Size(300, 150)),
-                      ),
-                    ),
+                    child: LayoutBuilder(builder: (context, constraints) {
+                      // Remember the real width (no setState needed — only read at rasterize time).
+                      _padWidth = constraints.maxWidth;
+                      return Listener(
+                        onPointerDown: (_) => setState(() => _drawing = true),
+                        onPointerUp: (_) => setState(() => _drawing = false),
+                        onPointerCancel: (_) => setState(() => _drawing = false),
+                        child: GestureDetector(
+                          onPanUpdate: (d) => setState(() => _points.add(d.localPosition)),
+                          onPanEnd: (_) => setState(() {
+                            _points.add(Offset.zero);
+                            _drawing = false;
+                          }),
+                          child: CustomPaint(
+                            painter: _SigPainter(_points),
+                            size: Size(constraints.maxWidth, 150),
+                          ),
+                        ),
+                      );
+                    }),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -215,9 +234,36 @@ class _SignScreenState extends ConsumerState<SignScreen> {
                         child: const Text('Save signature'),
                       ),
                       const Spacer(),
-                      if (hasSig) const Icon(Icons.check_circle, color: Colors.green),
+                      if (hasSig)
+                        Icon(Icons.check_circle, color: Theme.of(context).colorScheme.tertiary),
                     ],
                   ),
+                  if (hasSig) ...[
+                    const SizedBox(height: 10),
+                    Row(children: [
+                      const Icon(Icons.visibility_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Text('Saved — this is what will be stamped:',
+                          style: Theme.of(context).textTheme.bodySmall),
+                    ]),
+                    const SizedBox(height: 6),
+                    Container(
+                      height: 72,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        // Paper white matches the stamped PNG background
+                        color: const Color(0xFFFFFFFF),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.4)),
+                      ),
+                      child: Image.memory(sigBytes!, fit: BoxFit.contain),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -225,18 +271,25 @@ class _SignScreenState extends ConsumerState<SignScreen> {
           const SizedBox(height: 12),
           if (state.isProcessing) ToolProgress(label: state.message ?? 'Signing…'),
           if (state.hasError) ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
-          if (state.hasResult) ...[
-            ToolSuccess(message: 'Signed!', onSave: ctrl.saveToDocuments, onShare: ctrl.shareResult),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: () => OpenFilex.open(state.resultFiles.first.path),
-              icon: const Icon(Icons.open_in_new_rounded),
-              label: const Text('Open signed PDF'),
+          if (state.hasResult)
+            ToolSuccess(
+              message: 'Signed!',
+              onOpen: () => openDoc(context, state.resultFiles.first.path),
+              onShare: ctrl.shareResult,
             ),
-          ],
           const SizedBox(height: 12),
           FilledButton.icon(
-            onPressed: state.files.isEmpty || !hasSig || state.isProcessing ? null : ctrl.run,
+            onPressed: state.files.isEmpty || !hasSig || state.isProcessing
+                ? null
+                : () {
+                    final stem = state.files.first.path
+                        .split('/')
+                        .last
+                        .replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
+                    final fallback = stem.isEmpty ? 'Signed' : '${stem}_signed';
+                    runWithRename(
+                        context: context, ctrl: ctrl, defaultName: fallback);
+                  },
             icon: const Icon(Icons.draw_outlined),
             label: const Text('Apply signature'),
           ),

@@ -1,11 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:open_filex/open_filex.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:scan/core/router/route_names.dart';
+import 'package:scan/core/storage/open_file.dart';
 import 'package:scan/features/tools/widgets/send_to_tool.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'scanner_service.dart';
 
@@ -19,19 +25,62 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   bool _busy = false;
   bool _creating = false;
   String? _error;
+
+  /// Full technical detail for the current error (code/message/details/stack).
+  /// Shown via the Copy details button so failures can be diagnosed off-device.
+  String? _errorDetails;
   bool _permissionError = false;
   File? _pdf;
   List<String> _images = [];
+
+  /// Review pages mirrored here so they survive Android killing the app
+  /// while the scanner activity is in front.
+  static const _pendingImagesKey = 'scan_pending_images';
+
+  @override
+  void initState() {
+    super.initState();
+    _hydrateImages();
+  }
+
+  Future<void> _hydrateImages() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final paths = prefs.getStringList(_pendingImagesKey) ?? const [];
+      final existing = paths.where((p) => p.isNotEmpty && File(p).existsSync()).take(30).toList();
+      if (existing.isNotEmpty && mounted) {
+        setState(() => _images = existing);
+        ref.read(scanResultsProvider.notifier).state = existing;
+      } else if (existing.length != paths.length) {
+        await prefs.setStringList(_pendingImagesKey, existing);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _persistImages() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_pendingImagesKey, _images.take(30).toList());
+    } catch (_) {}
+  }
 
   /// Capture pages and append them to the review list — no PDF is created yet.
   Future<void> _scan() async {
     setState(() {
       _busy = true;
       _error = null;
+      _errorDetails = null;
       _permissionError = false;
     });
     try {
-      // Ask for camera up-front so denial shows our guidance instead of failing silently.
+      if (Platform.isAndroid) {
+        // ML Kit uses Play Services' camera permission — no app-level
+        // camera prompt needed.
+        await _scanWithMlKit();
+        return;
+      }
+      // iOS: OpenScan uses our own camera, so ask up-front — denial shows
+      // our guidance instead of failing silently.
       var status = await Permission.camera.status;
       if (!status.isGranted) {
         status = await Permission.camera.request();
@@ -48,34 +97,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
         return;
       }
 
-      final svc = ref.read(scannerServiceProvider);
-      final images = await svc.scanDocument();
-      if (images.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No pages captured')),
-          );
-        }
-        return;
-      }
-      setState(() => _images = [..._images, ...images]);
-      ref.read(scanResultsProvider.notifier).state = _images;
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${images.length} page(s) added — review below, then create PDF')),
-        );
-      }
-    } on ScanCancelledException {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Scan cancelled')),
-        );
-      }
-    } on ScanPermissionException catch (e) {
-      setState(() {
-        _error = e.message;
-        _permissionError = true;
-      });
+      // iOS only: OpenScan capture screen returns cropped, filtered pages
+      // (the ML Kit plugin is Android-only).
+      await _scanWithOpenScan();
     } catch (e) {
       setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
     } finally {
@@ -83,9 +107,96 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     }
   }
 
+  /// OpenScan capture flow (built-in camera + edge detection). iOS only —
+  /// the ML Kit plugin is Android-only, so this is the iOS scanner.
+  Future<void> _scanWithOpenScan() async {
+    final result = await context.pushNamed<List<String>?>(RouteNames.openscan);
+    if (!mounted) return;
+    if (result == null || result.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Scan cancelled')),
+      );
+      return;
+    }
+    _appendPages(result);
+  }
+
+  void _appendPages(List<String> images) {
+    setState(() => _images = [..._images, ...images]);
+    ref.read(scanResultsProvider.notifier).state = _images;
+    _persistImages();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${images.length} page(s) added — review below, then create PDF')),
+    );
+  }
+
+  /// Android: Google ML Kit document scanner (edge detection, crop, filters
+  /// built in). JPEGs flow into the same review list as every other source.
+  Future<void> _scanWithMlKit() async {
+    // Full mode: filters + enhancements. (A BASE-mode workaround was tried
+    // 2026-09-25 for release-build NPEs, but dex forensics proved the NPE
+    // came from R8 stripping ML Kit constructors in release builds, not
+    // from the scanner mode. R8 is now disabled via shrink=false, so FULL
+    // is safe again.)
+    final scanner = DocumentScanner(
+      options: DocumentScannerOptions(
+        documentFormats: {DocumentFormat.jpeg},
+        pageLimit: 10,
+        mode: ScannerMode.full,
+        isGalleryImport: true,
+      ),
+    );
+    try {
+      final res = await scanner.scanDocument();
+      if (!mounted) return;
+      final images = res.images?.whereType<String>().toList() ?? [];
+      if (images.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Scan cancelled')),
+        );
+        return;
+      }
+      _appendPages(images);
+    } on PlatformException catch (e, s) {
+      // The native side reports user cancellation as an error.
+      if ((e.message ?? '').toLowerCase().contains('cancel')) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Scan cancelled')),
+          );
+        }
+        return;
+      }
+      // Capture everything — code, message, native details, Dart stack —
+      // so the exact cause can be read off the device via the Copy details
+      // button (e.g. "Failed to start document scanner" when Play Services
+      // can't provision the ML Kit module).
+      final full = StringBuffer()
+        ..writeln('Scanner: ML Kit document scanner')
+        ..writeln('Code: ${e.code}')
+        ..writeln('Message: ${e.message}')
+        ..writeln('Details: ${e.details}')
+        ..writeln('Dart stack: $s')
+        ..writeln('Platform: ${Platform.operatingSystem} ${Platform.operatingSystemVersion}');
+      debugPrint('[Scan] ML Kit failed:\n$full');
+      setState(() {
+        _error = 'ML Kit scanner failed [${e.code}]: ${e.message ?? e.details?.toString() ?? 'unknown error'}';
+        _errorDetails = full.toString();
+      });
+    } finally {
+      // Closed separately so a close-time failure can never mask the scan result.
+      try {
+        await scanner.close();
+      } catch (e) {
+        debugPrint('[Scan] scanner.close failed (ignored): $e');
+      }
+    }
+  }
+
   void _removeImage(int index) {
     setState(() => _images = [..._images]..removeAt(index));
     ref.read(scanResultsProvider.notifier).state = _images;
+    _persistImages();
   }
 
   /// Ask for a file name, then build the PDF from the reviewed pages.
@@ -151,6 +262,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
             floating: false,
             backgroundColor: scheme.surface,
             surfaceTintColor: Colors.transparent,
+            leading: const BackButton(),
             title: const Text('Scan'),
           ),
           SliverPadding(
@@ -185,10 +297,11 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
             ),
             const SizedBox(height: 12),
             FilledButton.icon(
+              key: const ValueKey('scan_button'),
               onPressed: _busy ? null : _scan,
               icon: _busy
                   ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.camera_alt_rounded),
+                  : const Icon(Symbols.document_scanner),
               label: Text(_busy ? 'Scanning…' : (_images.isEmpty ? 'Scan document' : 'Add more pages')),
             ),
             if (_error != null) ...[
@@ -209,12 +322,23 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Wrap(spacing: 8, children: [
+                      Wrap(spacing: 8, runSpacing: 8, children: [
                         if (_permissionError)
                           FilledButton.tonalIcon(
                             onPressed: openAppSettings,
                             icon: const Icon(Icons.settings_rounded, size: 18),
                             label: const Text('Open Settings'),
+                          ),
+                        if (_errorDetails != null)
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              Clipboard.setData(ClipboardData(text: _errorDetails!));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Error details copied — paste them in chat')),
+                              );
+                            },
+                            icon: const Icon(Icons.copy_rounded, size: 18),
+                            label: const Text('Copy details'),
                           ),
                         OutlinedButton.icon(
                           onPressed: _busy ? null : _scan,
@@ -235,7 +359,12 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
                 ),
                 TextButton.icon(
-                  onPressed: _busy || _creating ? null : () => setState(() => _images = []),
+                  onPressed: _busy || _creating
+                      ? null
+                      : () {
+                          setState(() => _images = []);
+                          _persistImages();
+                        },
                   icon: const Icon(Icons.clear_all_rounded, size: 18),
                   label: const Text('Clear all'),
                 ),
@@ -306,7 +435,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                   title: Text(_pdf!.path.split('/').last, style: const TextStyle(fontWeight: FontWeight.w700)),
                   subtitle: Text(_pdf!.path, maxLines: 2, overflow: TextOverflow.ellipsis),
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                    IconButton(icon: const Icon(Icons.open_in_new_rounded), tooltip: 'Open PDF', onPressed: () => OpenFilex.open(_pdf!.path)),
+                    IconButton(icon: const Icon(Icons.open_in_new_rounded), tooltip: 'Open PDF', onPressed: () => openDoc(context, _pdf!.path)),
                     IconButton(icon: const Icon(Icons.send_outlined), tooltip: 'Send to tool', onPressed: () => SendToToolSheet.show(context, _pdf!)),
                     IconButton(
                       icon: const Icon(Icons.share_rounded),
@@ -321,7 +450,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
               const SizedBox(height: 12),
               Wrap(spacing: 8, runSpacing: 8, children: [
                 OutlinedButton.icon(
-                  onPressed: () => OpenFilex.open(_pdf!.path),
+                  onPressed: () => openDoc(context, _pdf!.path),
                   icon: const Icon(Icons.open_in_new_rounded),
                   label: const Text('Open'),
                 ),

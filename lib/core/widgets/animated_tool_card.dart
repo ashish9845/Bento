@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// Optimized tool card — no per-card Ticker, uses TweenAnimationBuilder for 60fps.
-/// Per SKILL.md: implicit animations, RepaintBoundary, avoid expensive controllers.
+/// Launcher-style tool cell — a rounded icon tile with the name underneath,
+/// like a phone home screen. No card chrome, no badges.
+/// Per SKILL.md: implicit animations, RepaintBoundary, no per-card Ticker.
 class AnimatedToolCard extends StatelessWidget {
   const AnimatedToolCard({
     required this.label,
     required this.subtitle,
     required this.icon,
-    required this.isEngine,
     required this.onTap,
     super.key,
     this.delayMs = 0,
@@ -16,14 +16,13 @@ class AnimatedToolCard extends StatelessWidget {
   final String label;
   final String subtitle;
   final IconData icon;
-  final bool isEngine;
   final VoidCallback onTap;
   final int delayMs;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // Use TweenAnimationBuilder instead of AnimationController per card to reduce tickers (8 -> 0)
+    // Use TweenAnimationBuilder instead of AnimationController per card to reduce tickers (10 -> 0)
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: Duration(milliseconds: 320 + delayMs),
@@ -36,49 +35,41 @@ class AnimatedToolCard extends StatelessWidget {
         ),
       ),
       child: RepaintBoundary(
-        child: Card(
-          clipBehavior: Clip.antiAlias,
-          elevation: 0,
-          color: scheme.surfaceContainerLow,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5), width: 1),
-          ),
+        child: Material(
+          color: Colors.transparent,
           child: InkWell(
+            borderRadius: BorderRadius.circular(20),
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: scheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+              child: LayoutBuilder(builder: (context, constraints) {
+                // Tile scales with the cell: compact on phones, roomier on tablets.
+                final tile = (constraints.maxWidth * 0.68).clamp(46.0, 84.0);
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: tile,
+                      height: tile,
+                      decoration: BoxDecoration(
+                        color: scheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(tile * 0.28),
+                      ),
+                      child: Icon(icon,
+                          size: tile * 0.46, color: scheme.onPrimaryContainer),
                     ),
-                    child: Icon(icon, size: 22, color: scheme.onPrimaryContainer),
-                  ),
-                  const Spacer(),
-                  Text(label, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: scheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant, height: 1.25), maxLines: 2, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: isEngine ? scheme.secondaryContainer : scheme.tertiaryContainer,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(isEngine ? Icons.bolt_rounded : Icons.draw_rounded, size: 12, color: isEngine ? scheme.onSecondaryContainer : scheme.onTertiaryContainer),
-                      const SizedBox(width: 4),
-                      Text(isEngine ? 'Engine' : 'Native', style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700, fontSize: 11, color: isEngine ? scheme.onSecondaryContainer : scheme.onTertiaryContainer)),
-                    ]),
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 6),
+                    Text(label,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            height: 1.15,
+                            color: scheme.onSurface),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis),
+                  ],
+                );
+              }),
             ),
           ),
         ),

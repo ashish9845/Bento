@@ -8,6 +8,7 @@ import '../models/bento_file.dart';
 abstract class FilesLocalDataSource {
   Future<List<BentoFile>> getRecentFiles({int limit = 30});
   Future<void> deleteFile(String path);
+  Future<List<BentoFile>> importFiles(List<File> picked);
 }
 
 class FilesLocalDataSourceImpl implements FilesLocalDataSource {
@@ -60,5 +61,33 @@ class FilesLocalDataSourceImpl implements FilesLocalDataSource {
   Future<void> deleteFile(String path) async {
     final f = File(path);
     if (await f.exists()) await f.delete();
+  }
+
+  @override
+  Future<List<BentoFile>> importFiles(List<File> picked) async {
+    final target = await getSaveDirectory();
+    final saved = <BentoFile>[];
+    for (final src in picked) {
+      if (!await src.exists()) continue;
+      final name = src.path.split('/').last;
+      var dest = File('${target.path}/$name');
+      if (dest.path == src.path) {
+        // Already inside the save directory — adopt as-is.
+      } else {
+        var counter = 1;
+        while (await dest.exists()) {
+          final stem = name.replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
+          dest = File('${target.path}/${stem}_$counter.pdf');
+          counter++;
+        }
+        await src.copy(dest.path);
+      }
+      try {
+        final stat = await dest.stat();
+        saved.add(BentoFile(path: dest.path, name: dest.path.split('/').last, size: stat.size, modified: stat.modified));
+      } catch (_) {}
+    }
+    if (saved.isEmpty) throw Exception('Nothing could be imported');
+    return saved;
   }
 }

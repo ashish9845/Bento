@@ -1,7 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:open_filex/open_filex.dart';
+import 'package:scan/core/storage/open_file.dart';
 import '../../../shared/widgets/buttons/app_button.dart';
 import '../../../shared/widgets/feedback/app_error_view.dart';
 import '../bloc/mutation/image2pdf_mutation_bloc.dart';
@@ -102,7 +102,7 @@ class _Image2PdfPageState extends State<Image2PdfPage> {
                       ),
                       const SizedBox(height: 12),
                       Row(children: [
-                        Expanded(child: AppButton(label: 'Open PDF', icon: Icons.open_in_new_rounded, onPressed: () => OpenFilex.open(state.resultPath!))),
+                        Expanded(child: AppButton(label: 'Open PDF', icon: Icons.open_in_new_rounded, onPressed: () => openDoc(context, state.resultPath!))),
                         const SizedBox(width: 10),
                         Expanded(child: AppButton(label: 'Create another', isOutlined: true, onPressed: () => setState(() => _paths = []))),
                       ]),

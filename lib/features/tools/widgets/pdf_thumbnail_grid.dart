@@ -9,6 +9,7 @@ class PdfThumbnailGrid extends StatelessWidget {
     this.onDelete,
     this.onRotate,
     this.selectedPages,
+    this.onTap,
   });
 
   final int pageCount;
@@ -16,6 +17,9 @@ class PdfThumbnailGrid extends StatelessWidget {
   final void Function(int index)? onDelete;
   final void Function(int index)? onRotate;
   final Set<int>? selectedPages;
+
+  /// Tap anywhere on a tile (used by Extract to toggle selection).
+  final void Function(int index)? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +52,7 @@ class PdfThumbnailGrid extends StatelessWidget {
             selected: selected,
             onDelete: onDelete != null ? () => onDelete!(index) : null,
             onRotate: onRotate != null ? () => onRotate!(index) : null,
+            onTap: onTap != null ? () => onTap!(index) : null,
           ),
         );
       },
@@ -56,11 +61,13 @@ class PdfThumbnailGrid extends StatelessWidget {
 }
 
 class _PageTile extends StatelessWidget {
-  const _PageTile({required this.pageNumber, required this.selected, this.onDelete, this.onRotate});
+  const _PageTile(
+      {required this.pageNumber, required this.selected, this.onDelete, this.onRotate, this.onTap});
   final int pageNumber;
   final bool selected;
   final VoidCallback? onDelete;
   final VoidCallback? onRotate;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +82,12 @@ class _PageTile extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
-        child: Stack(
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: Stack(
           children: [
             Center(
               child: Column(
@@ -133,8 +145,10 @@ class _PageTile extends StatelessWidget {
                 left: 8,
                 child: Icon(Icons.check_circle_rounded, size: 18, color: scheme.primary),
               ),
-          ],
+            ],
+          ),
         ),
+      ),
       ),
     );
   }

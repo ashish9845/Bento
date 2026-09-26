@@ -9,7 +9,9 @@ plugins {
 
 android {
     namespace = "com.benopdf.scan"
-    compileSdk = 36
+    // 37: permission_handler v13's Android part requires compiling against
+    // API 37+. targetSdk stays 36 (behavior unchanged).
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -19,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.benopdf.scan"
-        // Locked by TODO.md Phase 0: Android minSdk 24 (Android 7.0) for SharedArrayBuffer/WASM compat
+        // Locked by TODO.md Phase 0: Android minSdk 24 (Android 7.0)
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
@@ -29,6 +31,8 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
+
+
 
     val keystoreProperties = Properties()
     val keystorePropertiesFile = rootProject.file("key.properties")

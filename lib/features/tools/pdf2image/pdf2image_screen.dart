@@ -5,15 +5,16 @@ import 'package:scan/features/tools/providers/tool_controller.dart';
 import 'package:scan/features/tools/providers/tool_providers.dart';
 import 'package:scan/features/tools/providers/tool_state.dart';
 import 'package:scan/features/tools/widgets/file_picker_card.dart';
+import 'package:scan/features/tools/widgets/rename_dialog.dart';
 import 'package:scan/features/tools/widgets/tool_progress.dart';
 import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
 final pdf2imageControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
   final repo = ref.watch(toolsRepositoryProvider);
-  return ToolController(processFn: (inputs, ctrl) async {
+  return ToolController(persistenceKey: 'pdf2image', processFn: (inputs, ctrl) async {
     ctrl.setProgress(null, 'Exporting pages as images…');
-    return repo.renderPages(inputs.first);
+    return repo.renderPages(inputs.first, outputName: ctrl.outputName);
   });
 });
 
@@ -62,7 +63,23 @@ class Pdf2ImageScreen extends ConsumerWidget {
             ),
           if (!state.hasResult) ...[
             const SizedBox(height: 12),
-            FilledButton.icon(onPressed: state.files.isEmpty || state.isProcessing ? null : ctrl.run, icon: const Icon(Icons.image), label: const Text('Export')),
+            FilledButton.icon(
+                onPressed: state.files.isEmpty || state.isProcessing
+                    ? null
+                    : () {
+                        final stem = state.files.first.path
+                            .split('/')
+                            .last
+                            .replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
+                        final fallback = stem.isEmpty ? 'Images' : stem;
+                        runWithRename(
+                            context: context,
+                            ctrl: ctrl,
+                            defaultName: fallback,
+                            title: 'Name the image folder');
+                      },
+                icon: const Icon(Icons.image),
+                label: const Text('Export')),
           ],
         ],
       ),

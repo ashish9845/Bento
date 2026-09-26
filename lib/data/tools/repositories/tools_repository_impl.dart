@@ -20,27 +20,27 @@ class ToolsRepositoryImpl implements ToolsRepository {
   }
 
   @override
-  Future<File> mergePdfs(List<File> inputs) async {
+  Future<File> mergePdfs(List<File> inputs, {String? outputName}) async {
     try {
-      return await engine.merge(inputs);
+      return await engine.merge(inputs, outputName: outputName);
     } catch (e) {
       throw CacheException(e.toString());
     }
   }
 
   @override
-  Future<List<File>> splitPdf(File input, String rangesSpec) async {
+  Future<List<File>> splitPdf(File input, String rangesSpec, {String? baseName}) async {
     try {
-      return await engine.split(input, rangesSpec);
+      return await engine.split(input, rangesSpec, baseName: baseName);
     } catch (e) {
       throw CacheException(e.toString());
     }
   }
 
   @override
-  Future<File> extractPages(File input, List<int> pages) async {
+  Future<File> extractPages(File input, List<int> pages, {String? outputName}) async {
     try {
-      return await engine.extract(input, pages);
+      return await engine.extract(input, pages, outputName: outputName);
     } catch (e) {
       throw CacheException(e.toString());
     }
@@ -52,18 +52,19 @@ class ToolsRepositoryImpl implements ToolsRepository {
     Set<int> delete = const {},
     Map<int, int> rotations = const {},
     List<int>? order,
+    String? outputName,
   }) async {
     try {
-      return await engine.organize(input, delete: delete, rotations: rotations, order: order);
+      return await engine.organize(input, delete: delete, rotations: rotations, order: order, outputName: outputName);
     } catch (e) {
       throw CacheException(e.toString());
     }
   }
 
   @override
-  Future<File> compressPdf(File input, PdfImagePolicy policy) async {
+  Future<File> compressPdf(File input, PdfImagePolicy policy, {String? outputName}) async {
     try {
-      return await engine.compress(input, policy);
+      return await engine.compress(input, policy, outputName: outputName);
     } catch (e) {
       throw CacheException(e.toString());
     }
@@ -79,9 +80,50 @@ class ToolsRepositoryImpl implements ToolsRepository {
   }
 
   @override
-  Future<List<File>> renderPages(File input) async {
+  Future<List<File>> renderPages(File input, {String? outputName}) async {
     try {
-      return await engine.renderPages(input);
+      return await engine.renderPages(input, outputName: outputName);
+    } catch (e) {
+      throw CacheException(e.toString());
+    }
+  }
+
+  @override
+  Future<List<File>> renderThumbnails(File input) async {
+    try {
+      return await engine.renderThumbnails(input);
+    } catch (e) {
+      throw CacheException(e.toString());
+    }
+  }
+
+  @override
+  Future<File> protectPdf(
+    File input, {
+    required String userPassword,
+    String? ownerPassword,
+    String? outputName,
+  }) async {
+    try {
+      return await engine.protectPdf(
+        input,
+        userPassword: userPassword,
+        ownerPassword: ownerPassword,
+        outputName: outputName,
+      );
+    } catch (e) {
+      throw CacheException(e.toString());
+    }
+  }
+
+  @override
+  Future<File> unlockPdf(
+    File input, {
+    required String password,
+    String? outputName,
+  }) async {
+    try {
+      return await engine.unlockPdf(input, password: password, outputName: outputName);
     } catch (e) {
       throw CacheException(e.toString());
     }
@@ -93,6 +135,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
     required Uint8List signaturePng,
     required int page,
     double widthPts = 140,
+    String? outputName,
   }) async {
     try {
       return await engine.signPdf(
@@ -100,6 +143,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
         signaturePng: signaturePng,
         page: page,
         widthPts: widthPts,
+        outputName: outputName,
       );
     } catch (e) {
       throw CacheException(e.toString());

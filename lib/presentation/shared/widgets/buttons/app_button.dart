@@ -20,7 +20,18 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final child = isLoading
-        ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+        ? SizedBox(
+            height: 18,
+            width: 18,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              // Filled buttons use onPrimary text; the spinner must match it
+              // (white breaks on light-primary dark themes).
+              color: isOutlined
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onPrimary,
+            ),
+          )
         : Row(mainAxisSize: MainAxisSize.min, children: [
             if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
             Text(label),

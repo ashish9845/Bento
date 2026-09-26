@@ -95,5 +95,5 @@ processing — the `flutter_inappwebview`/`shelf` dependencies were deliberately
 - Run app: `flutter run`
 - Tests: `flutter test`
 - Lint: `flutter analyze`
-- Release APK: `flutter build apk --release`
+- Release APK: `flutter build apk --release --split-per-abi`
 - Release bundle (Play Store): `flutter build appbundle --release`
