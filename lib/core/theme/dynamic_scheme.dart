@@ -54,11 +54,5 @@ material.ColorScheme toMaterialScheme(mui.ColorScheme s) {
     onInverseSurface: s.onInverseSurface,
     inversePrimary: s.inversePrimary,
     surfaceTint: s.surfaceTint,
-    // ignore: deprecated_member_use
-    background: s.background,
-    // ignore: deprecated_member_use
-    onBackground: s.onBackground,
-    // ignore: deprecated_member_use
-    surfaceVariant: s.surfaceVariant,
   );
 }

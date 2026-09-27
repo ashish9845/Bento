@@ -8,7 +8,7 @@ import 'home_mutation_state.dart';
 
 class HomeMutationBloc extends Bloc<HomeMutationEvent, HomeMutationState> {
   final FilesRepository repository;
-  HomeMutationBloc(this.repository) : super(const HomeMutationState()) {
+  new(this.repository) : super(const HomeMutationState()) {
     on<ImportFiles>(_onImport);
   }
 
@@ -28,7 +28,7 @@ class HomeMutationBloc extends Bloc<HomeMutationEvent, HomeMutationState> {
           importedCount: saved.length,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: HomeMutationStatus.failure,

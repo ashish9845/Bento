@@ -9,9 +9,19 @@ plugins {
 
 android {
     namespace = "com.benopdf.scan"
-    // 37: permission_handler v13's Android part requires compiling against
+    // 37.0: permission_handler v13's Android part requires compiling against
     // API 37+. targetSdk stays 36 (behavior unchanged).
-    compileSdk = 37
+    // NOTE: Google now ships this platform only as "android-37.0"
+    // (SDK package platforms;android-37.0, directory platforms/android-37.0).
+    // Plain `compileSdk = 37` makes AGP look for a non-existent "android-37"
+    // directory and fails with
+    // "Failed to find target with hash string 'android-37'", so the minor
+    // API level must be set explicitly (requires AGP 9.1+).
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 0
+        }
+    }
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class FilePickerCard extends StatelessWidget {
-  const FilePickerCard({
+  const new({
     required this.files,
     required this.onPick,
     required this.onClear,
@@ -161,7 +161,7 @@ class FilePickerCard extends StatelessWidget {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: files.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
                       itemBuilder: (context, i) {
                         final f = files[i];
                         return Container(
@@ -196,8 +196,9 @@ class FilePickerCard extends StatelessWidget {
                             subtitle: FutureBuilder<int>(
                               future: f.length().catchError((_) => 0),
                               builder: (context, snap) {
-                                if (!snap.hasData)
+                                if (!snap.hasData) {
                                   return const SizedBox.shrink();
+                                }
                                 final kb = (snap.data! / 1024).toStringAsFixed(
                                   1,
                                 );
@@ -218,7 +219,7 @@ class FilePickerCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     FilledButton.icon(
-                      onPressed: () async => onPick(),
+                      onPressed: onPick,
                       icon: Icon(
                         allowMultiple
                             ? Icons.add_rounded

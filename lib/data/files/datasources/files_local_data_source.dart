@@ -26,7 +26,7 @@ class FilesLocalDataSourceImpl implements FilesLocalDataSource {
         final c = Directory(custom);
         if (await c.exists()) dirs.add(c);
       }
-    } catch (_) {}
+    } on Exception catch (_) {}
     // Deduplicate by file name — same PDF saved to both tmp and docs should appear once
     final byName = <String, BentoFile>{};
     for (final dir in dirs) {
@@ -59,7 +59,7 @@ class FilesLocalDataSourceImpl implements FilesLocalDataSource {
                 byName[name] = candidate;
               }
             }
-          } catch (_) {}
+          } on Exception catch (_) {}
         }
       }
     }
@@ -106,7 +106,7 @@ class FilesLocalDataSourceImpl implements FilesLocalDataSource {
             modified: stat.modified,
           ),
         );
-      } catch (_) {}
+      } on Exception catch (_) {}
     }
     if (saved.isEmpty) throw Exception('Nothing could be imported');
     return saved;

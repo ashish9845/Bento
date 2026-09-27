@@ -7,12 +7,16 @@ import 'package:scan/features/scan/openscan/openscan_capture_screen.dart';
 /// screen must reach its friendly error state via the init timeout.
 /// Explicit pumps — pumpAndSettle can't settle camera plugin timing.
 void main() {
-  testWidgets('shows camera-unavailable state without a camera', (tester) async {
+  testWidgets('shows camera-unavailable state without a camera', (
+    tester,
+  ) async {
     GoogleFonts.config.allowRuntimeFetching = false;
     await tester.pumpWidget(const MaterialApp(home: OpenScanCaptureScreen()));
-    for (var i = 0;
-        i < 15 && find.textContaining('Camera unavailable').evaluate().isEmpty;
-        i++) {
+    for (
+      var i = 0;
+      i < 15 && find.textContaining('Camera unavailable').evaluate().isEmpty;
+      i++
+    ) {
       await tester.pump(const Duration(seconds: 1));
     }
 

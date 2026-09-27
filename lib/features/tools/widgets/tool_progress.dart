@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scan/core/widgets/entrance.dart';
 
 class ToolProgress extends StatelessWidget {
-  const ToolProgress({
-    required this.label,
-    super.key,
-    this.progress,
-    this.onCancel,
-  });
+  const new({required this.label, super.key, this.progress, this.onCancel});
   final String label;
   final double? progress;
   final VoidCallback? onCancel;
@@ -71,7 +66,7 @@ class ToolProgress extends StatelessWidget {
 }
 
 class ToolError extends StatelessWidget {
-  const ToolError({required this.message, super.key, this.onRetry});
+  const new({required this.message, super.key, this.onRetry});
   final String message;
   final VoidCallback? onRetry;
 
@@ -131,7 +126,7 @@ class ToolError extends StatelessWidget {
 }
 
 class ToolSuccess extends StatefulWidget {
-  const ToolSuccess({
+  const new({
     required this.message,
     super.key,
     this.onSave,

@@ -9,8 +9,7 @@ import 'image2pdf_mutation_state.dart';
 class Image2PdfMutationBloc
     extends Bloc<Image2PdfMutationEvent, Image2PdfMutationState> {
   final ToolsRepository repository;
-  Image2PdfMutationBloc(this.repository)
-    : super(const Image2PdfMutationState()) {
+  new(this.repository) : super(const Image2PdfMutationState()) {
     on<SubmitImage2Pdf>(_onSubmit);
   }
 
@@ -32,7 +31,7 @@ class Image2PdfMutationBloc
           resultPath: result.path,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: Image2PdfMutationStatus.failure,

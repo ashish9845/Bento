@@ -6,8 +6,6 @@
 // Only the mechanics are ported — no mpvRx code is copied verbatim.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Selectable color themes. [dynamic] follows the OS Material You palette
 /// and falls back to [defaultPalette] where unsupported; everything else is
@@ -46,7 +44,7 @@ enum AppPalette {
   dracula('Dracula', Icons.dark_mode_rounded),
   monochrome('Monochrome', Icons.circle_rounded);
 
-  const AppPalette(this.label, this.icon);
+  new(this.label, this.icon);
   final String label;
   final IconData icon;
 
@@ -74,7 +72,7 @@ enum AppPalette {
 /// The 8 seed colors per theme: primary/secondary/tertiary/background,
 /// each in light and dark variants.
 class _ThemeColors {
-  const _ThemeColors({
+  const new({
     required this.primaryLight,
     required this.primaryDark,
     required this.secondaryLight,
@@ -502,12 +500,6 @@ abstract class _ThemeGenerator {
       onInverseSurface: const Color(0xFFF4EFF4),
       inversePrimary: _minContrast(t.primaryDark, [t.backgroundDark]),
       surfaceTint: primary,
-      // ignore: deprecated_member_use
-      background: bgL,
-      // ignore: deprecated_member_use
-      onBackground: const Color(0xFF1C1B1F),
-      // ignore: deprecated_member_use
-      surfaceVariant: surfaceVariant,
     );
   }
 
@@ -583,12 +575,6 @@ abstract class _ThemeGenerator {
       onInverseSurface: const Color(0xFF313033),
       inversePrimary: _minContrast(t.primaryLight, [t.backgroundLight]),
       surfaceTint: primary,
-      // ignore: deprecated_member_use
-      background: bgD,
-      // ignore: deprecated_member_use
-      onBackground: const Color(0xFFE6E1E5),
-      // ignore: deprecated_member_use
-      surfaceVariant: surfaceVariant,
     );
   }
 
@@ -647,41 +633,5 @@ abstract class _ThemeGenerator {
       }
     }
     return Color.lerp(c, target, hi)!;
-  }
-}
-
-const _paletteKey = 'app_palette';
-
-/// Selected palette, persisted. Defaults to [AppPalette.defaultPalette];
-/// unknown stored names (e.g. retired palettes) fall back to it.
-final appPaletteProvider =
-    StateNotifierProvider<AppPaletteNotifier, AppPalette>((ref) {
-      return AppPaletteNotifier();
-    });
-
-class AppPaletteNotifier extends StateNotifier<AppPalette> {
-  AppPaletteNotifier() : super(AppPalette.defaultPalette) {
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final name = prefs.getString(_paletteKey);
-      if (name != null) {
-        state = AppPalette.values.firstWhere(
-          (p) => p.name == name,
-          orElse: () => AppPalette.defaultPalette,
-        );
-      }
-    } catch (_) {}
-  }
-
-  Future<void> setPalette(AppPalette palette) async {
-    state = palette;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_paletteKey, palette.name);
-    } catch (_) {}
   }
 }

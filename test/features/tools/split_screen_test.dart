@@ -2,31 +2,30 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pdf_manipulator/pdf_manipulator.dart';
 import 'package:scan/data/tools/repositories/tools_repository.dart';
-import 'package:scan/features/tools/providers/tool_providers.dart';
+import 'package:scan/features/tools/providers/tool_cubit.dart';
 import 'package:scan/features/tools/split/split_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Split screen with preset files (bypasses the native file picker, which
 /// can't run headless): ranges field accepts input and validation errors show.
 void main() {
-  testWidgets('ranges field accepts input and run validates it', (tester) async {
+  testWidgets('ranges field accepts input and run validates it', (
+    tester,
+  ) async {
     GoogleFonts.config.allowRuntimeFetching = false;
+    SharedPreferences.setMockInitialValues({});
     final repo = FakeToolsRepository();
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [toolsRepositoryProvider.overrideWithValue(repo)],
-        child: const MaterialApp(home: SplitScreen()),
-      ),
-    );
+    await tester.pumpWidget(MaterialApp(home: SplitScreen(repository: repo)));
     await tester.pumpAndSettle();
 
-    // Preset a picked file directly on the controller.
-    final container = ProviderScope.containerOf(tester.element(find.byType(SplitScreen)));
-    container.read(splitControllerProvider.notifier).setFiles([File('/tmp/a.pdf')]);
+    // Preset a picked file directly on the cubit.
+    BlocProvider.of<ToolCubit>(tester.element(find.text('Split PDF')))
+        .setFiles([File('/tmp/a.pdf')]);
     await tester.pumpAndSettle();
 
     final field = find.byKey(const ValueKey('split_ranges_field'));
@@ -55,7 +54,7 @@ void main() {
 }
 
 class FakeToolsRepository extends ToolsRepository {
-  FakeToolsRepository();
+  new();
 
   @override
   Future<int> pageCount(File input) async => 3;
@@ -65,52 +64,72 @@ class FakeToolsRepository extends ToolsRepository {
       throw UnimplementedError();
 
   @override
-  Future<List<File>> splitPdf(File input, String rangesSpec, {String? baseName}) async {
+  Future<List<File>> splitPdf(
+    File input,
+    String rangesSpec, {
+    String? baseName,
+  }) async {
     if (rangesSpec.contains('abc')) throw Exception('"abc" is outside 1-3');
     return [File('/tmp/a_part1.pdf')];
   }
 
   @override
-  Future<File> extractPages(File input, List<int> pages, {String? outputName}) =>
+  Future<File> extractPages(
+    File input,
+    List<int> pages, {
+    String? outputName,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<File> organizePdf(
+    File input, {
+    Set<int> delete = const {},
+    Map<int, int> rotations = const {},
+    List<int>? order,
+    String? outputName,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<File> compressPdf(
+    File input,
+    PdfImagePolicy policy, {
+    String? outputName,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<File> imageToPdf(List<File> images, {String? outputName}) =>
       throw UnimplementedError();
 
   @override
-  Future<File> organizePdf(File input,
-          {Set<int> delete = const {},
-          Map<int, int> rotations = const {},
-          List<int>? order,
-          String? outputName}) =>
+  Future<List<File>> renderPages(File input, {String? outputName}) =>
       throw UnimplementedError();
-
-  @override
-  Future<File> compressPdf(File input, PdfImagePolicy policy, {String? outputName}) =>
-      throw UnimplementedError();
-
-  @override
-  Future<File> imageToPdf(List<File> images, {String? outputName}) => throw UnimplementedError();
-
-  @override
-  Future<List<File>> renderPages(File input, {String? outputName}) => throw UnimplementedError();
 
   @override
   Future<List<File>> renderThumbnails(File input) => throw UnimplementedError();
 
   @override
-  Future<File> signPdf(File input,
-          {required Uint8List signaturePng,
-          required int page,
-          double widthPts = 140,
-          String? outputName}) =>
-      throw UnimplementedError();
+  Future<File> signPdf(
+    File input, {
+    required Uint8List signaturePng,
+    required int page,
+    double widthPts = 140,
+    String? outputName,
+  }) => throw UnimplementedError();
 
   @override
-  Future<File> protectPdf(File input,
-          {required String userPassword, String? ownerPassword, String? outputName}) =>
-      throw UnimplementedError();
+  Future<File> protectPdf(
+    File input, {
+    required String userPassword,
+    String? ownerPassword,
+    String? outputName,
+  }) => throw UnimplementedError();
 
   @override
-  Future<File> unlockPdf(File input, {required String password, String? outputName}) =>
-      throw UnimplementedError();
+  Future<File> unlockPdf(
+    File input, {
+    required String password,
+    String? outputName,
+  }) => throw UnimplementedError();
 
   @override
   Future<void> saveFile(File file) async {}

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +22,7 @@ import '../widgets/home_shortcut_grid.dart';
 /// Strict Repository → Bloc → UI: recents come from [FilesQueryBloc];
 /// import outcomes arrive via [HomeMutationBloc]; both provided at the route level.
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const new({super.key});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -103,7 +105,7 @@ class _HomePageState extends State<HomePage> {
     } else {
       // Tool/scanner pages: push over Home so there is no Tools-grid flash
       // and back returns straight here.
-      context.pushNamed(name);
+      unawaited(context.pushNamed(name));
     }
   }
 

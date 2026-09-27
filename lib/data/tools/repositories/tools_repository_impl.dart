@@ -9,13 +9,13 @@ import '../../../core/errors/failures.dart';
 
 class ToolsRepositoryImpl implements ToolsRepository {
   final PdfEngineDataSource engine;
-  ToolsRepositoryImpl(this.engine);
+  new(this.engine);
 
   @override
   Future<int> pageCount(File input) async {
     try {
       return await engine.pageCount(input);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -24,7 +24,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
   Future<File> mergePdfs(List<File> inputs, {String? outputName}) async {
     try {
       return await engine.merge(inputs, outputName: outputName);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -37,7 +37,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
   }) async {
     try {
       return await engine.split(input, rangesSpec, baseName: baseName);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -50,7 +50,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
   }) async {
     try {
       return await engine.extract(input, pages, outputName: outputName);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -71,7 +71,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
         order: order,
         outputName: outputName,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -84,7 +84,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
   }) async {
     try {
       return await engine.compress(input, policy, outputName: outputName);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -93,7 +93,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
   Future<File> imageToPdf(List<File> images, {String? outputName}) async {
     try {
       return await engine.imagesToPdf(images, outputName: outputName);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -102,7 +102,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
   Future<List<File>> renderPages(File input, {String? outputName}) async {
     try {
       return await engine.renderPages(input, outputName: outputName);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -111,7 +111,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
   Future<List<File>> renderThumbnails(File input) async {
     try {
       return await engine.renderThumbnails(input);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -130,7 +130,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
         ownerPassword: ownerPassword,
         outputName: outputName,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -147,7 +147,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
         password: password,
         outputName: outputName,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -168,7 +168,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
         widthPts: widthPts,
         outputName: outputName,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -177,7 +177,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
   Future<void> saveFile(File file) async {
     try {
       await engine.saveToCustomLocation(file);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }

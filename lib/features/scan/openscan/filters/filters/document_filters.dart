@@ -48,7 +48,7 @@ const double _clipFraction = 0.005;
 
 /// Leaves the capture exactly as it was shot.
 class OriginalFilter extends Filter {
-  OriginalFilter() : super(name: 'Original');
+  new() : super(name: 'Original');
 
   @override
   void apply(Uint8List pixels, int width, int height) {
@@ -63,7 +63,7 @@ class OriginalFilter extends Filter {
 /// "magic colour" — the paper goes white and the ink saturates without the
 /// user picking a white balance.
 class AutoFilter extends Filter {
-  AutoFilter() : super(name: 'Auto');
+  new() : super(name: 'Auto');
 
   @override
   void apply(Uint8List pixels, int width, int height) {
@@ -92,7 +92,7 @@ class AutoFilter extends Filter {
 /// hard cutoff draws a visible contour along wherever the paper happens to
 /// cross it.
 class LightenFilter extends Filter {
-  LightenFilter() : super(name: 'Lighten');
+  new() : super(name: 'Lighten');
 
   /// Luminance at which a pixel starts being treated as background.
   static const int _kneeStart = 200;
@@ -129,7 +129,7 @@ class LightenFilter extends Filter {
 /// Luminance-only, auto-levelled so text stays readable after the colour
 /// information is gone.
 class GrayscaleFilter extends Filter {
-  GrayscaleFilter() : super(name: 'Grayscale');
+  new() : super(name: 'Grayscale');
 
   @override
   void apply(Uint8List pixels, int width, int height) {
@@ -151,7 +151,7 @@ class GrayscaleFilter extends Filter {
 /// instead makes the decision locally, so a shadowed corner binarizes on
 /// its own terms. This is also by far the smallest mode to store in a PDF.
 class BlackAndWhiteFilter extends Filter {
-  BlackAndWhiteFilter() : super(name: 'B&W');
+  new() : super(name: 'B&W');
 
   /// How far below the local mean a pixel must sit to count as ink.
   /// Bradley-Roth's paper uses 15%; the same value keeps thin strokes
@@ -186,7 +186,7 @@ class BlackAndWhiteFilter extends Filter {
 /// large enough radius the strokes average away and what is left is the
 /// lighting across the board.
 class WhiteboardFilter extends Filter {
-  WhiteboardFilter() : super(name: 'Whiteboard');
+  new() : super(name: 'Whiteboard');
 
   @override
   void apply(Uint8List pixels, int width, int height) {
@@ -221,7 +221,7 @@ class WhiteboardFilter extends Filter {
 /// A low-frequency single-channel field sampled back up to image size by
 /// the filter that asked for it.
 class _Field {
-  _Field(this.values, this.width, this.height);
+  new(this.values, this.width, this.height);
 
   final Uint8List values;
   final int width;

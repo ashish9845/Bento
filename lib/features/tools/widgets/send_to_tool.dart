@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class SendToToolSheet extends StatelessWidget {
-  const SendToToolSheet({required this.file, super.key});
+  const new({required this.file, super.key});
   final File file;
 
   static Future<void> show(BuildContext context, File file) =>

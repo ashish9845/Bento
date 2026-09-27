@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -15,13 +15,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'scanner_service.dart';
 
-class ScanScreen extends ConsumerStatefulWidget {
-  const ScanScreen({super.key});
+class ScanScreen extends StatefulWidget {
+  const new({super.key});
   @override
-  ConsumerState<ScanScreen> createState() => _ScanScreenState();
+  State<ScanScreen> createState() => _ScanScreenState();
 }
 
-class _ScanScreenState extends ConsumerState<ScanScreen> {
+class _ScanScreenState extends State<ScanScreen> {
   bool _busy = false;
   bool _creating = false;
   String? _error;
@@ -40,7 +40,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   @override
   void initState() {
     super.initState();
-    _hydrateImages();
+    unawaited(_hydrateImages());
   }
 
   Future<void> _hydrateImages() async {
@@ -53,18 +53,17 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
           .toList();
       if (existing.isNotEmpty && mounted) {
         setState(() => _images = existing);
-        ref.read(scanResultsProvider.notifier).state = existing;
       } else if (existing.length != paths.length) {
         await prefs.setStringList(_pendingImagesKey, existing);
       }
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   Future<void> _persistImages() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_pendingImagesKey, _images.take(30).toList());
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   /// Capture pages and append them to the review list — no PDF is created yet.
@@ -106,7 +105,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       // iOS only: OpenScan capture screen returns cropped, filtered pages
       // (the ML Kit plugin is Android-only).
       await _scanWithOpenScan();
-    } catch (e) {
+    } on Exception catch (e) {
       setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -128,8 +127,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
   void _appendPages(List<String> images) {
     setState(() => _images = [..._images, ...images]);
-    ref.read(scanResultsProvider.notifier).state = _images;
-    _persistImages();
+    unawaited(_persistImages());
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -197,7 +195,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       // Closed separately so a close-time failure can never mask the scan result.
       try {
         await scanner.close();
-      } catch (e) {
+      } on Exception catch (e) {
         debugPrint('[Scan] scanner.close failed (ignored): $e');
       }
     }
@@ -205,8 +203,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
   void _removeImage(int index) {
     setState(() => _images = [..._images]..removeAt(index));
-    ref.read(scanResultsProvider.notifier).state = _images;
-    _persistImages();
+    unawaited(_persistImages());
   }
 
   /// Ask for a file name, then build the PDF from the reviewed pages.
@@ -250,7 +247,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       _error = null;
     });
     try {
-      final svc = ref.read(scannerServiceProvider);
+      final svc = ScannerService();
       final pdf = await svc.imagesToPdf(_images, outputName: name);
       setState(() => _pdf = pdf);
       if (mounted) {
@@ -258,7 +255,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
           SnackBar(content: Text('PDF created: ${pdf.path.split('/').last}')),
         );
       }
-    } catch (e) {
+    } on Exception catch (e) {
       setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _creating = false);
@@ -386,8 +383,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                                   if (_errorDetails != null)
                                     OutlinedButton.icon(
                                       onPressed: () {
-                                        Clipboard.setData(
-                                          ClipboardData(text: _errorDetails!),
+                                        unawaited(
+                                          Clipboard.setData(
+                                            ClipboardData(text: _errorDetails!),
+                                          ),
                                         );
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
@@ -435,7 +434,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                                 ? null
                                 : () {
                                     setState(() => _images = []);
-                                    _persistImages();
+                                    unawaited(_persistImages());
                                   },
                             icon: const Icon(Icons.clear_all_rounded, size: 18),
                             label: const Text('Clear all'),

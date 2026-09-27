@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Shared scaffold for per-tool screens — same compact pinned header everywhere
 /// (matches the tab headers), so every tool looks identical up top.
 class ToolScaffold extends StatelessWidget {
-  const ToolScaffold({
+  const new({
     required this.title,
     required this.child,
     super.key,
@@ -120,7 +120,7 @@ class ToolScaffold extends StatelessWidget {
 }
 
 class ToolPlaceholder extends StatelessWidget {
-  const ToolPlaceholder({required this.toolName, super.key});
+  const new({required this.toolName, super.key});
   final String toolName;
 
   @override
@@ -152,7 +152,7 @@ class ToolPlaceholder extends StatelessWidget {
 }
 
 class ToolEmptyState extends StatelessWidget {
-  const ToolEmptyState({super.key});
+  const new({super.key});
   @override
   Widget build(BuildContext context) {
     return Container(

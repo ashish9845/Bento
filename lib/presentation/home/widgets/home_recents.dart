@@ -6,7 +6,7 @@ import '../../../data/files/models/bento_file.dart';
 /// in the page so it stays visible during loading/error states.
 /// Pure display — taps are owned by the page.
 class HomeRecents extends StatelessWidget {
-  const HomeRecents({required this.files, required this.onOpen, super.key});
+  const new({required this.files, required this.onOpen, super.key});
 
   final List<BentoFile> files;
   final void Function(BentoFile file) onOpen;
@@ -73,7 +73,7 @@ class HomeRecents extends StatelessWidget {
 }
 
 class _RecentRow extends StatelessWidget {
-  const _RecentRow({required this.file, required this.onTap, super.key});
+  const new({required this.file, required this.onTap, super.key});
 
   final BentoFile file;
   final VoidCallback onTap;

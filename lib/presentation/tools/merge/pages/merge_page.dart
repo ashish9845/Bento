@@ -12,7 +12,7 @@ import '../bloc/mutation/merge_mutation_state.dart';
 /// MergePage — strict Repository -> MutationBloc -> UI.
 /// UI never imports Repository directly; Bloc is provided at route level.
 class MergePage extends StatefulWidget {
-  const MergePage({super.key});
+  const new({super.key});
   @override
   State<MergePage> createState() => _MergePageState();
 }
@@ -21,13 +21,16 @@ class _MergePageState extends State<MergePage> {
   List<String> _pickedPaths = [];
 
   Future<void> _pickFiles() async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
+    final picked = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
-    if (result != null) {
-      setState(() => _pickedPaths = result.paths.whereType<String>().toList());
+    final paths = picked
+        .where((f) => f.path != null && f.path!.isNotEmpty)
+        .map((f) => f.path!)
+        .toList();
+    if (paths.isNotEmpty) {
+      setState(() => _pickedPaths = paths);
     }
   }
 

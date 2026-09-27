@@ -6,7 +6,7 @@ import 'files_mutation_state.dart';
 
 class FilesMutationBloc extends Bloc<FilesMutationEvent, FilesMutationState> {
   final FilesRepository repository;
-  FilesMutationBloc(this.repository) : super(const FilesMutationState()) {
+  new(this.repository) : super(const FilesMutationState()) {
     on<DeleteFile>(_onDelete);
   }
 
@@ -18,7 +18,7 @@ class FilesMutationBloc extends Bloc<FilesMutationEvent, FilesMutationState> {
     try {
       await repository.deleteFile(event.path);
       emit(state.copyWith(status: FilesMutationStatus.success));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: FilesMutationStatus.failure,

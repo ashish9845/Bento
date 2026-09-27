@@ -1,15 +1,15 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scan/core/storage/storage_location.dart';
 
 import 'widgets/theme_settings_card.dart';
 
-class SettingsScreen extends ConsumerWidget {
-  const SettingsScreen({super.key});
+class SettingsScreen extends StatelessWidget {
+  const new({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: CustomScrollView(
@@ -124,16 +124,16 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       ),
                       title: const Text('Save location'),
-                      subtitle: Consumer(
-                        builder: (context, ref, _) {
-                          final custom = ref.watch(storageLocationProvider);
-                          if (custom != null)
+                      subtitle: BlocBuilder<StorageLocationCubit, String?>(
+                        builder: (context, custom) {
+                          if (custom != null) {
                             return Text(
                               custom,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodySmall,
                             );
+                          }
                           return FutureBuilder(
                             future: getDefaultSaveDirectory(),
                             builder: (context, snap) => Text(
@@ -148,11 +148,11 @@ class SettingsScreen extends ConsumerWidget {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Consumer(
-                            builder: (context, ref, _) {
-                              final custom = ref.watch(storageLocationProvider);
-                              if (custom == null)
+                          BlocBuilder<StorageLocationCubit, String?>(
+                            builder: (context, custom) {
+                              if (custom == null) {
                                 return const SizedBox.shrink();
+                              }
                               return IconButton(
                                 icon: const Icon(
                                   Icons.restart_alt_rounded,
@@ -160,16 +160,17 @@ class SettingsScreen extends ConsumerWidget {
                                 ),
                                 tooltip: 'Reset to default',
                                 onPressed: () async {
-                                  await ref
-                                      .read(storageLocationProvider.notifier)
+                                  await context
+                                      .read<StorageLocationCubit>()
                                       .clear();
                                   final def = await getDefaultSaveDirectory();
-                                  if (context.mounted)
+                                  if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Reset to ${def.path}'),
                                       ),
                                     );
+                                  }
                                 },
                               );
                             },
@@ -178,15 +179,14 @@ class SettingsScreen extends ConsumerWidget {
                         ],
                       ),
                       onTap: () async {
+                        final storage = context.read<StorageLocationCubit>();
                         // Best-effort: allow writes to shared storage before picking.
                         await ensureStoragePermission();
-                        final dir = await FilePicker.platform.getDirectoryPath(
+                        final dir = await FilePicker.getDirectoryPath(
                           dialogTitle: 'Pick storage location',
                         );
                         if (dir != null) {
-                          await ref
-                              .read(storageLocationProvider.notifier)
-                              .setLocation(dir);
+                          await storage.setLocation(dir);
                         }
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -259,7 +259,7 @@ class SettingsScreen extends ConsumerWidget {
 }
 
 class _MiniBadge extends StatelessWidget {
-  const _MiniBadge({required this.icon, required this.label});
+  const new({required this.icon, required this.label});
   final IconData icon;
   final String label;
   @override
@@ -291,7 +291,7 @@ class _MiniBadge extends StatelessWidget {
 }
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.icon, required this.title});
+  const new({required this.icon, required this.title});
   final IconData icon;
   final String title;
   @override
@@ -391,7 +391,7 @@ class _AboutCard extends StatelessWidget {
 }
 
 class _InfoTile extends StatelessWidget {
-  const _InfoTile({
+  const new({
     required this.icon,
     required this.title,
     required this.subtitle,

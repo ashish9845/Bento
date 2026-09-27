@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'bento_file.dart';
@@ -9,6 +9,7 @@ part of 'bento_file.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -28,16 +29,21 @@ $BentoFileCopyWith<BentoFile> get copyWith => _$BentoFileCopyWithImpl<BentoFile>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BentoFile&&(identical(other.path, path) || other.path == path)&&(identical(other.name, name) || other.name == name)&&(identical(other.size, size) || other.size == size)&&(identical(other.modified, modified) || other.modified == modified));
+  final _this = this as BentoFile;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BentoFile&&(identical(other.path, _this.path) || other.path == _this.path)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.size, _this.size) || other.size == _this.size)&&(identical(other.modified, _this.modified) || other.modified == _this.modified));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,path,name,size,modified);
+int get hashCode {
+  final _this = this as BentoFile;
+  return Object.hash(runtimeType,_this.path,_this.name,_this.size,_this.modified);
+}
 
 @override
 String toString() {
-  return 'BentoFile(path: $path, name: $name, size: $size, modified: $modified)';
+  final _this = this as BentoFile;
+  return 'BentoFile(path: ${_this.path}, name: ${_this.name}, size: ${_this.size}, modified: ${_this.modified})';
 }
 
 
@@ -66,7 +72,7 @@ class _$BentoFileCopyWithImpl<$Res>
 /// Create a copy of BentoFile
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? path = null,Object? name = null,Object? size = null,Object? modified = null,}) {
-  return _then(_self.copyWith(
+  return _then(BentoFile(
 path: null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
@@ -233,16 +239,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BentoFile&&(identical(other.path, path) || other.path == path)&&(identical(other.name, name) || other.name == name)&&(identical(other.size, size) || other.size == size)&&(identical(other.modified, modified) || other.modified == modified));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BentoFile&&(identical(other.path, path) || other.path == path)&&(identical(other.name, name) || other.name == name)&&(identical(other.size, size) || other.size == size)&&(identical(other.modified, modified) || other.modified == modified));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,path,name,size,modified);
+int get hashCode {
+    return Object.hash(runtimeType,path,name,size,modified);
+}
 
 @override
 String toString() {
-  return 'BentoFile(path: $path, name: $name, size: $size, modified: $modified)';
+    return 'BentoFile(path: $path, name: $name, size: $size, modified: $modified)';
 }
 
 

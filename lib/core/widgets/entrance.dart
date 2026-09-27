@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// Implicit (no controllers/tickers), 300ms ease-out — mirrors the route
 /// transition easing so openings feel consistent across the app.
 class EntranceFadeSlide extends StatelessWidget {
-  const EntranceFadeSlide({required this.child, super.key});
+  const new({required this.child, super.key});
 
   final Widget child;
 

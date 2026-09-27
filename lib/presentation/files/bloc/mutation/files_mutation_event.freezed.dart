@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'files_mutation_event.dart';
@@ -9,6 +9,7 @@ part of 'files_mutation_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $FilesMutationEventCopyWith<FilesMutationEvent> get copyWith => _$FilesMutationE
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FilesMutationEvent&&(identical(other.path, path) || other.path == path));
+  final _this = this as FilesMutationEvent;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FilesMutationEvent&&(identical(other.path, _this.path) || other.path == _this.path));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,path);
+int get hashCode {
+  final _this = this as FilesMutationEvent;
+  return Object.hash(runtimeType,_this.path);
+}
 
 @override
 String toString() {
-  return 'FilesMutationEvent(path: $path)';
+  final _this = this as FilesMutationEvent;
+  return 'FilesMutationEvent(path: ${_this.path})';
 }
 
 
@@ -63,8 +69,8 @@ class _$FilesMutationEventCopyWithImpl<$Res>
 /// Create a copy of FilesMutationEvent
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? path = null,}) {
-  return _then(_self.copyWith(
-path: null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
+  return _then(FilesMutationEvent.deleteFile(
+null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -221,16 +227,18 @@ $DeleteFileCopyWith<DeleteFile> get copyWith => _$DeleteFileCopyWithImpl<DeleteF
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeleteFile&&(identical(other.path, path) || other.path == path));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is DeleteFile&&(identical(other.path, path) || other.path == path));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,path);
+int get hashCode {
+    return Object.hash(runtimeType,path);
+}
 
 @override
 String toString() {
-  return 'FilesMutationEvent.deleteFile(path: $path)';
+    return 'FilesMutationEvent.deleteFile(path: $path)';
 }
 
 

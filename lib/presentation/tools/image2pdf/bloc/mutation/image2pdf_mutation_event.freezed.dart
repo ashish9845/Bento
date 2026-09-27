@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'image2pdf_mutation_event.dart';
@@ -9,6 +9,7 @@ part of 'image2pdf_mutation_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $Image2PdfMutationEventCopyWith<Image2PdfMutationEvent> get copyWith => _$Image2
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Image2PdfMutationEvent&&const DeepCollectionEquality().equals(other.imagePaths, imagePaths)&&(identical(other.outputName, outputName) || other.outputName == outputName));
+  final _this = this as Image2PdfMutationEvent;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Image2PdfMutationEvent&&const DeepCollectionEquality().equals(other.imagePaths, _this.imagePaths)&&(identical(other.outputName, _this.outputName) || other.outputName == _this.outputName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(imagePaths),outputName);
+int get hashCode {
+  final _this = this as Image2PdfMutationEvent;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.imagePaths),_this.outputName);
+}
 
 @override
 String toString() {
-  return 'Image2PdfMutationEvent(imagePaths: $imagePaths, outputName: $outputName)';
+  final _this = this as Image2PdfMutationEvent;
+  return 'Image2PdfMutationEvent(imagePaths: ${_this.imagePaths}, outputName: ${_this.outputName})';
 }
 
 
@@ -63,8 +69,8 @@ class _$Image2PdfMutationEventCopyWithImpl<$Res>
 /// Create a copy of Image2PdfMutationEvent
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? imagePaths = null,Object? outputName = freezed,}) {
-  return _then(_self.copyWith(
-imagePaths: null == imagePaths ? _self.imagePaths : imagePaths // ignore: cast_nullable_to_non_nullable
+  return _then(Image2PdfMutationEvent.submit(
+null == imagePaths ? _self.imagePaths : imagePaths // ignore: cast_nullable_to_non_nullable
 as List<String>,outputName: freezed == outputName ? _self.outputName : outputName // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -223,16 +229,18 @@ $SubmitImage2PdfCopyWith<SubmitImage2Pdf> get copyWith => _$SubmitImage2PdfCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmitImage2Pdf&&const DeepCollectionEquality().equals(other.imagePaths, imagePaths)&&(identical(other.outputName, outputName) || other.outputName == outputName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmitImage2Pdf&&const DeepCollectionEquality().equals(other.imagePaths, imagePaths)&&(identical(other.outputName, outputName) || other.outputName == outputName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(imagePaths),outputName);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(imagePaths),outputName);
+}
 
 @override
 String toString() {
-  return 'Image2PdfMutationEvent.submit(imagePaths: $imagePaths, outputName: $outputName)';
+    return 'Image2PdfMutationEvent.submit(imagePaths: $imagePaths, outputName: $outputName)';
 }
 
 

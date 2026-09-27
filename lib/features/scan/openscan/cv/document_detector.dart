@@ -63,7 +63,7 @@ Future<DetectionResult> detectDocumentIsolateEntry(String path) async {
       originalWidth,
       originalHeight,
     );
-  } catch (e) {
+  } on Exception catch (e) {
     return DetectionFailure(e.toString());
   }
 }

@@ -8,7 +8,7 @@ import 'merge_mutation_state.dart';
 
 class MergeMutationBloc extends Bloc<MergeMutationEvent, MergeMutationState> {
   final ToolsRepository repository;
-  MergeMutationBloc(this.repository) : super(const MergeMutationState()) {
+  new(this.repository) : super(const MergeMutationState()) {
     on<SubmitMerge>(_onSubmit);
   }
 
@@ -30,7 +30,7 @@ class MergeMutationBloc extends Bloc<MergeMutationEvent, MergeMutationState> {
           resultPath: result.path,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: MergeMutationStatus.failure,

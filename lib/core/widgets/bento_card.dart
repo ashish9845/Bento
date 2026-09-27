@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Reusable Bento card per SKILL.md widget composition — rounded, soft shadow, warm.
 class BentoCard extends StatelessWidget {
-  const BentoCard({
+  const new({
     required this.child,
     super.key,
     this.padding = const EdgeInsets.all(16),
@@ -32,7 +32,7 @@ class BentoCard extends StatelessWidget {
 }
 
 class ThemedButton extends StatelessWidget {
-  const ThemedButton({
+  const new({
     required this.text,
     required this.onPressed,
     super.key,

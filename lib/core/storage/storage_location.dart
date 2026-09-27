@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,11 +31,11 @@ Future<Directory> getDefaultSaveDirectory() async {
           return docs;
         }
       }
-    } catch (_) {
+    } on Exception catch (_) {
       // Fall through to app documents.
     }
   }
-  return getApplicationDocumentsDirectory();
+  return await getApplicationDocumentsDirectory();
 }
 
 /// Effective save directory: custom Settings pick if set and exists, else default.
@@ -46,8 +47,8 @@ Future<Directory> getSaveDirectory() async {
       final dir = Directory(custom);
       if (await dir.exists()) return dir;
     }
-  } catch (_) {}
-  return getDefaultSaveDirectory();
+  } on Exception catch (_) {}
+  return await getDefaultSaveDirectory();
 }
 
 /// Best-effort storage permission for writing to shared Documents (Android only).
@@ -58,24 +59,23 @@ Future<bool> ensureStoragePermission() async {
     if (await Permission.manageExternalStorage.isGranted) return true;
     if (await Permission.storage.request().isGranted) return true;
     return await Permission.manageExternalStorage.request().isGranted;
-  } catch (_) {
+  } on Exception catch (_) {
     return false;
   }
 }
 
-final storageLocationProvider =
-    StateNotifierProvider<StorageLocationNotifier, String?>((ref) {
-      return StorageLocationNotifier();
-    });
-
-class StorageLocationNotifier extends StateNotifier<String?> {
-  StorageLocationNotifier() : super(null) {
-    _load();
+/// Selected save location override (custom directory path, or null for the
+/// default). Persisted in SharedPreferences.
+class StorageLocationCubit extends Cubit<String?> {
+  new() : super(null) {
+    unawaited(_load());
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    state = prefs.getString(_key);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      emit(prefs.getString(_key));
+    } on Exception catch (_) {}
   }
 
   Future<void> setLocation(String? path) async {
@@ -85,7 +85,7 @@ class StorageLocationNotifier extends StateNotifier<String?> {
     } else {
       await prefs.setString(_key, path);
     }
-    state = path;
+    emit(path);
   }
 
   Future<void> clear() => setLocation(null);

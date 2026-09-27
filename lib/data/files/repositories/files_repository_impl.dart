@@ -7,13 +7,13 @@ import '../../../core/errors/failures.dart';
 
 class FilesRepositoryImpl implements FilesRepository {
   final FilesLocalDataSource local;
-  FilesRepositoryImpl(this.local);
+  new(this.local);
 
   @override
   Future<List<BentoFile>> fetchRecentFiles() async {
     try {
       return await local.getRecentFiles();
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -22,7 +22,7 @@ class FilesRepositoryImpl implements FilesRepository {
   Future<void> deleteFile(String path) async {
     try {
       await local.deleteFile(path);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -31,7 +31,7 @@ class FilesRepositoryImpl implements FilesRepository {
   Future<List<BentoFile>> importFiles(List<File> picked) async {
     try {
       return await local.importFiles(picked);
-    } catch (e) {
+    } on Exception catch (e) {
       throw CacheException(e.toString());
     }
   }

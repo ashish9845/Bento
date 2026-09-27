@@ -8,8 +8,9 @@ void main() {
   testWidgets('all palette previews render', (tester) async {
     for (final palette in AppPalette.values) {
       for (final bright in [Brightness.light, Brightness.dark]) {
-        final scheme =
-            bright == Brightness.light ? palette.lightScheme : palette.darkScheme;
+        final scheme = bright == Brightness.light
+            ? palette.lightScheme
+            : palette.darkScheme;
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(

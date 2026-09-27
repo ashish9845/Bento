@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scan/main.dart';
 
 void main() {
-  testWidgets('BenoApp boots to Home with nav shell', (WidgetTester tester) async {
+  testWidgets('BenoApp boots to Home with nav shell', (tester) async {
     GoogleFonts.config.allowRuntimeFetching = false;
-    await tester.pumpWidget(const ProviderScope(child: BenoApp()));
+    await tester.pumpWidget(const BenoApp());
     // Explicit pumps instead of pumpAndSettle: background async work
     // (prefs/engine warm-up) can hold pending timers under the standard
     // binding without scheduling frames.
@@ -20,15 +19,18 @@ void main() {
     expect(find.byKey(const ValueKey('home_scan_fab')), findsOneWidget);
     for (final label in ['Home', 'Files', 'Tools', 'Me']) {
       expect(
-        find.descendant(of: find.byType(NavigationBar), matching: find.text(label)),
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text(label),
+        ),
         findsOneWidget,
       );
     }
   });
 
-  testWidgets('swipe left/right switches tabs with animation', (WidgetTester tester) async {
+  testWidgets('swipe left/right switches tabs with animation', (tester) async {
     GoogleFonts.config.allowRuntimeFetching = false;
-    await tester.pumpWidget(const ProviderScope(child: BenoApp()));
+    await tester.pumpWidget(const BenoApp());
     await tester.pump(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
 

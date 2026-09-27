@@ -51,7 +51,7 @@ Future<void> openDoc(BuildContext context, String path) async {
         ),
       ),
     );
-  } catch (e) {
+  } on Exception catch (e) {
     if (!context.mounted) return;
     ScaffoldMessenger.of(
       context,

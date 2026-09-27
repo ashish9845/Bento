@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Performant thumbnail grid — ListView.builder + RepaintBoundary, 60fps.
 class PdfThumbnailGrid extends StatelessWidget {
-  const PdfThumbnailGrid({
+  const new({
     required this.pageCount,
     super.key,
     this.onReorder,
@@ -70,7 +70,7 @@ class PdfThumbnailGrid extends StatelessWidget {
 }
 
 class _PageTile extends StatelessWidget {
-  const _PageTile({
+  const new({
     required this.pageNumber,
     required this.selected,
     this.onDelete,

@@ -139,7 +139,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     if (len == 0) {
       try {
         await file.delete();
-      } catch (_) {}
+      } on Exception catch (_) {}
       throw Exception('Engine produced an empty file — please retry');
     }
     PdfDoc? doc;
@@ -155,12 +155,14 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
         pages: PdfPages.single(0),
         size: const PdfRenderSize.thumbnail(200),
       )) {
-        if (page.data.isEmpty)
+        if (page.data.isEmpty) {
           throw Exception('Output failed a render check — please retry');
+        }
         rendered = true;
       }
-      if (!rendered)
+      if (!rendered) {
         throw Exception('Output failed a render check — please retry');
+      }
       debugPrint(
         '[PdfEngine] verified ${file.path.split('/').last}: $len bytes, $expectedPages pages',
       );
@@ -207,7 +209,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
       } finally {
         await doc.dispose();
       }
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     }
   }
@@ -223,7 +225,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     final sink = await FileSink.create(out);
     try {
       await _pdf.merge(inputs.map(FileSource.new).toList(), sink);
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     } finally {
       await sink.close();
@@ -254,7 +256,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
       final sink = await FileSink.create(out);
       try {
         await _pdf.extractPages(FileSource(input), sink, pages: chunks[i]);
-      } catch (e) {
+      } on Exception catch (e) {
         _wrap(e);
       } finally {
         await sink.close();
@@ -284,7 +286,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     final sink = await FileSink.create(out);
     try {
       await _pdf.extractPages(FileSource(input), sink, pages: sorted);
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     } finally {
       await sink.close();
@@ -307,8 +309,9 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     final finalOrder = (order ?? natural)
         .where((i) => !delete.contains(i))
         .toList();
-    if (finalOrder.isEmpty)
+    if (finalOrder.isEmpty) {
       throw Exception('Deleting every page would leave an empty PDF');
+    }
     // Remap rotations (tracked on original indices) into working-list
     // positions. Every copy of a rotated page rotates, including duplicates.
     final newRotations = <int, int>{};
@@ -330,7 +333,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
         await editor.rotatePage(entry.key, degrees: entry.value % 360);
       }
       await editor.save(sink);
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     } finally {
       await editor?.dispose();
@@ -359,7 +362,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     final sink = await FileSink.create(out);
     try {
       await _pdf.compress(FileSource(input), sink, images: policy);
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     } finally {
       await sink.close();
@@ -375,7 +378,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     final sink = await FileSink.create(out);
     try {
       await _pdf.imagesToPdf(images.map(FileSource.new).toList(), sink);
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     } finally {
       await sink.close();
@@ -408,12 +411,12 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     await folder.create(recursive: true);
     try {
       return await _renderInto(folder, input, maxSize: maxSize, prefix: 'p');
-    } catch (_) {
+    } on Exception catch (_) {
       // Never leave empty folders behind on total failure.
       try {
         final leftovers = await folder.list().toList();
         if (leftovers.isEmpty) await folder.delete(recursive: true);
-      } catch (_) {}
+      } on Exception catch (_) {}
       rethrow;
     }
   }
@@ -427,10 +430,10 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     await folder.create(recursive: true);
     try {
       return await _renderInto(folder, input, maxSize: maxSize, prefix: 't');
-    } catch (_) {
+    } on Exception catch (_) {
       try {
         await folder.delete(recursive: true);
-      } catch (_) {}
+      } on Exception catch (_) {}
       rethrow;
     }
   }
@@ -466,7 +469,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
             if (len == 0) {
               try {
                 await out.delete();
-              } catch (_) {}
+              } on Exception catch (_) {}
               throw Exception('write produced an empty file');
             }
             debugPrint(
@@ -476,12 +479,12 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
             rendered = true;
           }
           if (!rendered) throw Exception('renderer returned no pages');
-        } catch (e) {
+        } on Exception catch (e) {
           debugPrint('[PdfEngine] page ${i + 1} failed: $e');
           failures.add(i + 1);
         }
       }
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     } finally {
       await doc.dispose();
@@ -514,7 +517,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
       if (decoded != null && decoded.height > 0) {
         aspect = decoded.width / decoded.height;
       }
-    } catch (_) {}
+    } on Exception catch (_) {}
     final out = await _outputFile('signed', name: outputName);
     final sink = await FileSink.create(out);
     PdfEditor? editor;
@@ -537,7 +540,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
         ),
       );
       await editor.save(sink);
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     } finally {
       await editor?.dispose();
@@ -554,8 +557,9 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     String? ownerPassword,
     String? outputName,
   }) async {
-    if (userPassword.isEmpty)
+    if (userPassword.isEmpty) {
       throw Exception('Enter a password to protect this PDF');
+    }
     final count = await pageCount(input);
     // A distinct owner password locks usage down (no printing, copying,
     // modifying, annotating); without one the file just needs the user
@@ -583,7 +587,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
           ),
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     } finally {
       await editor?.dispose();
@@ -612,7 +616,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
           encryption: PdfEncryption.remove(),
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       _wrap(e);
     } finally {
       await editor?.dispose();

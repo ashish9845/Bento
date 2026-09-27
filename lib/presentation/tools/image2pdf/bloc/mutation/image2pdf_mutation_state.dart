@@ -6,7 +6,7 @@ enum Image2PdfMutationStatus { idle, inProgress, success, failure }
 
 @freezed
 abstract class Image2PdfMutationState with _$Image2PdfMutationState {
-  const factory Image2PdfMutationState({
+  const factory({
     @Default(Image2PdfMutationStatus.idle) Image2PdfMutationStatus status,
     String? errorMessage,
     String? resultPath,

@@ -8,7 +8,7 @@ class AppButton extends StatelessWidget {
   final bool isOutlined;
   final IconData? icon;
 
-  const AppButton({
+  const new({
     required this.label,
     required this.onPressed,
     super.key,
@@ -57,7 +57,7 @@ class AppIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onPressed;
   final String? tooltip;
-  const AppIconButton({
+  const new({
     required this.icon,
     required this.onPressed,
     super.key,

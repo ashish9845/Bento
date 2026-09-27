@@ -11,7 +11,7 @@ import '../router/route_names.dart';
 /// scrollers (carousels, reorder grids, drawing canvases) win the gesture
 /// arena, so their drags never switch tabs.
 class AppShell extends StatefulWidget {
-  const AppShell({required this.navigationShell, super.key});
+  const new({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
@@ -112,7 +112,7 @@ class _AppShellState extends State<AppShell> {
 /// [index] changes. A plain implicit wrapper (no duplicated subtree), so the
 /// shell's GlobalKey is never mounted twice.
 class _BranchTransition extends StatefulWidget {
-  const _BranchTransition({
+  const new({
     required this.index,
     required this.direction,
     required this.child,

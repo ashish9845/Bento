@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'merge_mutation_state.dart';
@@ -9,6 +9,7 @@ part of 'merge_mutation_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $MergeMutationStateCopyWith<MergeMutationState> get copyWith => _$MergeMutationS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.resultPath, resultPath) || other.resultPath == resultPath));
+  final _this = this as MergeMutationState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationState&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.errorMessage, _this.errorMessage) || other.errorMessage == _this.errorMessage)&&(identical(other.resultPath, _this.resultPath) || other.resultPath == _this.resultPath));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,errorMessage,resultPath);
+int get hashCode {
+  final _this = this as MergeMutationState;
+  return Object.hash(runtimeType,_this.status,_this.errorMessage,_this.resultPath);
+}
 
 @override
 String toString() {
-  return 'MergeMutationState(status: $status, errorMessage: $errorMessage, resultPath: $resultPath)';
+  final _this = this as MergeMutationState;
+  return 'MergeMutationState(status: ${_this.status}, errorMessage: ${_this.errorMessage}, resultPath: ${_this.resultPath})';
 }
 
 
@@ -63,7 +69,7 @@ class _$MergeMutationStateCopyWithImpl<$Res>
 /// Create a copy of MergeMutationState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(MergeMutationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as MergeMutationStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,resultPath: freezed == resultPath ? _self.resultPath : resultPath // ignore: cast_nullable_to_non_nullable
@@ -225,16 +231,18 @@ _$MergeMutationStateCopyWith<_MergeMutationState> get copyWith => __$MergeMutati
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MergeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.resultPath, resultPath) || other.resultPath == resultPath));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MergeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.resultPath, resultPath) || other.resultPath == resultPath));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,errorMessage,resultPath);
+int get hashCode {
+    return Object.hash(runtimeType,status,errorMessage,resultPath);
+}
 
 @override
 String toString() {
-  return 'MergeMutationState(status: $status, errorMessage: $errorMessage, resultPath: $resultPath)';
+    return 'MergeMutationState(status: $status, errorMessage: $errorMessage, resultPath: $resultPath)';
 }
 
 

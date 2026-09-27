@@ -50,7 +50,7 @@ CustomTransitionPage<void> buildAppTransitionPage({
 }
 
 class _StyledTransition extends StatelessWidget {
-  const _StyledTransition({
+  const new({
     required this.style,
     required this.animation,
     required this.child,

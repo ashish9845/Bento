@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'home_mutation_state.dart';
@@ -9,6 +9,7 @@ part of 'home_mutation_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $HomeMutationStateCopyWith<HomeMutationState> get copyWith => _$HomeMutationStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.importedCount, importedCount) || other.importedCount == importedCount)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  final _this = this as HomeMutationState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeMutationState&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.importedCount, _this.importedCount) || other.importedCount == _this.importedCount)&&(identical(other.errorMessage, _this.errorMessage) || other.errorMessage == _this.errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,importedCount,errorMessage);
+int get hashCode {
+  final _this = this as HomeMutationState;
+  return Object.hash(runtimeType,_this.status,_this.importedCount,_this.errorMessage);
+}
 
 @override
 String toString() {
-  return 'HomeMutationState(status: $status, importedCount: $importedCount, errorMessage: $errorMessage)';
+  final _this = this as HomeMutationState;
+  return 'HomeMutationState(status: ${_this.status}, importedCount: ${_this.importedCount}, errorMessage: ${_this.errorMessage})';
 }
 
 
@@ -63,7 +69,7 @@ class _$HomeMutationStateCopyWithImpl<$Res>
 /// Create a copy of HomeMutationState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? importedCount = null,Object? errorMessage = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(HomeMutationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as HomeMutationStatus,importedCount: null == importedCount ? _self.importedCount : importedCount // ignore: cast_nullable_to_non_nullable
 as int,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -225,16 +231,18 @@ _$HomeMutationStateCopyWith<_HomeMutationState> get copyWith => __$HomeMutationS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.importedCount, importedCount) || other.importedCount == importedCount)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.importedCount, importedCount) || other.importedCount == importedCount)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,importedCount,errorMessage);
+int get hashCode {
+    return Object.hash(runtimeType,status,importedCount,errorMessage);
+}
 
 @override
 String toString() {
-  return 'HomeMutationState(status: $status, importedCount: $importedCount, errorMessage: $errorMessage)';
+    return 'HomeMutationState(status: $status, importedCount: $importedCount, errorMessage: $errorMessage)';
 }
 
 

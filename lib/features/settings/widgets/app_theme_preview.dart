@@ -6,7 +6,7 @@ import 'package:scan/core/theme/app_palettes.dart';
 /// each theme previews itself. Selected card gets a primary border, a check
 /// badge and a highlighted name.
 class AppThemePreview extends StatelessWidget {
-  const AppThemePreview({
+  const new({
     required this.palette,
     required this.scheme,
     required this.selected,

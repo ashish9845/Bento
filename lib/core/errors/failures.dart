@@ -1,20 +1,20 @@
 class ServerException implements Exception {
   final String message;
-  const ServerException(this.message);
+  const new(this.message);
   @override
   String toString() => 'ServerException: $message';
 }
 
 class CacheException implements Exception {
   final String message;
-  const CacheException(this.message);
+  const new(this.message);
   @override
   String toString() => 'CacheException: $message';
 }
 
 class PermissionException implements Exception {
   final String message;
-  const PermissionException(this.message);
+  const new(this.message);
   @override
   String toString() => 'PermissionException: $message';
 }

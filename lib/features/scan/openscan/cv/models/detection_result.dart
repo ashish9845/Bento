@@ -8,7 +8,7 @@ import 'quad.dart';
 /// old raw `List` / silently-empty-on-failure contract with an explicit
 /// three-way outcome so the UI can never be left waiting forever.
 abstract class DetectionResult {
-  const DetectionResult();
+  const new();
 }
 
 /// A convex document-shaped quadrilateral was found.
@@ -17,7 +17,7 @@ class DetectionSuccess extends DetectionResult {
   final int imageWidth;
   final int imageHeight;
 
-  const DetectionSuccess(this.quad, this.imageWidth, this.imageHeight);
+  const new(this.quad, this.imageWidth, this.imageHeight);
 }
 
 /// Detection ran without error, but no suitable quad was found.
@@ -25,14 +25,14 @@ class DetectionNotFound extends DetectionResult {
   final int imageWidth;
   final int imageHeight;
 
-  const DetectionNotFound(this.imageWidth, this.imageHeight);
+  const new(this.imageWidth, this.imageHeight);
 }
 
 /// Detection threw (corrupt image, decode failure, timeout, etc).
 class DetectionFailure extends DetectionResult {
   final String message;
 
-  const DetectionFailure(this.message);
+  const new(this.message);
 
   @override
   String toString() => 'DetectionFailure($message)';
@@ -40,13 +40,13 @@ class DetectionFailure extends DetectionResult {
 
 /// Result of running the perspective crop.
 abstract class CropResult {
-  const CropResult();
+  const new();
 }
 
 class CropSuccess extends CropResult {
   final String path;
 
-  const CropSuccess(this.path);
+  const new(this.path);
 
   @override
   String toString() => 'CropSuccess($path)';
@@ -55,7 +55,7 @@ class CropSuccess extends CropResult {
 class CropFailure extends CropResult {
   final String message;
 
-  const CropFailure(this.message);
+  const new(this.message);
 
   @override
   String toString() => 'CropFailure($message)';

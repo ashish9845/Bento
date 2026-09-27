@@ -24,7 +24,7 @@ import '../../../features/tools/widgets/send_to_tool.dart';
 /// UI never imports Repository directly except via BlocProvider setup in router.
 /// QueryBloc handles fetch/refresh, MutationBloc handles delete.
 class FilesPage extends StatelessWidget {
-  const FilesPage({super.key});
+  const new({super.key});
 
   /// Long-press menu: Open, Share, Send to…, Details, Delete.
   Future<void> _showFileActions(BuildContext context, BentoFile f) async {
@@ -278,7 +278,7 @@ class FilesPage extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
                     sliver: SliverList.separated(
                       itemCount: files.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
                       itemBuilder: (context, i) {
                         final f = files[i];
                         final kb = (f.size / 1024).toStringAsFixed(1);
@@ -402,7 +402,7 @@ class FilesPage extends StatelessWidget {
 
 /// One label/value line in the Details dialog.
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.label, required this.value});
+  const new({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -432,7 +432,7 @@ class _DetailRow extends StatelessWidget {
 /// Call this from app_router's builder for /files.
 class FilesRouteProviders extends StatelessWidget {
   final Widget child;
-  const FilesRouteProviders({required this.child, super.key});
+  const new({required this.child, super.key});
   @override
   Widget build(BuildContext context) {
     return RepositoryProvider(

@@ -3,7 +3,7 @@ import 'dart:io';
 enum ToolStatus { idle, picking, processing, success, error }
 
 class ToolState {
-  const ToolState({
+  const new({
     this.files = const [],
     this.status = ToolStatus.idle,
     this.message,

@@ -21,7 +21,7 @@ import 'filters/filters/filters.dart';
 /// document filter → preview. Supports continuous multi-page sessions.
 /// Pops with `List<String>` of ready JPEG paths for the Scan review flow.
 class OpenScanCaptureScreen extends StatefulWidget {
-  const OpenScanCaptureScreen({super.key});
+  const new({super.key});
 
   @override
   State<OpenScanCaptureScreen> createState() => _OpenScanCaptureScreenState();
@@ -67,7 +67,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initCamera();
+    unawaited(_initCamera());
   }
 
   /// The camera feed dies when the app is backgrounded (black preview on
@@ -85,7 +85,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
       }
     } else if (state == AppLifecycleState.resumed) {
       if (_controller == null && _initError == null && mounted) {
-        _initCamera();
+        unawaited(_initCamera());
       }
     }
   }
@@ -98,8 +98,9 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
         onTimeout: () => throw TimeoutException('Camera did not respond'),
       );
       if (cameras.isEmpty) {
-        if (mounted)
+        if (mounted) {
           setState(() => _initError = 'No camera found on this device');
+        }
         return;
       }
       final back = cameras.firstWhere(
@@ -117,7 +118,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
         return;
       }
       setState(() => _controller = controller);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('[OpenScan] camera init failed: $e');
       if (mounted) {
         setState(
@@ -132,7 +133,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _controller?.dispose();
+    unawaited(_controller?.dispose());
     super.dispose();
   }
 
@@ -143,15 +144,16 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
       _flashOn = !_flashOn;
       await controller.setFlashMode(_flashOn ? FlashMode.torch : FlashMode.off);
       if (mounted) setState(() {});
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   Future<void> _capture() async {
     final controller = _controller;
     if (controller == null ||
         !controller.value.isInitialized ||
-        _stage == _Stage.working)
+        _stage == _Stage.working) {
       return;
+    }
     _discardCurrent();
     setState(() {
       _stage = _Stage.working;
@@ -183,7 +185,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
           ),
         );
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
       setState(() {
         _error = e.toString().replaceFirst('Exception: ', '');
@@ -221,7 +223,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
       if (previous != null && previous != next) {
         unawaited(File(previous).delete().catchError((_) => File(previous)));
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
       setState(() {
         _error = e.toString().replaceFirst('Exception: ', '');
@@ -254,7 +256,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
       if (previous != null && previous != next) {
         unawaited(File(previous).delete().catchError((_) => File(previous)));
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
       }
@@ -424,12 +426,14 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                     onSkip: () {
                       final w = _workW.toDouble();
                       final h = _workH.toDouble();
-                      _applyCrop(
-                        Quad(
-                          topLeft: const Pt(0, 0),
-                          topRight: Pt(w, 0),
-                          bottomRight: Pt(w, h),
-                          bottomLeft: Pt(0, h),
+                      unawaited(
+                        _applyCrop(
+                          Quad(
+                            topLeft: const Pt(0, 0),
+                            topRight: Pt(w, 0),
+                            bottomRight: Pt(w, h),
+                            bottomLeft: Pt(0, h),
+                          ),
                         ),
                       );
                     },
@@ -571,12 +575,14 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                         onPressed: () {
                           final w = _workW.toDouble();
                           final h = _workH.toDouble();
-                          _applyCrop(
-                            Quad(
-                              topLeft: const Pt(0, 0),
-                              topRight: Pt(w, 0),
-                              bottomRight: Pt(w, h),
-                              bottomLeft: Pt(0, h),
+                          unawaited(
+                            _applyCrop(
+                              Quad(
+                                topLeft: const Pt(0, 0),
+                                topRight: Pt(w, 0),
+                                bottomRight: Pt(w, h),
+                                bottomLeft: Pt(0, h),
+                              ),
                             ),
                           );
                         },
@@ -654,7 +660,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
   /// changes through `onApply` continuously while dragging.
   void _editorApplyCurrent() {
     final quad = _editorKey.currentState?.quad;
-    if (quad != null) _applyCrop(quad);
+    if (quad != null) unawaited(_applyCrop(quad));
   }
 
   final _editorKey = GlobalKey<_CropEditorState>();
@@ -663,7 +669,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
 /// Manual crop editor: full photo with a draggable-corner quad overlay,
 /// seeded with the auto-detected boundary. Drag a handle to reshape.
 class _CropEditor extends StatefulWidget {
-  const _CropEditor({
+  const new({
     required this.imageBytes,
     required this.imgW,
     required this.imgH,
@@ -804,7 +810,7 @@ class _CropEditorState extends State<_CropEditor> {
 
 /// Quad outline + dimmed surround.
 class _QuadPainter extends CustomPainter {
-  _QuadPainter(this.quad, this.scale);
+  new(this.quad, this.scale);
   final Quad quad;
   final double scale;
 
@@ -855,7 +861,7 @@ Filter _filterForName(String name) {
 
 /// Filter pill: highlighted filled pill when selected, dim gray otherwise.
 class _FilterChip extends StatelessWidget {
-  const _FilterChip({
+  const new({
     required this.label,
     required this.selected,
     required this.enabled,
@@ -919,7 +925,7 @@ class _FilterChip extends StatelessWidget {
 /// Classic camera shutter: white ring with a solid center. Shows a spinner
 /// while the photo is being processed.
 class _ShutterButton extends StatelessWidget {
-  const _ShutterButton({required this.working, required this.onTap, super.key});
+  const new({required this.working, required this.onTap, super.key});
 
   final bool working;
   final VoidCallback onTap;

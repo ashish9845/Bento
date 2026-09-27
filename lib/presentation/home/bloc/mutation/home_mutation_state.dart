@@ -6,7 +6,7 @@ enum HomeMutationStatus { idle, inProgress, success, failure }
 
 @freezed
 abstract class HomeMutationState with _$HomeMutationState {
-  const factory HomeMutationState({
+  const factory({
     @Default(HomeMutationStatus.idle) HomeMutationStatus status,
     @Default(0) int importedCount,
     String? errorMessage,

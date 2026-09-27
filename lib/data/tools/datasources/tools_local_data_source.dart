@@ -39,7 +39,7 @@ class ToolsLocalDataSourceImpl implements ToolsLocalDataSource {
           ),
         );
       }
-      return pdf.save();
+      return await pdf.save();
     });
     // Save only once to the chosen location (custom/default Documents) to avoid duplicates in Files tab
     final saveDir = (await getSaveDirectory()).path;

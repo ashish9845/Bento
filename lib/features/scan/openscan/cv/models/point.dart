@@ -8,7 +8,7 @@ class Pt {
   final double x;
   final double y;
 
-  const Pt(this.x, this.y);
+  const new(this.x, this.y);
 
   Pt scaled(double sx, double sy) => Pt(x * sx, y * sy);
 

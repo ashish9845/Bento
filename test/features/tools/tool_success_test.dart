@@ -5,7 +5,9 @@ import 'package:scan/core/storage/open_file.dart';
 import 'package:scan/features/tools/widgets/tool_progress.dart';
 
 void main() {
-  testWidgets('ToolSuccess shows Open folder instead of Save when wired so', (tester) async {
+  testWidgets('ToolSuccess shows Open folder instead of Save when wired so', (
+    tester,
+  ) async {
     GoogleFonts.config.allowRuntimeFetching = false;
     var opened = false;
     await tester.pumpWidget(
@@ -28,7 +30,9 @@ void main() {
     expect(opened, isTrue);
   });
 
-  testWidgets('ToolSuccess shows Open instead of Save when wired so', (tester) async {
+  testWidgets('ToolSuccess shows Open instead of Save when wired so', (
+    tester,
+  ) async {
     GoogleFonts.config.allowRuntimeFetching = false;
     var opened = false;
     await tester.pumpWidget(
@@ -51,17 +55,21 @@ void main() {
     expect(opened, isTrue);
   });
 
-  testWidgets('openDoc reports failure visibly instead of silently', (tester) async {
+  testWidgets('openDoc reports failure visibly instead of silently', (
+    tester,
+  ) async {
     GoogleFonts.config.allowRuntimeFetching = false;
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: Builder(builder: (context) {
-            return FilledButton(
-              onPressed: () => openDoc(context, '/nonexistent_xyz/nope.pdf'),
-              child: const Text('Open it'),
-            );
-          }),
+          body: Builder(
+            builder: (context) {
+              return FilledButton(
+                onPressed: () => openDoc(context, '/nonexistent_xyz/nope.pdf'),
+                child: const Text('Open it'),
+              );
+            },
+          ),
         ),
       ),
     );

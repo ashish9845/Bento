@@ -8,7 +8,7 @@ enum FilesQueryStatus { initial, loading, loaded, error }
 
 @Freezed(makeCollectionsUnmodifiable: false)
 abstract class FilesQueryState with _$FilesQueryState {
-  const factory FilesQueryState({
+  const factory({
     @Default(FilesQueryStatus.initial) FilesQueryStatus status,
     @Default([]) List<BentoFile> files,
     String? errorMessage,

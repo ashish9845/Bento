@@ -5,13 +5,12 @@ part 'bento_file.g.dart';
 
 @freezed
 abstract class BentoFile with _$BentoFile {
-  const factory BentoFile({
+  const factory({
     required String path,
     required String name,
     required int size,
     required DateTime modified,
   }) = _BentoFile;
 
-  factory BentoFile.fromJson(Map<String, dynamic> json) =>
-      _$BentoFileFromJson(json);
+  factory fromJson(Map<String, dynamic> json) => _$BentoFileFromJson(json);
 }

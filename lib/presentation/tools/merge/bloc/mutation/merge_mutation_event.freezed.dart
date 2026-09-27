@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'merge_mutation_event.dart';
@@ -9,6 +9,7 @@ part of 'merge_mutation_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $MergeMutationEventCopyWith<MergeMutationEvent> get copyWith => _$MergeMutationE
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationEvent&&const DeepCollectionEquality().equals(other.filePaths, filePaths)&&(identical(other.outputName, outputName) || other.outputName == outputName));
+  final _this = this as MergeMutationEvent;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationEvent&&const DeepCollectionEquality().equals(other.filePaths, _this.filePaths)&&(identical(other.outputName, _this.outputName) || other.outputName == _this.outputName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(filePaths),outputName);
+int get hashCode {
+  final _this = this as MergeMutationEvent;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.filePaths),_this.outputName);
+}
 
 @override
 String toString() {
-  return 'MergeMutationEvent(filePaths: $filePaths, outputName: $outputName)';
+  final _this = this as MergeMutationEvent;
+  return 'MergeMutationEvent(filePaths: ${_this.filePaths}, outputName: ${_this.outputName})';
 }
 
 
@@ -63,8 +69,8 @@ class _$MergeMutationEventCopyWithImpl<$Res>
 /// Create a copy of MergeMutationEvent
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? filePaths = null,Object? outputName = freezed,}) {
-  return _then(_self.copyWith(
-filePaths: null == filePaths ? _self.filePaths : filePaths // ignore: cast_nullable_to_non_nullable
+  return _then(MergeMutationEvent.submitMerge(
+null == filePaths ? _self.filePaths : filePaths // ignore: cast_nullable_to_non_nullable
 as List<String>,outputName: freezed == outputName ? _self.outputName : outputName // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -223,16 +229,18 @@ $SubmitMergeCopyWith<SubmitMerge> get copyWith => _$SubmitMergeCopyWithImpl<Subm
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmitMerge&&const DeepCollectionEquality().equals(other.filePaths, filePaths)&&(identical(other.outputName, outputName) || other.outputName == outputName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmitMerge&&const DeepCollectionEquality().equals(other.filePaths, filePaths)&&(identical(other.outputName, outputName) || other.outputName == outputName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(filePaths),outputName);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(filePaths),outputName);
+}
 
 @override
 String toString() {
-  return 'MergeMutationEvent.submitMerge(filePaths: $filePaths, outputName: $outputName)';
+    return 'MergeMutationEvent.submitMerge(filePaths: $filePaths, outputName: $outputName)';
 }
 
 

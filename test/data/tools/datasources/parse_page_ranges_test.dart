@@ -6,27 +6,27 @@ void main() {
     test('parses single pages and ranges (1-based)', () {
       expect(parsePageRanges('1-3, 5', 10), [
         [0, 1, 2],
-        [4]
+        [4],
       ]);
     });
 
     test('supports end keyword', () {
       expect(parsePageRanges('4-end', 6), [
-        [3, 4, 5]
+        [3, 4, 5],
       ]);
       expect(parsePageRanges('1-1, 2-end', 3), [
         [0],
-        [1, 2]
+        [1, 2],
       ]);
     });
 
     test('ignores whitespace and case', () {
       expect(parsePageRanges(' 1 - 2 , 3 ', 5), [
         [0, 1],
-        [2]
+        [2],
       ]);
       expect(parsePageRanges('2-END', 4), [
-        [1, 2, 3]
+        [1, 2, 3],
       ]);
     });
 

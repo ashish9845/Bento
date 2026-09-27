@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scan/features/tools/providers/tool_controller.dart';
+import 'package:scan/features/tools/providers/tool_cubit.dart';
 
 /// Timestamped default file name, e.g. `Split_20250925_2130`.
 String defaultOutputName(String prefix) {
@@ -53,7 +53,7 @@ Future<String?> askOutputName(
 /// Used by every tool screen so naming happens before the action runs.
 Future<void> runWithRename({
   required BuildContext context,
-  required ToolController ctrl,
+  required ToolCubit ctrl,
   required String defaultName,
   String title = 'Name your PDF',
 }) async {

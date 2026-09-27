@@ -1,9 +1,10 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:scan/core/theme/app_palette_cubit.dart';
 import 'package:scan/core/theme/app_palettes.dart';
 import 'package:scan/core/theme/dynamic_scheme.dart';
-import 'package:scan/core/theme/theme_mode_provider.dart';
+import 'package:scan/core/theme/theme_mode_cubit.dart';
 
 import 'app_theme_preview.dart';
 
@@ -21,21 +22,21 @@ String _modeLabel(ThemeMode mode) {
 /// Theme section: collapsible card with a "Mode · Palette" subtitle, Dark /
 /// Light / System pills, and a horizontally swipeable row of palette
 /// previews. Replaces the old segmented button + color-dot wrap.
-class ThemeSettingsCard extends ConsumerStatefulWidget {
-  const ThemeSettingsCard({super.key});
+class ThemeSettingsCard extends StatefulWidget {
+  const new({super.key});
 
   @override
-  ConsumerState<ThemeSettingsCard> createState() => _ThemeSettingsCardState();
+  State<ThemeSettingsCard> createState() => _ThemeSettingsCardState();
 }
 
-class _ThemeSettingsCardState extends ConsumerState<ThemeSettingsCard> {
+class _ThemeSettingsCardState extends State<ThemeSettingsCard> {
   bool _expanded = true;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final mode = ref.watch(themeModeProvider);
-    final palette = ref.watch(appPaletteProvider);
+    final mode = context.watch<ThemeModeCubit>().state;
+    final palette = context.watch<AppPaletteCubit>().state;
     return RepaintBoundary(
       child: Card(
         child: Padding(
@@ -93,7 +94,7 @@ class _ThemeSettingsCardState extends ConsumerState<ThemeSettingsCard> {
                             label: _modeLabel(m),
                             selected: mode == m,
                             onTap: () =>
-                                ref.read(themeModeProvider.notifier).setMode(m),
+                                context.read<ThemeModeCubit>().setMode(m),
                           ),
                         ),
                       ),
@@ -138,8 +139,8 @@ class _ThemeSettingsCardState extends ConsumerState<ThemeSettingsCard> {
                                   dynamicScheme: dynamicScheme,
                                 ),
                                 selected: p == palette,
-                                onTap: () => ref
-                                    .read(appPaletteProvider.notifier)
+                                onTap: () => context
+                                    .read<AppPaletteCubit>()
                                     .setPalette(p),
                               ),
                             ),
@@ -160,11 +161,7 @@ class _ThemeSettingsCardState extends ConsumerState<ThemeSettingsCard> {
 /// One Dark/Light/System pill — filled primary when selected, quiet surface
 /// otherwise, like a segmented control but with full-width thirds.
 class _ModePill extends StatelessWidget {
-  const _ModePill({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
+  const new({required this.label, required this.selected, required this.onTap});
 
   final String label;
   final bool selected;

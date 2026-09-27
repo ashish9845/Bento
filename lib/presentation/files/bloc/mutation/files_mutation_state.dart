@@ -6,7 +6,7 @@ enum FilesMutationStatus { idle, inProgress, success, failure }
 
 @freezed
 abstract class FilesMutationState with _$FilesMutationState {
-  const factory FilesMutationState({
+  const factory({
     @Default(FilesMutationStatus.idle) FilesMutationStatus status,
     String? errorMessage,
   }) = _FilesMutationState;

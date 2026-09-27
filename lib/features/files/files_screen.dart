@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scan/core/storage/open_file.dart';
@@ -9,7 +8,7 @@ import 'package:scan/core/storage/storage_location.dart';
 import 'package:scan/features/tools/widgets/send_to_tool.dart';
 import 'package:share_plus/share_plus.dart';
 
-final recentFilesProvider = FutureProvider<List<File>>((ref) async {
+Future<List<File>> _loadRecentFiles() async {
   final docs = await getApplicationDocumentsDirectory();
   final tmp = await getTemporaryDirectory();
   final defaultDir = await getDefaultSaveDirectory();
@@ -22,7 +21,7 @@ final recentFilesProvider = FutureProvider<List<File>>((ref) async {
       final c = Directory(custom);
       if (await c.exists()) dirs.add(c);
     }
-  } catch (_) {}
+  } on Exception catch (_) {}
   for (final dir in dirs) {
     if (!await dir.exists()) continue;
     await for (final e in dir.list()) {
@@ -32,19 +31,35 @@ final recentFilesProvider = FutureProvider<List<File>>((ref) async {
   files.sort((a, b) {
     try {
       return b.lastModifiedSync().compareTo(a.lastModifiedSync());
-    } catch (_) {
+    } on Exception catch (_) {
       return 0;
     }
   });
   return files.take(30).toList();
-});
+}
 
-class FilesScreen extends ConsumerWidget {
-  const FilesScreen({super.key});
+class FilesScreen extends StatefulWidget {
+  const new({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final recent = ref.watch(recentFilesProvider);
+  State<FilesScreen> createState() => _FilesScreenState();
+}
+
+class _FilesScreenState extends State<FilesScreen> {
+  late Future<List<File>> _recentFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _recentFuture = _loadRecentFiles();
+  }
+
+  void _refresh() {
+    setState(() => _recentFuture = _loadRecentFiles());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: CustomScrollView(
@@ -55,19 +70,26 @@ class FilesScreen extends ConsumerWidget {
             actions: [
               IconButton.filledTonal(
                 icon: const Icon(Icons.refresh_rounded, size: 20),
-                onPressed: () => ref.invalidate(recentFilesProvider),
+                onPressed: _refresh,
                 tooltip: 'Refresh',
               ),
               const SizedBox(width: 8),
             ],
           ),
-          recent.when(
-            loading: () => const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            ),
-            error: (e, _) =>
-                SliverFillRemaining(child: Center(child: Text('Error: $e'))),
-            data: (files) {
+          FutureBuilder<List<File>>(
+            future: _recentFuture,
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (snap.hasError) {
+                return SliverFillRemaining(
+                  child: Center(child: Text('Error: ${snap.error}')),
+                );
+              }
+              final files = snap.data ?? const <File>[];
               if (files.isEmpty) {
                 return SliverFillRemaining(
                   hasScrollBody: false,
@@ -107,8 +129,7 @@ class FilesScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           FilledButton.tonalIcon(
-                            onPressed: () =>
-                                ref.invalidate(recentFilesProvider),
+                            onPressed: _refresh,
                             icon: const Icon(Icons.refresh_rounded),
                             label: const Text('Refresh'),
                           ),
@@ -122,7 +143,7 @@ class FilesScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
                 sliver: SliverList.separated(
                   itemCount: files.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (context, i) {
                     final f = files[i];
                     String kb = '—';
@@ -135,7 +156,9 @@ class FilesScreen extends ConsumerWidget {
                           .toString()
                           .split('.')
                           .first;
-                    } catch (_) {}
+                    } on Exception catch (_) {
+                      // Stat can fail on stale entries — keep placeholders.
+                    }
                     // staggered entrance
                     return TweenAnimationBuilder<double>(
                       tween: Tween(begin: 0, end: 1),

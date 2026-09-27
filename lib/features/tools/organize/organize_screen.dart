@@ -1,181 +1,253 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scan/core/storage/open_file.dart';
-import 'package:scan/features/tools/providers/tool_controller.dart';
-import 'package:scan/features/tools/providers/tool_providers.dart';
+import 'package:scan/data/tools/datasources/pdf_engine_data_source.dart';
+import 'package:scan/data/tools/repositories/tools_repository.dart';
+import 'package:scan/data/tools/repositories/tools_repository_impl.dart';
+import 'package:scan/features/tools/providers/tool_cubit.dart';
 import 'package:scan/features/tools/providers/tool_state.dart';
 import 'package:scan/features/tools/widgets/file_picker_card.dart';
 import 'package:scan/features/tools/widgets/rename_dialog.dart';
 import 'package:scan/features/tools/widgets/tool_progress.dart';
 import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
-final organizeControllerProvider =
-    StateNotifierProvider<ToolController, ToolState>((ref) {
-      final repo = ref.watch(toolsRepositoryProvider);
-      return ToolController(
-        persistenceKey: 'organize',
-        processFn: (inputs, ctrl) async {
-          final count = await repo.pageCount(inputs.first);
-          final natural = [for (var i = 0; i < count; i++) i];
-          final order = ref.read(organizeOrderProvider) ?? natural;
-          if (order.isEmpty)
-            throw Exception('No pages left — tap Reset to restore them');
-          final rotations = ref.read(organizeRotationsProvider);
-          ctrl.setProgress(null, 'Applying changes to ${order.length} pages…');
-          final out = await repo.organizePdf(
-            inputs.first,
-            order: order,
-            rotations: rotations,
-            outputName: ctrl.outputName,
-          );
-          return [out];
-        },
-      );
-    });
+class OrganizeScreen extends StatefulWidget {
+  const new({super.key, this.repository});
 
-/// Working page order as original 0-based indices. Duplicates allowed,
-/// deletions are items removed from the list. `null` = untouched natural order.
-final organizeOrderProvider = StateProvider<List<int>?>((ref) => null);
-final organizeRotationsProvider = StateProvider<Map<int, int>>((ref) => {});
-
-class OrganizeScreen extends ConsumerWidget {
-  const OrganizeScreen({super.key});
+  /// Overridable for tests; defaults to the real FFI engine repository.
+  final ToolsRepository? repository;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(organizeControllerProvider);
-    final ctrl = ref.read(organizeControllerProvider.notifier);
+  State<OrganizeScreen> createState() => _OrganizeScreenState();
+}
 
-    final filePath = state.files.isEmpty ? null : state.files.first.path;
-    final pageCountAsync = filePath == null
-        ? null
-        : ref.watch(pdfPageCountProvider(filePath));
-    final thumbsAsync = filePath == null
-        ? null
-        : ref.watch(pdfThumbsProvider(filePath));
+class _OrganizeScreenState extends State<OrganizeScreen> {
+  late final ToolCubit _cubit;
 
-    void resetAll() {
-      ref.read(organizeOrderProvider.notifier).state = null;
-      ref.read(organizeRotationsProvider.notifier).state = {};
+  /// Working page order as original 0-based indices. Duplicates allowed,
+  /// deletions are items removed from the list. `null` = untouched natural order.
+  List<int>? _order;
+  Map<int, int> _rotations = {};
+  Future<(_PageCount, List<File>)?>? _docFuture;
+  String? _docPath;
+
+  @override
+  void initState() {
+    super.initState();
+    final repository =
+        widget.repository ?? ToolsRepositoryImpl(PdfEngineDataSourceImpl());
+    _cubit = ToolCubit(
+      repository: repository,
+      persistenceKey: 'organize',
+      processFn: (inputs, ctrl) async {
+        final count = await repository.pageCount(inputs.first);
+        final natural = [for (var i = 0; i < count; i++) i];
+        final order = _order ?? natural;
+        if (order.isEmpty) {
+          throw Exception('No pages left — tap Reset to restore them');
+        }
+        ctrl.setProgress(null, 'Applying changes to ${order.length} pages…');
+        final out = await repository.organizePdf(
+          inputs.first,
+          order: order,
+          rotations: _rotations,
+          outputName: ctrl.outputName,
+        );
+        return [out];
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    unawaited(_cubit.close());
+    super.dispose();
+  }
+
+  void _onFilesChanged(ToolState state) {
+    final path = state.files.isEmpty ? null : state.files.first.path;
+    if (path != _docPath) {
+      setState(() {
+        _docPath = path;
+        if (path == null) {
+          _docFuture = null;
+        } else {
+          final file = File(path);
+          _docFuture =
+              Future.wait([_cubit.pageCount(file), _cubit.thumbnails(file)])
+                  .then<(_PageCount, List<File>)?>(
+                    (results) => (
+                      _PageCount(count: results[0] as int),
+                      results[1] as List<File>,
+                    ),
+                  );
+        }
+      });
     }
+  }
 
-    Future<void> pickFile() async {
-      resetAll();
-      await ctrl.pickFiles(allowedExtensions: const ['pdf']);
-    }
+  void _resetAll() {
+    setState(() {
+      _order = null;
+      _rotations = {};
+    });
+  }
 
-    void clearAll() {
-      resetAll();
-      ctrl.clearFiles();
-    }
+  Future<void> _pickFile() async {
+    _resetAll();
+    await _cubit.pickFiles(allowedExtensions: const ['pdf']);
+  }
 
-    return ToolScaffold(
-      title: 'Organize Pages',
-      subtitle:
-          'Long-press and drag to reorder · ⧉ duplicate · ↻ rotate · ✕ delete',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          FilePickerCard(
-            files: state.files,
-            allowedExtensions: const ['pdf'],
-            label: 'PDF to organize',
-            onPick: pickFile,
-            onClear: clearAll,
-          ),
-          const SizedBox(height: 12),
-          if (filePath != null)
-            pageCountAsync?.when(
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Text('Could not read page count: $e'),
-                  data: (count) => _WorkingGrid(
-                    count: count,
-                    thumbsAsync: thumbsAsync,
-                    onReset: resetAll,
+  void _clearAll() {
+    _resetAll();
+    _cubit.clearFiles();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: _cubit,
+      child: BlocConsumer<ToolCubit, ToolState>(
+        listener: (context, state) => _onFilesChanged(state),
+        builder: (context, state) {
+          return ToolScaffold(
+            title: 'Organize Pages',
+            subtitle: 'Long-press and drag to reorder · ⧉ duplicate · ↻ rotate · ✕ delete',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FilePickerCard(
+                  files: state.files,
+                  allowedExtensions: const ['pdf'],
+                  label: 'PDF to organize',
+                  onPick: _pickFile,
+                  onClear: _clearAll,
+                ),
+                const SizedBox(height: 12),
+                if (_docPath != null && _docFuture != null)
+                  FutureBuilder<(_PageCount, List<File>)?>(
+                    future: _docFuture,
+                    builder: (context, snap) {
+                      if (snap.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snap.hasError || snap.data == null) {
+                        return const Text(
+                          'Could not read pages — pick the file again.',
+                        );
+                      }
+                      final (info, thumbs) = snap.data!;
+                      return _WorkingGrid(
+                        count: info.count,
+                        thumbPaths: [for (final t in thumbs) t.path],
+                        order: _order,
+                        rotations: _rotations,
+                        onOrderChanged: (next) => setState(() => _order = next),
+                        onRotationsChanged: (next) =>
+                            setState(() => _rotations = next),
+                        onReset: _resetAll,
+                      );
+                    },
                   ),
-                ) ??
-                const SizedBox.shrink(),
-          const SizedBox(height: 12),
-          if (state.isProcessing) const ToolProgress(label: 'Organizing…'),
-          if (state.hasError)
-            ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
-          if (state.hasResult)
-            ToolSuccess(
-              message: 'Organized!',
-              onOpen: () => openDoc(context, state.resultFiles.first.path),
-              onShare: ctrl.shareResult,
+                const SizedBox(height: 12),
+                if (state.isProcessing)
+                  const ToolProgress(label: 'Organizing…'),
+                if (state.hasError)
+                  ToolError(
+                    message: state.message ?? 'Failed',
+                    onRetry: _cubit.run,
+                  ),
+                if (state.hasResult)
+                  ToolSuccess(
+                    message: 'Organized!',
+                    onOpen: () =>
+                        openDoc(context, state.resultFiles.first.path),
+                    onShare: _cubit.shareResult,
+                  ),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  onPressed: state.files.isEmpty || state.isProcessing
+                      ? null
+                      : () => runWithRename(
+                          context: context,
+                          ctrl: _cubit,
+                          defaultName: defaultOutputName('Organized'),
+                        ),
+                  icon: const Icon(Icons.view_carousel_outlined),
+                  label: const Text('Apply'),
+                ),
+              ],
             ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: state.files.isEmpty || state.isProcessing
-                ? null
-                : () => runWithRename(
-                    context: context,
-                    ctrl: ctrl,
-                    defaultName: defaultOutputName('Organized'),
-                  ),
-            icon: const Icon(Icons.view_carousel_outlined),
-            label: const Text('Apply'),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 }
 
-class _WorkingGrid extends ConsumerWidget {
-  const _WorkingGrid({
+/// Page-count payload for the organize grid future.
+class _PageCount {
+  const new({required this.count});
+  final int count;
+}
+
+class _WorkingGrid extends StatelessWidget {
+  const new({
     required this.count,
-    required this.thumbsAsync,
+    required this.thumbPaths,
+    required this.order,
+    required this.rotations,
+    required this.onOrderChanged,
+    required this.onRotationsChanged,
     required this.onReset,
   });
 
   final int count;
-  final AsyncValue<List<String>>? thumbsAsync;
+  final List<String> thumbPaths;
+  final List<int>? order;
+  final Map<int, int> rotations;
+  final ValueChanged<List<int>> onOrderChanged;
+  final ValueChanged<Map<int, int>> onRotationsChanged;
   final VoidCallback onReset;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final natural = [for (var i = 0; i < count; i++) i];
-    final order = ref.watch(organizeOrderProvider) ?? natural;
-    final rotations = ref.watch(organizeRotationsProvider);
-    final thumbs = thumbsAsync?.valueOrNull;
-
-    void setOrder(List<int> next) =>
-        ref.read(organizeOrderProvider.notifier).state = next;
+    final current = order ?? natural;
+    final thumbs = thumbPaths.isEmpty ? null : thumbPaths;
 
     void reorder(int from, int to) {
-      final next = [...order];
+      final next = [...current];
       final item = next.removeAt(from);
       next.insert(to > from ? to - 1 : to, item);
-      setOrder(next);
+      onOrderChanged(next);
     }
 
     void duplicate(int pos) {
-      final next = [...order];
+      final next = [...current];
       next.insert(pos + 1, next[pos]);
-      setOrder(next);
+      onOrderChanged(next);
     }
 
     void removeAt(int pos) {
-      final next = [...order]..removeAt(pos);
-      setOrder(next);
+      final next = [...current]..removeAt(pos);
+      onOrderChanged(next);
     }
 
     void rotate(int pos) {
-      final orig = order[pos];
+      final orig = current[pos];
       final next = {...rotations};
       next[orig] = ((next[orig] ?? 0) + 90) % 360;
       if (next[orig] == 0) next.remove(orig);
-      ref.read(organizeRotationsProvider.notifier).state = next;
+      onRotationsChanged(next);
     }
 
-    final dupCount = order.length - order.toSet().length;
-    final deletedCount = count - order.toSet().length;
+    final dupCount = current.length - current.toSet().length;
+    final deletedCount = count - current.toSet().length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -184,7 +256,7 @@ class _WorkingGrid extends ConsumerWidget {
           children: [
             Expanded(
               child: Text(
-                '${order.length} pages'
+                '${current.length} pages'
                 '${dupCount > 0 ? ' · $dupCount duplicated' : ''}'
                 '${deletedCount > 0 ? ' · $deletedCount deleted' : ''}'
                 '${rotations.isNotEmpty ? ' · ${rotations.length} rotated' : ''}',
@@ -199,7 +271,7 @@ class _WorkingGrid extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 8),
-        if (order.isEmpty)
+        if (current.isEmpty)
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -212,18 +284,6 @@ class _WorkingGrid extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           )
-        else if (thumbsAsync is AsyncLoading)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: CircularProgressIndicator(),
-            ),
-          )
-        else if (thumbsAsync is AsyncError)
-          Text(
-            'Previews unavailable — you can still apply changes.',
-            style: Theme.of(context).textTheme.bodySmall,
-          )
         else
           GridView.builder(
             shrinkWrap: true,
@@ -234,9 +294,9 @@ class _WorkingGrid extends ConsumerWidget {
               crossAxisSpacing: 10,
               childAspectRatio: 0.58,
             ),
-            itemCount: order.length,
+            itemCount: current.length,
             itemBuilder: (context, pos) {
-              final orig = order[pos];
+              final orig = current[pos];
               final thumb = (thumbs != null && orig < thumbs.length)
                   ? thumbs[orig]
                   : null;
@@ -277,7 +337,7 @@ class _WorkingGrid extends ConsumerWidget {
 }
 
 class _OrganizeTile extends StatelessWidget {
-  const _OrganizeTile({
+  const new({
     required this.position,
     required this.original,
     required this.thumbPath,
@@ -438,7 +498,7 @@ class _OrganizeTile extends StatelessWidget {
 }
 
 class _TileButton extends StatelessWidget {
-  const _TileButton({
+  const new({
     required this.icon,
     required this.tooltip,
     required this.onTap,

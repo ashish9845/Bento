@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Rounded search field (filters shortcuts + recents locally — no Bloc needed).
 class HomeSearchBar extends StatelessWidget {
-  const HomeSearchBar({
-    required this.controller,
-    required this.onChanged,
-    super.key,
-  });
+  const new({required this.controller, required this.onChanged, super.key});
 
   final TextEditingController controller;
   final ValueChanged<String> onChanged;

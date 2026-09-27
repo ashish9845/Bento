@@ -14,7 +14,7 @@ class Quad {
   final Pt bottomRight;
   final Pt bottomLeft;
 
-  const Quad({
+  const new({
     required this.topLeft,
     required this.topRight,
     required this.bottomRight,

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// like a phone home screen. No card chrome, no badges.
 /// Per SKILL.md: implicit animations, RepaintBoundary, no per-card Ticker.
 class AnimatedToolCard extends StatelessWidget {
-  const AnimatedToolCard({
+  const new({
     required this.label,
     required this.subtitle,
     required this.icon,

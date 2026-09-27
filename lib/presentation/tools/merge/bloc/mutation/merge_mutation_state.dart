@@ -6,7 +6,7 @@ enum MergeMutationStatus { idle, inProgress, success, failure }
 
 @freezed
 abstract class MergeMutationState with _$MergeMutationState {
-  const factory MergeMutationState({
+  const factory({
     @Default(MergeMutationStatus.idle) MergeMutationStatus status,
     String? errorMessage,
     String? resultPath,

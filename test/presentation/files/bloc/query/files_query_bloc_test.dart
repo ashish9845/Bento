@@ -8,7 +8,7 @@ import 'package:scan/presentation/files/bloc/query/files_query_bloc.dart';
 import 'package:scan/presentation/files/bloc/query/files_query_event.dart';
 import 'package:scan/presentation/files/bloc/query/files_query_state.dart';
 
-class MockFilesRepository extends Mock implements FilesRepository {}
+class MockFilesRepository extends Mock implements FilesRepository;
 
 void main() {
   late MockFilesRepository mockRepo;
@@ -19,7 +19,12 @@ void main() {
 
   group('FilesQueryBloc', () {
     final tFiles = [
-      BentoFile(path: '/a.pdf', name: 'a.pdf', size: 100, modified: DateTime(2024)),
+      BentoFile(
+        path: '/a.pdf',
+        name: 'a.pdf',
+        size: 100,
+        modified: DateTime(2024),
+      ),
     ];
 
     blocTest<FilesQueryBloc, FilesQueryState>(
@@ -39,13 +44,17 @@ void main() {
     blocTest<FilesQueryBloc, FilesQueryState>(
       'emits [loading, error] when fetch throws CacheException',
       build: () {
-        when(() => mockRepo.fetchRecentFiles()).thenThrow(const CacheException('fail'));
+        when(() => mockRepo.fetchRecentFiles())
+            .thenThrow(const CacheException('fail'));
         return FilesQueryBloc(mockRepo);
       },
       act: (bloc) => bloc.add(const FilesQueryEvent.fetch()),
       expect: () => [
         const FilesQueryState(status: FilesQueryStatus.loading),
-        const FilesQueryState(status: FilesQueryStatus.error, errorMessage: 'CacheException: fail'),
+        const FilesQueryState(
+          status: FilesQueryStatus.error,
+          errorMessage: 'CacheException: fail',
+        ),
       ],
     );
 

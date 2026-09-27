@@ -5,7 +5,7 @@ import 'package:scan/core/router/route_names.dart';
 import 'package:scan/core/widgets/animated_tool_card.dart';
 
 class _Tool {
-  const _Tool(this.label, this.icon, this.routeName, this.subtitle);
+  const new(this.label, this.icon, this.routeName, this.subtitle);
   final String label;
   final IconData icon;
   final String routeName;
@@ -16,7 +16,7 @@ class _Tool {
 /// small — add more (e.g. "Security", "Convert") as tools grow, each with
 /// its own header + grid below.
 class _ToolCategory {
-  const _ToolCategory(this.title, this.tools);
+  const new(this.title, this.tools);
   final String title;
   final List<_Tool> tools;
 }
@@ -87,7 +87,7 @@ const _categories = [
 ];
 
 class ToolGridScreen extends StatefulWidget {
-  const ToolGridScreen({super.key});
+  const new({super.key});
 
   @override
   State<ToolGridScreen> createState() => _ToolGridScreenState();

@@ -5,7 +5,7 @@ import '../buttons/app_button.dart';
 class AppErrorView extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
-  const AppErrorView({required this.message, super.key, this.onRetry});
+  const new({required this.message, super.key, this.onRetry});
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

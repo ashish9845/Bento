@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:scan/core/storage/storage_location.dart';
@@ -21,7 +20,7 @@ class ScannerService {
     // Run heavy work in isolate when many/large images to avoid jank
     Future<Uint8List> buildPdf() async {
       if (imagePaths.length > 2) {
-        return Isolate.run(() async {
+        return await Isolate.run(() async {
           final pdf = pw.Document();
           for (final path in imagePaths) {
             final b = await File(path).readAsBytes();
@@ -35,7 +34,7 @@ class ScannerService {
               ),
             );
           }
-          return pdf.save();
+          return await pdf.save();
         });
       }
       final pdf = pw.Document();
@@ -51,7 +50,7 @@ class ScannerService {
           ),
         );
       }
-      return pdf.save();
+      return await pdf.save();
     }
 
     final outBytes = await buildPdf();
@@ -74,9 +73,3 @@ class ScannerService {
     return outFile;
   }
 }
-
-final scannerServiceProvider = Provider<ScannerService>(
-  (ref) => ScannerService(),
-);
-
-final scanResultsProvider = StateProvider<List<String>>((ref) => []);

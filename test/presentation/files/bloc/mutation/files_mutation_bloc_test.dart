@@ -6,7 +6,7 @@ import 'package:scan/presentation/files/bloc/mutation/files_mutation_bloc.dart';
 import 'package:scan/presentation/files/bloc/mutation/files_mutation_event.dart';
 import 'package:scan/presentation/files/bloc/mutation/files_mutation_state.dart';
 
-class MockFilesRepository extends Mock implements FilesRepository {}
+class MockFilesRepository extends Mock implements FilesRepository;
 
 void main() {
   late MockFilesRepository mockRepo;
@@ -39,7 +39,9 @@ void main() {
       act: (bloc) => bloc.add(const FilesMutationEvent.deleteFile('/a.pdf')),
       expect: () => [
         const FilesMutationState(status: FilesMutationStatus.inProgress),
-        isA<FilesMutationState>().having((s) => s.status, 'status', FilesMutationStatus.failure).having((s) => s.errorMessage, 'errorMessage', contains('io')),
+        isA<FilesMutationState>()
+            .having((s) => s.status, 'status', FilesMutationStatus.failure)
+            .having((s) => s.errorMessage, 'errorMessage', contains('io')),
       ],
     );
   });

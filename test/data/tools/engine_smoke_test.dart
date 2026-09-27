@@ -10,7 +10,7 @@ import 'package:pdf_manipulator/pdf_manipulator.dart';
 Future<Uint8List> _makePdf(String text) async {
   final doc = pw.Document();
   doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text(text))));
-  return doc.save();
+  return await doc.save();
 }
 
 void main() {
@@ -68,7 +68,11 @@ void main() {
 
       // compress
       final compOut = MemorySink();
-      await pdf.compress(MemorySource(merged), compOut, images: PdfImagePolicy.screen);
+      await pdf.compress(
+        MemorySource(merged),
+        compOut,
+        images: PdfImagePolicy.screen,
+      );
       expect(compOut.takeBytes().isNotEmpty, isTrue);
 
       // imagesToPdf
@@ -87,7 +91,15 @@ void main() {
       // Fake 300x150 white signature PNG with a black stroke
       final sig = img.Image(width: 300, height: 150);
       img.fill(sig, color: img.ColorRgb8(255, 255, 255));
-      img.drawLine(sig, x1: 20, y1: 120, x2: 280, y2: 30, color: img.ColorRgb8(0, 0, 0), thickness: 3);
+      img.drawLine(
+        sig,
+        x1: 20,
+        y1: 120,
+        x2: 280,
+        y2: 30,
+        color: img.ColorRgb8(0, 0, 0),
+        thickness: 3,
+      );
       final sigPng = Uint8List.fromList(img.encodePng(sig));
 
       final editor = await pdf.edit(MemorySource(bytes));
@@ -97,7 +109,12 @@ void main() {
         await editor.addImageStamp(
           0,
           MemorySource(sigPng),
-          rect: PdfRect(x: media.x + media.width - 36 - 140, y: media.y + 36, width: 140, height: 70),
+          rect: PdfRect(
+            x: media.x + media.width - 36 - 140,
+            y: media.y + 36,
+            width: 140,
+            height: 70,
+          ),
         );
         final out = MemorySink();
         await editor.save(out);
@@ -149,11 +166,23 @@ void main() {
       // datasource maps the text to friendly errors.)
       await expectLater(
         pdf.open(MemorySource(locked)),
-        throwsA(isA<PdfEngineError>().having((e) => e.message, 'message', contains('password required'))),
+        throwsA(
+          isA<PdfEngineError>().having(
+            (e) => e.message,
+            'message',
+            contains('password required'),
+          ),
+        ),
       );
       await expectLater(
         pdf.open(MemorySource(locked), password: 'nope'),
-        throwsA(isA<PdfEngineError>().having((e) => e.message, 'message', contains('wrong password'))),
+        throwsA(
+          isA<PdfEngineError>().having(
+            (e) => e.message,
+            'message',
+            contains('wrong password'),
+          ),
+        ),
       );
 
       // right password opens: content intact
@@ -165,12 +194,17 @@ void main() {
       }
 
       // unlock strips all encryption
-      final editor2 = await pdf.edit(MemorySource(locked), password: 'user-123');
+      final editor2 = await pdf.edit(
+        MemorySource(locked),
+        password: 'user-123',
+      );
       try {
         final plainOut = MemorySink();
         await editor2.save(
           plainOut,
-          options: const PdfSaveOptions.fullRewrite(encryption: PdfEncryption.remove()),
+          options: const PdfSaveOptions.fullRewrite(
+            encryption: PdfEncryption.remove(),
+          ),
         );
         final plain = plainOut.takeBytes();
         expect(plain.isNotEmpty, isTrue);
@@ -193,10 +227,11 @@ void main() {
     try {
       final bytes = await _makePdf('dup');
       final threeOut = MemorySink();
-      await pdf.merge(
-        [MemorySource(bytes), MemorySource(bytes), MemorySource(bytes)],
-        threeOut,
-      );
+      await pdf.merge([
+        MemorySource(bytes),
+        MemorySource(bytes),
+        MemorySource(bytes),
+      ], threeOut);
       final editor = await pdf.edit(MemorySource(threeOut.takeBytes()));
       try {
         await editor.selectPages([0, 0, 1]);
@@ -222,10 +257,11 @@ void main() {
       final bytes = await _makePdf('hi');
       // Build a 3-page doc by merging the same page 3 times
       final threeOut = MemorySink();
-      await pdf.merge(
-        [MemorySource(bytes), MemorySource(bytes), MemorySource(bytes)],
-        threeOut,
-      );
+      await pdf.merge([
+        MemorySource(bytes),
+        MemorySource(bytes),
+        MemorySource(bytes),
+      ], threeOut);
       final three = threeOut.takeBytes();
 
       final editor = await pdf.edit(MemorySource(three));

@@ -11,7 +11,7 @@ import 'dart:typed_data';
 /// the app's locale. The label the user sees is resolved separately, by
 /// `filterLabel` in `lib/view/screens/filter_screen.dart`.
 abstract class Filter extends Object {
-  Filter({required this.name});
+  new({required this.name});
 
   final String name;
 

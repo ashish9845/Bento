@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:integration_test/integration_test.dart';
@@ -14,11 +13,12 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   Finder navItem(String label) => find.descendant(
-        of: find.byType(NavigationBar),
-        matching: find.text(label),
-      );
+    of: find.byType(NavigationBar),
+    matching: find.text(label),
+  );
 
-  Finder toolCard(String routeName) => find.byKey(ValueKey('tool_card_$routeName'));
+  Finder toolCard(String routeName) =>
+      find.byKey(ValueKey('tool_card_$routeName'));
 
   Offset screenCenter(WidgetTester tester) {
     final size = tester.view.physicalSize / tester.view.devicePixelRatio;
@@ -53,16 +53,27 @@ void main() {
 
   Future<void> pumpApp(WidgetTester tester) async {
     GoogleFonts.config.allowRuntimeFetching = false;
-    await tester.pumpWidget(const ProviderScope(child: BenoApp()));
+    await tester.pumpWidget(const BenoApp());
     await tester.pumpAndSettle();
   }
 
   group('Bento app', () {
-    testWidgets('boots to Home with search, shortcuts, recents and FAB', (tester) async {
+    testWidgets('boots to Home with search, shortcuts, recents and FAB', (
+      tester,
+    ) async {
       await pumpApp(tester);
 
       expect(find.byKey(const ValueKey('home_search_field')), findsOneWidget);
-      for (final id in ['scan', 'tools', 'sign', 'compress', 'merge', 'protect', 'unlock', 'all']) {
+      for (final id in [
+        'scan',
+        'tools',
+        'sign',
+        'compress',
+        'merge',
+        'protect',
+        'unlock',
+        'all',
+      ]) {
         expect(find.byKey(ValueKey('home_shortcut_$id')), findsOneWidget);
       }
       // Recents header lives below the fold — scroll the visible view first.
@@ -75,26 +86,49 @@ void main() {
       }
     });
 
-    testWidgets('search filters shortcuts and shows empty hint', (tester) async {
+    testWidgets('search filters shortcuts and shows empty hint', (
+      tester,
+    ) async {
       await pumpApp(tester);
 
-      await tester.enterText(find.byKey(const ValueKey('home_search_field')), 'merge');
+      await tester.enterText(
+        find.byKey(const ValueKey('home_search_field')),
+        'merge',
+      );
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('home_shortcut_merge')), findsOneWidget);
       expect(find.byKey(const ValueKey('home_shortcut_scan')), findsNothing);
 
       // Keyword search: synonyms match without exact labels.
-      await tester.enterText(find.byKey(const ValueKey('home_search_field')), 'password');
+      await tester.enterText(
+        find.byKey(const ValueKey('home_search_field')),
+        'password',
+      );
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('home_shortcut_protect')), findsOneWidget);
-      expect(find.byKey(const ValueKey('home_shortcut_unlock')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('home_shortcut_protect')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('home_shortcut_unlock')),
+        findsOneWidget,
+      );
       expect(find.byKey(const ValueKey('home_shortcut_scan')), findsNothing);
 
-      await tester.enterText(find.byKey(const ValueKey('home_search_field')), 'shrink');
+      await tester.enterText(
+        find.byKey(const ValueKey('home_search_field')),
+        'shrink',
+      );
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('home_shortcut_compress')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('home_shortcut_compress')),
+        findsOneWidget,
+      );
 
-      await tester.enterText(find.byKey(const ValueKey('home_search_field')), 'zzz-no-match');
+      await tester.enterText(
+        find.byKey(const ValueKey('home_search_field')),
+        'zzz-no-match',
+      );
       await tester.pumpAndSettle();
       expect(find.textContaining('No tools match'), findsOneWidget);
     });
@@ -157,7 +191,9 @@ void main() {
       }
     });
 
-    testWidgets('Merge tool renders picker with disabled action', (tester) async {
+    testWidgets('Merge tool renders picker with disabled action', (
+      tester,
+    ) async {
       await pumpApp(tester);
 
       await openTool(tester, RouteNames.toolsMerge);
@@ -179,49 +215,54 @@ void main() {
       await goBack(tester);
     });
 
-    testWidgets('Organize / Extract / Compress / PDF→Image / Protect / Unlock / Sign screens render', (tester) async {
-      await pumpApp(tester);
+    testWidgets(
+      'Organize / Extract / Compress / PDF→Image / Protect / Unlock / Sign screens render',
+      (tester) async {
+        await pumpApp(tester);
 
-      await openTool(tester, RouteNames.toolsOrganize);
-      expect(find.text('Organize Pages'), findsWidgets);
-      expect(find.text('Apply'), findsOneWidget);
-      await goBack(tester);
+        await openTool(tester, RouteNames.toolsOrganize);
+        expect(find.text('Organize Pages'), findsWidgets);
+        expect(find.text('Apply'), findsOneWidget);
+        await goBack(tester);
 
-      await openTool(tester, RouteNames.toolsExtract);
-      expect(find.text('Extract Pages'), findsWidgets);
-      expect(find.text('Extract'), findsOneWidget);
-      await goBack(tester);
+        await openTool(tester, RouteNames.toolsExtract);
+        expect(find.text('Extract Pages'), findsWidgets);
+        expect(find.text('Extract'), findsOneWidget);
+        await goBack(tester);
 
-      await openTool(tester, RouteNames.toolsCompress);
-      expect(find.text('Compress PDF'), findsWidgets);
-      expect(find.text('Quality'), findsOneWidget);
-      expect(find.text('Medium'), findsOneWidget);
-      await goBack(tester);
+        await openTool(tester, RouteNames.toolsCompress);
+        expect(find.text('Compress PDF'), findsWidgets);
+        expect(find.text('Quality'), findsOneWidget);
+        expect(find.text('Medium'), findsOneWidget);
+        await goBack(tester);
 
-      await openTool(tester, RouteNames.toolsPdf2Image);
-      expect(find.text('PDF → Image'), findsWidgets);
-      expect(find.text('Export'), findsOneWidget);
-      await goBack(tester);
+        await openTool(tester, RouteNames.toolsPdf2Image);
+        expect(find.text('PDF → Image'), findsWidgets);
+        expect(find.text('Export'), findsOneWidget);
+        await goBack(tester);
 
-      await openTool(tester, RouteNames.toolsSign);
-      expect(find.text('Sign PDF'), findsWidgets);
-      expect(find.text('Signature'), findsOneWidget);
-      expect(find.text('Save signature'), findsOneWidget);
-      expect(find.text('Apply signature'), findsOneWidget);
-      await goBack(tester);
+        await openTool(tester, RouteNames.toolsSign);
+        expect(find.text('Sign PDF'), findsWidgets);
+        expect(find.text('Signature'), findsOneWidget);
+        expect(find.text('Save signature'), findsOneWidget);
+        expect(find.text('Apply signature'), findsOneWidget);
+        await goBack(tester);
 
-      await openTool(tester, RouteNames.toolsProtect);
-      expect(find.text('Protect PDF'), findsWidgets);
-      expect(find.text('Protect'), findsOneWidget);
-      await goBack(tester);
+        await openTool(tester, RouteNames.toolsProtect);
+        expect(find.text('Protect PDF'), findsWidgets);
+        expect(find.text('Protect'), findsOneWidget);
+        await goBack(tester);
 
-      await openTool(tester, RouteNames.toolsUnlock);
-      expect(find.text('Unlock PDF'), findsWidgets);
-      expect(find.text('Unlock'), findsOneWidget);
-      await goBack(tester);
-    });
+        await openTool(tester, RouteNames.toolsUnlock);
+        expect(find.text('Unlock PDF'), findsWidgets);
+        expect(find.text('Unlock'), findsOneWidget);
+        await goBack(tester);
+      },
+    );
 
-    testWidgets('Image→PDF screen renders with disabled action', (tester) async {
+    testWidgets('Image→PDF screen renders with disabled action', (
+      tester,
+    ) async {
       await pumpApp(tester);
 
       await openTool(tester, RouteNames.toolsImage2Pdf);
@@ -244,7 +285,9 @@ void main() {
       );
     });
 
-    testWidgets('Me tab shows settings with theme and palette controls', (tester) async {
+    testWidgets('Me tab shows settings with theme and palette controls', (
+      tester,
+    ) async {
       await pumpApp(tester);
 
       await tester.tap(navItem('Me'));

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// [keywords] powers the Home search so users don't have to type exact
 /// labels — e.g. "password" finds Protect PDF, "shrink" finds Compress.
 class HomeShortcut {
-  const HomeShortcut({
+  const new({
     required this.id,
     required this.label,
     required this.icon,
@@ -38,11 +38,7 @@ class HomeShortcut {
 /// 4-column shortcut grid. Every tile uses the primary theme tint so the
 /// whole grid follows the active palette (light + dark safe).
 class HomeShortcutGrid extends StatelessWidget {
-  const HomeShortcutGrid({
-    required this.shortcuts,
-    required this.onSelect,
-    super.key,
-  });
+  const new({required this.shortcuts, required this.onSelect, super.key});
 
   final List<HomeShortcut> shortcuts;
   final void Function(HomeShortcut shortcut) onSelect;

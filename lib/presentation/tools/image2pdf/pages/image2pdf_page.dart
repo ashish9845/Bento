@@ -10,7 +10,7 @@ import '../bloc/mutation/image2pdf_mutation_event.dart';
 import '../bloc/mutation/image2pdf_mutation_state.dart';
 
 class Image2PdfPage extends StatefulWidget {
-  const Image2PdfPage({super.key});
+  const new({super.key});
   @override
   State<Image2PdfPage> createState() => _Image2PdfPageState();
 }
@@ -19,13 +19,16 @@ class _Image2PdfPageState extends State<Image2PdfPage> {
   List<String> _paths = [];
 
   Future<void> _pickImages() async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
+    final picked = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
     );
-    if (result != null) {
-      setState(() => _paths = result.paths.whereType<String>().toList());
+    final paths = picked
+        .where((f) => f.path != null && f.path!.isNotEmpty)
+        .map((f) => f.path!)
+        .toList();
+    if (paths.isNotEmpty) {
+      setState(() => _paths = paths);
     }
   }
 

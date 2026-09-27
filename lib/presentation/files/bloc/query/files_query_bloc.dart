@@ -6,7 +6,7 @@ import 'files_query_state.dart';
 
 class FilesQueryBloc extends Bloc<FilesQueryEvent, FilesQueryState> {
   final FilesRepository repository;
-  FilesQueryBloc(this.repository) : super(const FilesQueryState()) {
+  new(this.repository) : super(const FilesQueryState()) {
     on<FetchFiles>(_onFetch);
     on<RefreshFiles>(_onFetch);
   }
@@ -19,7 +19,7 @@ class FilesQueryBloc extends Bloc<FilesQueryEvent, FilesQueryState> {
     try {
       final files = await repository.fetchRecentFiles();
       emit(state.copyWith(status: FilesQueryStatus.loaded, files: files));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: FilesQueryStatus.error,

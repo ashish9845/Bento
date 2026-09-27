@@ -37,7 +37,7 @@ Future<CropResult> cropImageIsolateEntry(Map<String, dynamic> params) async {
       return const CropFailure('Could not decode image');
     }
     return await _cropDecoded(decoded, quad, path, quarterTurns: quarterTurns);
-  } catch (e) {
+  } on Exception catch (e) {
     return CropFailure(e.toString());
   }
 }
@@ -67,7 +67,7 @@ Future<CropResult> cropImageNormalizedIsolateEntry(
     }
 
     return await _cropDecoded(decoded, quadInPixels(quad, decoded), path);
-  } catch (e) {
+  } on Exception catch (e) {
     return CropFailure(e.toString());
   }
 }
@@ -149,7 +149,7 @@ Future<CropResult> _cropDecoded(
     final jpg = img.encodeJpg(warped, quality: 100);
     await File(path).writeAsBytes(jpg, flush: true);
     return CropSuccess(path);
-  } catch (e) {
+  } on Exception catch (e) {
     return CropFailure(e.toString());
   }
 }
@@ -229,7 +229,7 @@ img.Image? _warp(img.Image decoded, Quad quad, int? width, int? height) {
       numChannels: 4,
       order: img.ChannelOrder.rgba,
     );
-  } catch (e) {
+  } on Exception catch (_) {
     return null;
   }
 }

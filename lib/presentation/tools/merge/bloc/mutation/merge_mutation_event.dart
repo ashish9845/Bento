@@ -4,8 +4,6 @@ part 'merge_mutation_event.freezed.dart';
 
 @Freezed(makeCollectionsUnmodifiable: false)
 abstract class MergeMutationEvent with _$MergeMutationEvent {
-  const factory MergeMutationEvent.submitMerge(
-    List<String> filePaths, {
-    String? outputName,
-  }) = SubmitMerge;
+  const factory submitMerge(List<String> filePaths, {String? outputName}) =
+      SubmitMerge;
 }

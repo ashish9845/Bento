@@ -1,34 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _key = 'theme_mode';
 
 /// In-app theme choice, persisted. Defaults to system.
-final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((
-  ref,
-) {
-  return ThemeModeNotifier();
-});
-
-class ThemeModeNotifier extends StateNotifier<ThemeMode> {
-  ThemeModeNotifier() : super(ThemeMode.system) {
-    _load();
+class ThemeModeCubit extends Cubit<ThemeMode> {
+  new() : super(ThemeMode.system) {
+    unawaited(_load());
   }
 
   Future<void> _load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      state = _fromString(prefs.getString(_key));
-    } catch (_) {}
+      emit(_fromString(prefs.getString(_key)));
+    } on Exception catch (_) {}
   }
 
   Future<void> setMode(ThemeMode mode) async {
-    state = mode;
+    emit(mode);
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_key, _toString(mode));
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   static ThemeMode _fromString(String? v) {
