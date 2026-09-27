@@ -42,34 +42,42 @@ class AnimatedToolCard extends StatelessWidget {
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-              child: LayoutBuilder(builder: (context, constraints) {
-                // Tile scales with the cell: compact on phones, roomier on tablets.
-                final tile = (constraints.maxWidth * 0.68).clamp(46.0, 84.0);
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: tile,
-                      height: tile,
-                      decoration: BoxDecoration(
-                        color: scheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(tile * 0.28),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Tile scales with the cell: compact on phones, roomier on tablets.
+                  final tile = (constraints.maxWidth * 0.68).clamp(46.0, 84.0);
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: tile,
+                        height: tile,
+                        decoration: BoxDecoration(
+                          color: scheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(tile * 0.28),
+                        ),
+                        child: Icon(
+                          icon,
+                          size: tile * 0.46,
+                          color: scheme.onPrimaryContainer,
+                        ),
                       ),
-                      child: Icon(icon,
-                          size: tile * 0.46, color: scheme.onPrimaryContainer),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(label,
+                      const SizedBox(height: 6),
+                      Text(
+                        label,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            height: 1.15,
-                            color: scheme.onSurface),
+                          fontWeight: FontWeight.w600,
+                          height: 1.15,
+                          color: scheme.onSurface,
+                        ),
                         maxLines: 2,
-                        overflow: TextOverflow.ellipsis),
-                  ],
-                );
-              }),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ),

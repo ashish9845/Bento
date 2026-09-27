@@ -11,18 +11,21 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
 final protectControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
-  final repo = ref.watch(toolsRepositoryProvider);
-  return ToolController(persistenceKey: 'protect', processFn: (inputs, ctrl) async {
-    final password = ref.read(protectPasswordProvider);
-    ctrl.setProgress(null, 'Encrypting with AES-256…');
-    final out = await repo.protectPdf(
-      inputs.first,
-      userPassword: password,
-      outputName: ctrl.outputName,
-    );
-    return [out];
-  });
-});
+      final repo = ref.watch(toolsRepositoryProvider);
+      return ToolController(
+        persistenceKey: 'protect',
+        processFn: (inputs, ctrl) async {
+          final password = ref.read(protectPasswordProvider);
+          ctrl.setProgress(null, 'Encrypting with AES-256…');
+          final out = await repo.protectPdf(
+            inputs.first,
+            userPassword: password,
+            outputName: ctrl.outputName,
+          );
+          return [out];
+        },
+      );
+    });
 
 final protectPasswordProvider = StateProvider<String>((ref) => '');
 
@@ -31,7 +34,8 @@ String _strengthLabel(String password) {
   var score = 0;
   if (password.length >= 8) score++;
   if (password.length >= 12) score++;
-  if (RegExp('[A-Z]').hasMatch(password) && RegExp('[a-z]').hasMatch(password)) score++;
+  if (RegExp('[A-Z]').hasMatch(password) && RegExp('[a-z]').hasMatch(password))
+    score++;
   if (RegExp('[0-9]').hasMatch(password)) score++;
   if (RegExp('[^A-Za-z0-9]').hasMatch(password)) score++;
   if (score <= 2) return 'Weak';
@@ -52,7 +56,9 @@ class _ProtectScreenState extends ConsumerState<ProtectScreen> {
   @override
   void initState() {
     super.initState();
-    _passwordCtrl = TextEditingController(text: ref.read(protectPasswordProvider));
+    _passwordCtrl = TextEditingController(
+      text: ref.read(protectPasswordProvider),
+    );
   }
 
   @override
@@ -66,7 +72,8 @@ class _ProtectScreenState extends ConsumerState<ProtectScreen> {
     final state = ref.watch(protectControllerProvider);
     final ctrl = ref.read(protectControllerProvider.notifier);
     final password = ref.watch(protectPasswordProvider);
-    final canRun = state.files.isNotEmpty && password.isNotEmpty && !state.isProcessing;
+    final canRun =
+        state.files.isNotEmpty && password.isNotEmpty && !state.isProcessing;
 
     return ToolScaffold(
       title: 'Protect PDF',
@@ -98,29 +105,46 @@ class _ProtectScreenState extends ConsumerState<ProtectScreen> {
                         hintText: 'Needed to open the file',
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
-                          icon: Icon(_showPassword ? Icons.visibility_off_rounded : Icons.visibility_rounded),
-                          tooltip: _showPassword ? 'Hide password' : 'Show password',
-                          onPressed: () => setState(() => _showPassword = !_showPassword),
+                          icon: Icon(
+                            _showPassword
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                          ),
+                          tooltip: _showPassword
+                              ? 'Hide password'
+                              : 'Show password',
+                          onPressed: () =>
+                              setState(() => _showPassword = !_showPassword),
                         ),
                       ),
-                      onChanged: (v) => ref.read(protectPasswordProvider.notifier).state = v,
+                      onChanged: (v) =>
+                          ref.read(protectPasswordProvider.notifier).state = v,
                     ),
                     if (password.isNotEmpty) ...[
                       const SizedBox(height: 6),
-                      Text('Strength: ${_strengthLabel(password)} — 12+ characters with mixed case, numbers and symbols is ideal',
-                          style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        'Strength: ${_strengthLabel(password)} — 12+ characters with mixed case, numbers and symbols is ideal',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                     const SizedBox(height: 6),
-                    Text('The file needs this password to open, with no restrictions once opened.',
-                        style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      'The file needs this password to open, with no restrictions once opened.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 12),
           ],
-          if (state.isProcessing) ToolProgress(label: state.message ?? 'Encrypting…', progress: state.progress),
-          if (state.hasError) ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
+          if (state.isProcessing)
+            ToolProgress(
+              label: state.message ?? 'Encrypting…',
+              progress: state.progress,
+            ),
+          if (state.hasError)
+            ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
           if (state.hasResult)
             ToolSuccess(
               message: 'Protected! ${state.resultFiles.first.path}',
@@ -129,12 +153,16 @@ class _ProtectScreenState extends ConsumerState<ProtectScreen> {
             ),
           const SizedBox(height: 12),
           FilledButton.icon(
-              onPressed: canRun
-                  ? () => runWithRename(
-                      context: context, ctrl: ctrl, defaultName: defaultOutputName('Protected'))
-                  : null,
-              icon: const Icon(Icons.lock_rounded),
-              label: const Text('Protect')),
+            onPressed: canRun
+                ? () => runWithRename(
+                    context: context,
+                    ctrl: ctrl,
+                    defaultName: defaultOutputName('Protected'),
+                  )
+                : null,
+            icon: const Icon(Icons.lock_rounded),
+            label: const Text('Protect'),
+          ),
         ],
       ),
     );

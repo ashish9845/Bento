@@ -18,11 +18,13 @@ import 'tool_state.dart';
 /// survives Android killing the app while a picker/scanner activity is in
 /// front. Passwords and other options are never persisted.
 class ToolController extends StateNotifier<ToolState> {
-  ToolController({this.processFn, this.persistenceKey}) : super(const ToolState()) {
+  ToolController({this.processFn, this.persistenceKey})
+    : super(const ToolState()) {
     if (persistenceKey != null) _hydrate();
   }
 
-  final Future<List<File>> Function(List<File> inputs, ToolController ctrl)? processFn;
+  final Future<List<File>> Function(List<File> inputs, ToolController ctrl)?
+  processFn;
 
   /// Stable id per tool ('merge', 'split', …). Null disables persistence.
   final String? persistenceKey;
@@ -36,7 +38,10 @@ class ToolController extends StateNotifier<ToolState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final paths = prefs.getStringList(_prefsKey) ?? const [];
-      final existing = paths.where((p) => p.isNotEmpty && File(p).existsSync()).take(_maxPersisted).toList();
+      final existing = paths
+          .where((p) => p.isNotEmpty && File(p).existsSync())
+          .take(_maxPersisted)
+          .toList();
       if (existing.isNotEmpty && mounted) {
         state = state.copyWith(files: existing.map(File.new).toList());
       } else if (existing.length != paths.length) {
@@ -64,12 +69,20 @@ class ToolController extends StateNotifier<ToolState> {
   String? outputName;
 
   void setFiles(List<File> files) {
-    state = state.copyWith(files: files, status: ToolStatus.idle, message: null, resultFiles: []);
+    state = state.copyWith(
+      files: files,
+      status: ToolStatus.idle,
+      message: null,
+      resultFiles: [],
+    );
     _persist();
   }
 
   void addFiles(List<File> files) {
-    state = state.copyWith(files: [...state.files, ...files], status: ToolStatus.idle);
+    state = state.copyWith(
+      files: [...state.files, ...files],
+      status: ToolStatus.idle,
+    );
     _persist();
   }
 
@@ -83,7 +96,11 @@ class ToolController extends StateNotifier<ToolState> {
   }
 
   void setProgress(double? p, String msg) {
-    state = state.copyWith(status: ToolStatus.processing, progress: p, message: msg);
+    state = state.copyWith(
+      status: ToolStatus.processing,
+      progress: p,
+      message: msg,
+    );
   }
 
   Future<void> pickFiles({
@@ -118,7 +135,9 @@ class ToolController extends StateNotifier<ToolState> {
       setProgress(null, 'Processing (placeholder engine)…');
       await Future<void>.delayed(const Duration(milliseconds: 700));
       final temp = await getTemporaryDirectory();
-      final out = File('${temp.path}/result_${DateTime.now().millisecondsSinceEpoch}.pdf');
+      final out = File(
+        '${temp.path}/result_${DateTime.now().millisecondsSinceEpoch}.pdf',
+      );
       await state.files.first.copy(out.path);
       state = state.copyWith(
         status: ToolStatus.success,
@@ -131,7 +150,12 @@ class ToolController extends StateNotifier<ToolState> {
     setProgress(null, 'Processing…');
     try {
       final results = await processFn!(state.files, this);
-      state = state.copyWith(status: ToolStatus.success, resultFiles: results, message: 'Done', progress: 1);
+      state = state.copyWith(
+        status: ToolStatus.success,
+        resultFiles: results,
+        message: 'Done',
+        progress: 1,
+      );
     } catch (e) {
       setError(e.toString());
     }

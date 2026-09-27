@@ -98,14 +98,19 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
         onTimeout: () => throw TimeoutException('Camera did not respond'),
       );
       if (cameras.isEmpty) {
-        if (mounted) setState(() => _initError = 'No camera found on this device');
+        if (mounted)
+          setState(() => _initError = 'No camera found on this device');
         return;
       }
       final back = cameras.firstWhere(
         (c) => c.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
       );
-      final controller = CameraController(back, ResolutionPreset.high, enableAudio: false);
+      final controller = CameraController(
+        back,
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
       await controller.initialize();
       if (!mounted) {
         await controller.dispose();
@@ -115,8 +120,11 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
     } catch (e) {
       debugPrint('[OpenScan] camera init failed: $e');
       if (mounted) {
-        setState(() => _initError = 'Camera unavailable on this device. '
-            'Check permission and try again.');
+        setState(
+          () => _initError =
+              'Camera unavailable on this device. '
+              'Check permission and try again.',
+        );
       }
     }
   }
@@ -140,7 +148,10 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
 
   Future<void> _capture() async {
     final controller = _controller;
-    if (controller == null || !controller.value.isInitialized || _stage == _Stage.working) return;
+    if (controller == null ||
+        !controller.value.isInitialized ||
+        _stage == _Stage.working)
+      return;
     _discardCurrent();
     setState(() {
       _stage = _Stage.working;
@@ -167,7 +178,9 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
       });
       if (prepared['foundQuad'] != true && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No edges detected — adjust the corners yourself')),
+          const SnackBar(
+            content: Text('No edges detected — adjust the corners yourself'),
+          ),
         );
       }
     } catch (e) {
@@ -264,7 +277,11 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
       _stage = _Stage.preview;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${_sessionPaths.length} page(s) — keep scanning or tap Use')),
+      SnackBar(
+        content: Text(
+          '${_sessionPaths.length} page(s) — keep scanning or tap Use',
+        ),
+      ),
     );
   }
 
@@ -309,17 +326,17 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text('Scan', style: TextStyle(color: Colors.white)),
-        leading: CloseButton(
-          color: Colors.white,
-          onPressed: _close,
-        ),
+        leading: CloseButton(color: Colors.white, onPressed: _close),
         actions: [
           if (_sessionPaths.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(right: 4),
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(999),
@@ -327,7 +344,10 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                   child: Text(
                     '${_sessionPaths.length} page${_sessionPaths.length == 1 ? '' : 's'}',
                     style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ),
@@ -352,21 +372,35 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.no_photography_rounded, size: 48, color: Colors.white70),
-            const SizedBox(height: 12),
-            Text(_initError!,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.no_photography_rounded,
+                size: 48,
+                color: Colors.white70,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _initError!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white)),
-            const SizedBox(height: 16),
-            FilledButton.tonal(onPressed: () => Navigator.pop(context), child: const Text('Back')),
-          ]),
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 16),
+              FilledButton.tonal(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Back'),
+              ),
+            ],
+          ),
         ),
       );
     }
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator(color: Colors.white));
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
     }
     final showingResult = _stage == _Stage.done && _previewPath != null;
     final editingCrop =
@@ -390,12 +424,14 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                     onSkip: () {
                       final w = _workW.toDouble();
                       final h = _workH.toDouble();
-                      _applyCrop(Quad(
-                        topLeft: const Pt(0, 0),
-                        topRight: Pt(w, 0),
-                        bottomRight: Pt(w, h),
-                        bottomLeft: Pt(0, h),
-                      ));
+                      _applyCrop(
+                        Quad(
+                          topLeft: const Pt(0, 0),
+                          topRight: Pt(w, 0),
+                          bottomRight: Pt(w, h),
+                          bottomLeft: Pt(0, h),
+                        ),
+                      );
                     },
                   ),
                 )
@@ -410,28 +446,42 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                   right: 0,
                   child: Center(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                        SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        ),
-                        SizedBox(width: 8),
-                        Text('Applying filter…',
-                            style: TextStyle(color: Colors.white, fontSize: 12)),
-                      ]),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Applying filter…',
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               // Corner guides overlay while aiming.
               if (!showingResult && !editingCrop)
                 IgnorePointer(
-                  child: CustomPaint(painter: _ViewfinderPainter(), size: Size.infinite),
+                  child: CustomPaint(
+                    painter: _ViewfinderPainter(),
+                    size: Size.infinite,
+                  ),
                 ),
               if (_stage == _Stage.working)
                 ColoredBox(
@@ -439,12 +489,18 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                   child: Center(
                     child: Card(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                        child: Column(mainAxisSize: MainAxisSize.min, children: [
-                          const CircularProgressIndicator(),
-                          const SizedBox(height: 12),
-                          Text(_status ?? 'Working…'),
-                        ]),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 12),
+                            Text(_status ?? 'Working…'),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -456,9 +512,13 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
           Container(
             color: Theme.of(context).colorScheme.errorContainer,
             padding: const EdgeInsets.all(12),
-            child: Text(_error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-                textAlign: TextAlign.center),
+            child: Text(
+              _error!,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         Container(
           decoration: const BoxDecoration(
@@ -483,7 +543,8 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                           child: _FilterChip(
                             label: name,
                             selected: _isSelected(name),
-                            enabled: _stage != _Stage.working && !_applyingFilter,
+                            enabled:
+                                _stage != _Stage.working && !_applyingFilter,
                             onTap: () => _onFilterSelected(name),
                           ),
                         ),
@@ -493,70 +554,86 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                 const SizedBox(height: 14),
               ],
               if (editingCrop)
-                Text('Drag the corners to adjust, then Apply crop',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(
+                  'Drag the corners to adjust, then Apply crop',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
               if (editingCrop) const SizedBox(height: 8),
               if (editingCrop)
-                Row(children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-                      onPressed: () {
-                        final w = _workW.toDouble();
-                        final h = _workH.toDouble();
-                        _applyCrop(Quad(
-                          topLeft: const Pt(0, 0),
-                          topRight: Pt(w, 0),
-                          bottomRight: Pt(w, h),
-                          bottomLeft: Pt(0, h),
-                        ));
-                      },
-                      icon: const Icon(Icons.crop_free_rounded),
-                      label: const Text('Full photo'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () {
+                          final w = _workW.toDouble();
+                          final h = _workH.toDouble();
+                          _applyCrop(
+                            Quad(
+                              topLeft: const Pt(0, 0),
+                              topRight: Pt(w, 0),
+                              bottomRight: Pt(w, h),
+                              bottomLeft: Pt(0, h),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.crop_free_rounded),
+                        label: const Text('Full photo'),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
-                    child: FilledButton.icon(
-                      onPressed: _editorApplyCurrent,
-                      icon: const Icon(Icons.crop_rounded),
-                      label: const Text('Apply crop'),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 2,
+                      child: FilledButton.icon(
+                        onPressed: _editorApplyCurrent,
+                        icon: const Icon(Icons.crop_rounded),
+                        label: const Text('Apply crop'),
+                      ),
                     ),
-                  ),
-                ])
+                  ],
+                )
               else if (showingResult)
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-                          onPressed: _retake,
-                          icon: const Icon(Icons.refresh_rounded),
-                          label: const Text('Retake'),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: _retake,
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: const Text('Retake'),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-                          onPressed: _addPage,
-                          icon: const Icon(Icons.library_add_rounded),
-                          label: const Text('Add page'),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: _addPage,
+                            icon: const Icon(Icons.library_add_rounded),
+                            label: const Text('Add page'),
+                          ),
                         ),
-                      ),
-                    ]),
+                      ],
+                    ),
                     const SizedBox(height: 10),
                     FilledButton.icon(
                       onPressed: _usePages,
                       icon: const Icon(Icons.check_rounded),
-                      label: Text(_sessionPaths.isEmpty
-                          ? 'Use this page'
-                          : 'Use ${_sessionPaths.length + 1} pages'),
+                      label: Text(
+                        _sessionPaths.isEmpty
+                            ? 'Use this page'
+                            : 'Use ${_sessionPaths.length + 1} pages',
+                      ),
                     ),
                   ],
                 )
@@ -620,89 +697,108 @@ class _CropEditorState extends State<_CropEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final boxW = constraints.maxWidth;
-      final boxH = constraints.maxHeight;
-      final scale = min(boxW / widget.imgW, boxH / widget.imgH);
-      final dispW = widget.imgW * scale;
-      final dispH = widget.imgH * scale;
-      final ox = (boxW - dispW) / 2;
-      final oy = (boxH - dispH) / 2;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final boxW = constraints.maxWidth;
+        final boxH = constraints.maxHeight;
+        final scale = min(boxW / widget.imgW, boxH / widget.imgH);
+        final dispW = widget.imgW * scale;
+        final dispH = widget.imgH * scale;
+        final ox = (boxW - dispW) / 2;
+        final oy = (boxH - dispH) / 2;
 
-      Offset toDisp(Pt p) => Offset(ox + p.x * scale, oy + p.y * scale);
-      Pt toImg(Offset p) => Pt(
-            ((p.dx - ox) / scale).clamp(0, widget.imgW.toDouble()),
-            ((p.dy - oy) / scale).clamp(0, widget.imgH.toDouble()),
-          );
+        Offset toDisp(Pt p) => Offset(ox + p.x * scale, oy + p.y * scale);
+        Pt toImg(Offset p) => Pt(
+          ((p.dx - ox) / scale).clamp(0, widget.imgW.toDouble()),
+          ((p.dy - oy) / scale).clamp(0, widget.imgH.toDouble()),
+        );
 
-      final corners = [_quad.topLeft, _quad.topRight, _quad.bottomRight, _quad.bottomLeft];
+        final corners = [
+          _quad.topLeft,
+          _quad.topRight,
+          _quad.bottomRight,
+          _quad.bottomLeft,
+        ];
 
-      return Center(
-        child: SizedBox(
-          width: dispW,
-          height: dispH,
-          child: Stack(
-            children: [
-              Image.memory(widget.imageBytes, width: dispW, height: dispH, fit: BoxFit.fill),
-              CustomPaint(
-                size: Size(dispW, dispH),
-                painter: _QuadPainter(_quad, scale),
-              ),
-              for (var i = 0; i < 4; i++)
-                Positioned(
-                  left: toDisp(corners[i]).dx - 28,
-                  top: toDisp(corners[i]).dy - 28,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onPanStart: (_) => setState(() => _active = i),
-                    onPanUpdate: (d) {
-                      final np = toImg(d.localPosition + const Offset(28, 28));
-                      setState(() {
-                        final pts = [corners[0], corners[1], corners[2], corners[3]];
-                        pts[i] = np;
-                        _quad = Quad(
-                          topLeft: pts[0],
-                          topRight: pts[1],
-                          bottomRight: pts[2],
-                          bottomLeft: pts[3],
+        return Center(
+          child: SizedBox(
+            width: dispW,
+            height: dispH,
+            child: Stack(
+              children: [
+                Image.memory(
+                  widget.imageBytes,
+                  width: dispW,
+                  height: dispH,
+                  fit: BoxFit.fill,
+                ),
+                CustomPaint(
+                  size: Size(dispW, dispH),
+                  painter: _QuadPainter(_quad, scale),
+                ),
+                for (var i = 0; i < 4; i++)
+                  Positioned(
+                    left: toDisp(corners[i]).dx - 28,
+                    top: toDisp(corners[i]).dy - 28,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanStart: (_) => setState(() => _active = i),
+                      onPanUpdate: (d) {
+                        final np = toImg(
+                          d.localPosition + const Offset(28, 28),
                         );
-                      });
-                    },
-                    // NOTE: no auto-apply here — the user adjusts all four
-                    // corners freely and confirms with Apply crop.
-                    onPanEnd: (_) => setState(() => _active = null),
-                    child: SizedBox(
-                      width: 56,
-                      height: 56,
-                      child: Center(
-                        child: Container(
-                          width: _active == i ? 30 : 24,
-                          height: _active == i ? 30 : 24,
-                          decoration: BoxDecoration(
-                            color: _active == i
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
+                        setState(() {
+                          final pts = [
+                            corners[0],
+                            corners[1],
+                            corners[2],
+                            corners[3],
+                          ];
+                          pts[i] = np;
+                          _quad = Quad(
+                            topLeft: pts[0],
+                            topRight: pts[1],
+                            bottomRight: pts[2],
+                            bottomLeft: pts[3],
+                          );
+                        });
+                      },
+                      // NOTE: no auto-apply here — the user adjusts all four
+                      // corners freely and confirms with Apply crop.
+                      onPanEnd: (_) => setState(() => _active = null),
+                      child: SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: Center(
+                          child: Container(
+                            width: _active == i ? 30 : 24,
+                            height: _active == i ? 30 : 24,
+                            decoration: BoxDecoration(
                               color: _active == i
-                                  ? Colors.white
-                                  : Theme.of(context).colorScheme.primary,
-                              width: 3,
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: _active == i
+                                    ? Colors.white
+                                    : Theme.of(context).colorScheme.primary,
+                                width: 3,
+                              ),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black45, blurRadius: 6),
+                              ],
                             ),
-                            boxShadow: const [
-                              BoxShadow(color: Colors.black45, blurRadius: 6),
-                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
 
@@ -740,7 +836,8 @@ class _QuadPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _QuadPainter old) => old.quad != quad || old.scale != scale;
+  bool shouldRepaint(covariant _QuadPainter old) =>
+      old.quad != quad || old.scale != scale;
 }
 
 Filter _filterForName(String name) {
@@ -784,26 +881,35 @@ class _FilterChip extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
           decoration: BoxDecoration(
-            color: selected ? scheme.primary : Colors.white.withValues(alpha: 0.16),
+            color: selected
+                ? scheme.primary
+                : Colors.white.withValues(alpha: 0.16),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
-              color: selected ? Colors.transparent : Colors.white.withValues(alpha: 0.35),
+              color: selected
+                  ? Colors.transparent
+                  : Colors.white.withValues(alpha: 0.35),
             ),
           ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (selected) ...[
-              Icon(Icons.check_rounded, size: 15, color: scheme.onPrimary),
-              const SizedBox(width: 5),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                color: selected ? scheme.onPrimary : Colors.white.withValues(alpha: 0.55),
-                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                fontSize: 13,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (selected) ...[
+                Icon(Icons.check_rounded, size: 15, color: scheme.onPrimary),
+                const SizedBox(width: 5),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  color: selected
+                      ? scheme.onPrimary
+                      : Colors.white.withValues(alpha: 0.55),
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                  fontSize: 13,
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
     );
@@ -838,7 +944,10 @@ class _ShutterButton extends StatelessWidget {
                 ? const SizedBox(
                     width: 28,
                     height: 28,
-                    child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: Colors.white,
+                    ),
                   )
                 : Container(
                     width: 58,
@@ -867,21 +976,25 @@ class _ViewfinderPainter extends CustomPainter {
     const inset = 28.0;
     const len = 34.0;
     final corners = [
-      (Offset(inset, inset), Offset(inset + len, inset), Offset(inset, inset + len)),
+      (
+        Offset(inset, inset),
+        Offset(inset + len, inset),
+        Offset(inset, inset + len),
+      ),
       (
         Offset(size.width - inset, inset),
         Offset(size.width - inset - len, inset),
-        Offset(size.width - inset, inset + len)
+        Offset(size.width - inset, inset + len),
       ),
       (
         Offset(inset, size.height - inset),
         Offset(inset + len, size.height - inset),
-        Offset(inset, size.height - inset - len)
+        Offset(inset, size.height - inset - len),
       ),
       (
         Offset(size.width - inset, size.height - inset),
         Offset(size.width - inset - len, size.height - inset),
-        Offset(size.width - inset, size.height - inset - len)
+        Offset(size.width - inset, size.height - inset - len),
       ),
     ];
     for (final (corner, h, v) in corners) {
@@ -897,7 +1010,9 @@ class _ViewfinderPainter extends CustomPainter {
 /// Decode once, downscale to a working cap, detect the boundary.
 /// Returns working-size JPEG bytes + dimensions + quad (or null).
 /// Single decode keeps capture-to-editor latency low.
-Future<Map<String, dynamic>> _prepareEditorEntry(Map<String, dynamic> params) async {
+Future<Map<String, dynamic>> _prepareEditorEntry(
+  Map<String, dynamic> params,
+) async {
   final path = params['path'] as String;
   final tempDir = params['tempDir'] as String;
 
@@ -909,8 +1024,11 @@ Future<Map<String, dynamic>> _prepareEditorEntry(Map<String, dynamic> params) as
   final longest = max(decoded.width, decoded.height);
   if (longest > cap) {
     final s = cap / longest;
-    decoded = img.copyResize(decoded,
-        width: (decoded.width * s).round(), height: (decoded.height * s).round());
+    decoded = img.copyResize(
+      decoded,
+      width: (decoded.width * s).round(),
+      height: (decoded.height * s).round(),
+    );
   }
 
   Quad? quad;
@@ -957,11 +1075,13 @@ Future<String> _cropAndFilterEntry(Map<String, dynamic> params) async {
   final rgba = page.getBytes(order: img.ChannelOrder.rgba);
   _filterForName(filterName).apply(rgba, page.width, page.height);
   final out = img.Image.fromBytes(
-      width: page.width,
-      height: page.height,
-      bytes: Uint8List.fromList(rgba).buffer,
-      numChannels: 4);
-  final dest = '$tempDir/bento_openscan_page_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    width: page.width,
+    height: page.height,
+    bytes: Uint8List.fromList(rgba).buffer,
+    numChannels: 4,
+  );
+  final dest =
+      '$tempDir/bento_openscan_page_${DateTime.now().millisecondsSinceEpoch}.jpg';
   await File(dest).writeAsBytes(img.encodeJpg(out, quality: 92), flush: true);
   return dest;
 }

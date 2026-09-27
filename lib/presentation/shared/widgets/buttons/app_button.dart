@@ -9,7 +9,9 @@ class AppButton extends StatelessWidget {
   final IconData? icon;
 
   const AppButton({
-    required this.label, required this.onPressed, super.key,
+    required this.label,
+    required this.onPressed,
+    super.key,
     this.isLoading = false,
     this.isOutlined = false,
     this.icon,
@@ -30,13 +32,22 @@ class AppButton extends StatelessWidget {
                   : Theme.of(context).colorScheme.onPrimary,
             ),
           )
-        : Row(mainAxisSize: MainAxisSize.min, children: [
-            if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
-            Text(label),
-          ]);
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18),
+                const SizedBox(width: 8),
+              ],
+              Text(label),
+            ],
+          );
 
     if (isOutlined) {
-      return OutlinedButton(onPressed: isLoading ? null : onPressed, child: child);
+      return OutlinedButton(
+        onPressed: isLoading ? null : onPressed,
+        child: child,
+      );
     }
     return FilledButton(onPressed: isLoading ? null : onPressed, child: child);
   }
@@ -46,7 +57,12 @@ class AppIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onPressed;
   final String? tooltip;
-  const AppIconButton({required this.icon, required this.onPressed, super.key, this.tooltip});
+  const AppIconButton({
+    required this.icon,
+    required this.onPressed,
+    super.key,
+    this.tooltip,
+  });
   @override
   Widget build(BuildContext context) {
     return IconButton(icon: Icon(icon), onPressed: onPressed, tooltip: tooltip);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+
 import '../../../core/router/route_names.dart';
 import '../../../core/storage/open_file.dart';
 import '../../shared/widgets/feedback/app_error_view.dart';
@@ -35,63 +36,63 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<HomeShortcut> _shortcuts() => const [
-        HomeShortcut(
-          id: 'scan',
-          label: 'Smart Scan',
-          icon: Symbols.document_scanner,
-          routeName: RouteNames.scan,
-          keywords: ['scan', 'camera', 'document', 'smart', 'capture'],
-        ),
-        HomeShortcut(
-          id: 'tools',
-          label: 'PDF Tools',
-          icon: Icons.grid_view_rounded,
-          routeName: RouteNames.tools,
-          keywords: ['tools', 'pdf', 'all', 'toolbox'],
-        ),
-        HomeShortcut(
-          id: 'sign',
-          label: 'Sign PDF',
-          icon: Symbols.stylus_note,
-          routeName: RouteNames.toolsSign,
-          keywords: ['sign', 'signature', 'draw', 'approve'],
-        ),
-        HomeShortcut(
-          id: 'compress',
-          label: 'Compress',
-          icon: Icons.compress_rounded,
-          routeName: RouteNames.toolsCompress,
-          keywords: ['compress', 'shrink', 'reduce', 'size', 'smaller', 'optimize'],
-        ),
-        HomeShortcut(
-          id: 'merge',
-          label: 'Merge PDFs',
-          icon: Icons.merge_rounded,
-          routeName: RouteNames.toolsMerge,
-          keywords: ['merge', 'combine', 'join', 'append', 'join', 'bind'],
-        ),
-        HomeShortcut(
-          id: 'protect',
-          label: 'Protect PDF',
-          icon: Symbols.add_moderator,
-          routeName: RouteNames.toolsProtect,
-          keywords: ['protect', 'password', 'encrypt', 'lock', 'secure', 'aes'],
-        ),
-        HomeShortcut(
-          id: 'unlock',
-          label: 'Unlock PDF',
-          icon: Symbols.encrypted_off,
-          routeName: RouteNames.toolsUnlock,
-          keywords: ['unlock', 'decrypt', 'remove password', 'open locked'],
-        ),
-        HomeShortcut(
-          id: 'all',
-          label: 'All',
-          icon: Icons.apps_rounded,
-          routeName: RouteNames.tools,
-          keywords: ['all', 'list', 'browse', 'more'],
-        ),
-      ];
+    HomeShortcut(
+      id: 'scan',
+      label: 'Smart Scan',
+      icon: Symbols.document_scanner,
+      routeName: RouteNames.scan,
+      keywords: ['scan', 'camera', 'document', 'smart', 'capture'],
+    ),
+    HomeShortcut(
+      id: 'tools',
+      label: 'PDF Tools',
+      icon: Icons.grid_view_rounded,
+      routeName: RouteNames.tools,
+      keywords: ['tools', 'pdf', 'all', 'toolbox'],
+    ),
+    HomeShortcut(
+      id: 'sign',
+      label: 'Sign PDF',
+      icon: Symbols.stylus_note,
+      routeName: RouteNames.toolsSign,
+      keywords: ['sign', 'signature', 'draw', 'approve'],
+    ),
+    HomeShortcut(
+      id: 'compress',
+      label: 'Compress',
+      icon: Icons.compress_rounded,
+      routeName: RouteNames.toolsCompress,
+      keywords: ['compress', 'shrink', 'reduce', 'size', 'smaller', 'optimize'],
+    ),
+    HomeShortcut(
+      id: 'merge',
+      label: 'Merge PDFs',
+      icon: Icons.merge_rounded,
+      routeName: RouteNames.toolsMerge,
+      keywords: ['merge', 'combine', 'join', 'append', 'join', 'bind'],
+    ),
+    HomeShortcut(
+      id: 'protect',
+      label: 'Protect PDF',
+      icon: Symbols.add_moderator,
+      routeName: RouteNames.toolsProtect,
+      keywords: ['protect', 'password', 'encrypt', 'lock', 'secure', 'aes'],
+    ),
+    HomeShortcut(
+      id: 'unlock',
+      label: 'Unlock PDF',
+      icon: Symbols.encrypted_off,
+      routeName: RouteNames.toolsUnlock,
+      keywords: ['unlock', 'decrypt', 'remove password', 'open locked'],
+    ),
+    HomeShortcut(
+      id: 'all',
+      label: 'All',
+      icon: Icons.apps_rounded,
+      routeName: RouteNames.tools,
+      keywords: ['all', 'list', 'browse', 'more'],
+    ),
+  ];
 
   void _onShortcut(HomeShortcut shortcut) {
     final name = shortcut.routeName;
@@ -119,7 +120,9 @@ class _HomePageState extends State<HomePage> {
           context.read<FilesQueryBloc>().add(const FilesQueryEvent.refresh());
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Imported ${state.importedCount} file(s) to Recents'),
+              content: Text(
+                'Imported ${state.importedCount} file(s) to Recents',
+              ),
               action: SnackBarAction(
                 label: 'View',
                 onPressed: () => context.goNamed(RouteNames.files),
@@ -142,16 +145,28 @@ class _HomePageState extends State<HomePage> {
               floating: false,
               backgroundColor: scheme.surface,
               surfaceTintColor: Colors.transparent,
-              title: Row(children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: scheme.primary, borderRadius: BorderRadius.circular(12)),
-                  child: Icon(Icons.lunch_dining_rounded, color: scheme.onPrimary, size: 20),
-                ),
-                const SizedBox(width: 10),
-                Text('Bento',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
-              ]),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: scheme.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.lunch_dining_rounded,
+                      color: scheme.onPrimary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Bento',
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w900),
+                  ),
+                ],
+              ),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -163,24 +178,35 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 16),
                   if (visibleShortcuts.isNotEmpty)
-                    HomeShortcutGrid(shortcuts: visibleShortcuts, onSelect: _onShortcut)
+                    HomeShortcutGrid(
+                      shortcuts: visibleShortcuts,
+                      onSelect: _onShortcut,
+                    )
                   else
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Text('No tools match "$_query"',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+                      child: Text(
+                        'No tools match "$_query"',
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(color: scheme.onSurfaceVariant),
+                      ),
                     ),
                   const SizedBox(height: 20),
-                  Row(children: [
-                    Expanded(
-                      child: Text('Recents',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                    ),
-                    TextButton(
-                      onPressed: () => context.goNamed(RouteNames.files),
-                      child: const Text('View all'),
-                    ),
-                  ]),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Recents',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.goNamed(RouteNames.files),
+                        child: const Text('View all'),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 4),
                   BlocBuilder<FilesQueryBloc, FilesQueryState>(
                     builder: (context, state) {
@@ -194,13 +220,17 @@ class _HomePageState extends State<HomePage> {
                       if (state.status == FilesQueryStatus.error) {
                         return AppErrorView(
                           message: state.errorMessage ?? 'Something went wrong',
-                          onRetry: () =>
-                              context.read<FilesQueryBloc>().add(const FilesQueryEvent.fetch()),
+                          onRetry: () => context.read<FilesQueryBloc>().add(
+                            const FilesQueryEvent.fetch(),
+                          ),
                         );
                       }
                       final files = q.isEmpty
                           ? state.files.take(5).toList()
-                          : state.files.where((f) => f.name.toLowerCase().contains(q)).take(5).toList();
+                          : state.files
+                                .where((f) => f.name.toLowerCase().contains(q))
+                                .take(5)
+                                .toList();
                       return HomeRecents(
                         files: files,
                         onOpen: (f) => openDoc(context, f.path),

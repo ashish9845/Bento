@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../buttons/app_button.dart';
 
 class AppErrorView extends StatelessWidget {
@@ -11,15 +12,22 @@ class AppErrorView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.error_outline_rounded, size: 32, color: scheme.error),
-          const SizedBox(height: 12),
-          Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
-          if (onRetry != null) ...[
-            const SizedBox(height: 16),
-            AppButton(label: 'Retry', onPressed: onRetry, isOutlined: true),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline_rounded, size: 32, color: scheme.error),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            if (onRetry != null) ...[
+              const SizedBox(height: 16),
+              AppButton(label: 'Retry', onPressed: onRetry, isOutlined: true),
+            ],
           ],
-        ]),
+        ),
       ),
     );
   }

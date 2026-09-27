@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+
 import '../router/route_names.dart';
 
 /// Bottom-nav shell: swipeable tabs with animated branch transitions.
@@ -75,7 +76,8 @@ class _AppShellState extends State<AppShell> {
           : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
-        onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+        onDestinationSelected: (i) =>
+            shell.goBranch(i, initialLocation: i == shell.currentIndex),
         animationDuration: const Duration(milliseconds: 320),
         backgroundColor: Theme.of(context).navigationBarTheme.backgroundColor,
         indicatorColor: scheme.primaryContainer,
@@ -110,7 +112,11 @@ class _AppShellState extends State<AppShell> {
 /// [index] changes. A plain implicit wrapper (no duplicated subtree), so the
 /// shell's GlobalKey is never mounted twice.
 class _BranchTransition extends StatefulWidget {
-  const _BranchTransition({required this.index, required this.direction, required this.child});
+  const _BranchTransition({
+    required this.index,
+    required this.direction,
+    required this.child,
+  });
 
   final int index;
   final int direction;
@@ -148,8 +154,10 @@ class _BranchTransitionState extends State<_BranchTransition>
     return FadeTransition(
       opacity: curved,
       child: SlideTransition(
-        position: Tween(begin: Offset(0.07 * widget.direction, 0), end: Offset.zero)
-            .animate(curved),
+        position: Tween(
+          begin: Offset(0.07 * widget.direction, 0),
+          end: Offset.zero,
+        ).animate(curved),
         child: widget.child,
       ),
     );

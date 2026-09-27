@@ -54,7 +54,8 @@ Future<CropResult> cropImageIsolateEntry(Map<String, dynamic> params) async {
 /// quad is rotated back into the photo's orientation rather than being
 /// stretched across the wrong axes.
 Future<CropResult> cropImageNormalizedIsolateEntry(
-    Map<String, dynamic> params) async {
+  Map<String, dynamic> params,
+) async {
   final String path = params['path'] as String;
   final Quad quad = params['quad'] as Quad;
 
@@ -133,8 +134,12 @@ img.Image? warpToPage(img.Image decoded, Quad quad, {int? maxEdge}) {
 
 /// Warps [quad] (in [decoded]'s own pixel coordinates) into an upright
 /// rectangle and writes the result to [path].
-Future<CropResult> _cropDecoded(img.Image decoded, Quad quad, String path,
-    {int quarterTurns = 0}) async {
+Future<CropResult> _cropDecoded(
+  img.Image decoded,
+  Quad quad,
+  String path, {
+  int quarterTurns = 0,
+}) async {
   try {
     var warped = _warp(decoded, quad, null, null);
     if (warped == null) return const CropFailure('Could not warp image');
@@ -156,8 +161,14 @@ Future<CropResult> _cropDecoded(img.Image decoded, Quad quad, String path,
   final tr = quad.topRight;
   final br = quad.bottomRight;
   final bl = quad.bottomLeft;
-  final width = max(_dist(tl.x, tl.y, tr.x, tr.y), _dist(bl.x, bl.y, br.x, br.y));
-  final height = max(_dist(tl.x, tl.y, bl.x, bl.y), _dist(tr.x, tr.y, br.x, br.y));
+  final width = max(
+    _dist(tl.x, tl.y, tr.x, tr.y),
+    _dist(bl.x, bl.y, br.x, br.y),
+  );
+  final height = max(
+    _dist(tl.x, tl.y, bl.x, bl.y),
+    _dist(tr.x, tr.y, br.x, br.y),
+  );
   return (
     width: width.round().clamp(1, 1 << 16),
     height: height.round().clamp(1, 1 << 16),
@@ -183,14 +194,26 @@ img.Image? _warp(img.Image decoded, Quad quad, int? width, int? height) {
 
     // Homography mapping output-rectangle coordinates -> source quad
     // coordinates, used to inverse-sample the source for each output pixel.
-    final h = _solveHomography(outWidth.toDouble(), outHeight.toDouble(), tl, tr, br, bl);
+    final h = _solveHomography(
+      outWidth.toDouble(),
+      outHeight.toDouble(),
+      tl,
+      tr,
+      br,
+      bl,
+    );
 
     final outRgba = Uint8List(outWidth * outHeight * 4);
     for (int y = 0; y < outHeight; y++) {
       for (int x = 0; x < outWidth; x++) {
         final srcPoint = _applyHomography(h, x.toDouble(), y.toDouble());
-        final sampled =
-            _bilinearSample(srcRgba, srcWidth, srcHeight, srcPoint[0], srcPoint[1]);
+        final sampled = _bilinearSample(
+          srcRgba,
+          srcWidth,
+          srcHeight,
+          srcPoint[0],
+          srcPoint[1],
+        );
         final dstIdx = (y * outWidth + x) * 4;
         outRgba[dstIdx] = sampled[0];
         outRgba[dstIdx + 1] = sampled[1];
@@ -285,8 +308,7 @@ List<double> _solveLinearSystem(List<List<double>> a, List<double> b) {
     }
   }
 
-  return List.generate(
-      n, (i) => a[i][i].abs() < 1e-12 ? 0.0 : b[i] / a[i][i]);
+  return List.generate(n, (i) => a[i][i].abs() < 1e-12 ? 0.0 : b[i] / a[i][i]);
 }
 
 List<double> _applyHomography(List<double> h, double u, double v) {

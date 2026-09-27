@@ -14,7 +14,10 @@ import 'package:scan/core/storage/storage_location.dart';
 class ScannerService {
   /// Compose image paths to PDF via `pdf` + `image` (native, no engine) — off main thread for 60fps.
   /// Saves once to the save directory (custom/default Documents) with [outputName].
-  Future<File> imagesToPdf(List<String> imagePaths, {String? outputName}) async {
+  Future<File> imagesToPdf(
+    List<String> imagePaths, {
+    String? outputName,
+  }) async {
     // Run heavy work in isolate when many/large images to avoid jank
     Future<Uint8List> buildPdf() async {
       if (imagePaths.length > 2) {
@@ -25,7 +28,12 @@ class ScannerService {
             final decoded = img.decodeImage(b);
             if (decoded == null) continue;
             final image = pw.MemoryImage(b);
-            pdf.addPage(pw.Page(build: (ctx) => pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain))));
+            pdf.addPage(
+              pw.Page(
+                build: (ctx) =>
+                    pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
+              ),
+            );
           }
           return pdf.save();
         });
@@ -36,22 +44,29 @@ class ScannerService {
         final decoded = img.decodeImage(bytes);
         if (decoded == null) continue;
         final image = pw.MemoryImage(bytes);
-        pdf.addPage(pw.Page(
-          build: (ctx) => pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
-        ));
+        pdf.addPage(
+          pw.Page(
+            build: (ctx) =>
+                pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
+          ),
+        );
       }
       return pdf.save();
     }
 
     final outBytes = await buildPdf();
     final saveDir = (await getSaveDirectory()).path;
-    var baseName = outputName?.trim() ?? 'scan_${DateTime.now().millisecondsSinceEpoch}';
+    var baseName =
+        outputName?.trim() ?? 'scan_${DateTime.now().millisecondsSinceEpoch}';
     if (!baseName.toLowerCase().endsWith('.pdf')) baseName = '$baseName.pdf';
     baseName = baseName.replaceAll(RegExp(r'[^\w\-. ]'), '_');
     var outFile = File('$saveDir/$baseName');
     var counter = 1;
     while (await outFile.exists()) {
-      final nameNoExt = baseName.replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
+      final nameNoExt = baseName.replaceAll(
+        RegExp(r'\.pdf$', caseSensitive: false),
+        '',
+      );
       outFile = File('$saveDir/${nameNoExt}_$counter.pdf');
       counter++;
     }
@@ -60,6 +75,8 @@ class ScannerService {
   }
 }
 
-final scannerServiceProvider = Provider<ScannerService>((ref) => ScannerService());
+final scannerServiceProvider = Provider<ScannerService>(
+  (ref) => ScannerService(),
+);
 
 final scanResultsProvider = StateProvider<List<String>>((ref) => []);

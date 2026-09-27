@@ -12,15 +12,23 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
 final extractControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
-  final repo = ref.watch(toolsRepositoryProvider);
-  return ToolController(persistenceKey: 'extract', processFn: (inputs, ctrl) async {
-    final selected = ref.read(extractSelectionProvider).toList();
-    if (selected.isEmpty) throw Exception('Tap pages to select at least one');
-    ctrl.setProgress(null, 'Extracting ${selected.length} pages…');
-    final out = await repo.extractPages(inputs.first, selected, outputName: ctrl.outputName);
-    return [out];
-  });
-});
+      final repo = ref.watch(toolsRepositoryProvider);
+      return ToolController(
+        persistenceKey: 'extract',
+        processFn: (inputs, ctrl) async {
+          final selected = ref.read(extractSelectionProvider).toList();
+          if (selected.isEmpty)
+            throw Exception('Tap pages to select at least one');
+          ctrl.setProgress(null, 'Extracting ${selected.length} pages…');
+          final out = await repo.extractPages(
+            inputs.first,
+            selected,
+            outputName: ctrl.outputName,
+          );
+          return [out];
+        },
+      );
+    });
 
 final extractSelectionProvider = StateProvider<Set<int>>((ref) => {});
 
@@ -50,7 +58,8 @@ class ExtractScreen extends ConsumerWidget {
     void toggle(int i) {
       final current = ref.read(extractSelectionProvider);
       if (current.contains(i)) {
-        ref.read(extractSelectionProvider.notifier).state = {...current}..remove(i);
+        ref.read(extractSelectionProvider.notifier).state = {...current}
+          ..remove(i);
       } else {
         ref.read(extractSelectionProvider.notifier).state = {...current, i};
       }
@@ -72,7 +81,8 @@ class ExtractScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           if (state.files.isNotEmpty)
             pageCountAsync?.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (e, _) => Text('Could not read page count: $e'),
                   data: (count) => PdfThumbnailGrid(
                     pageCount: count,
@@ -83,11 +93,16 @@ class ExtractScreen extends ConsumerWidget {
                 const SizedBox.shrink(),
           if (state.files.isNotEmpty)
             Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text('${selected.length} pages selected', style: Theme.of(context).textTheme.bodySmall)),
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                '${selected.length} pages selected',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
           const SizedBox(height: 12),
           if (state.isProcessing) const ToolProgress(label: 'Extracting…'),
-          if (state.hasError) ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
+          if (state.hasError)
+            ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
           if (state.hasResult)
             ToolSuccess(
               message: 'Extracted ${selected.length} pages',
@@ -96,12 +111,17 @@ class ExtractScreen extends ConsumerWidget {
             ),
           const SizedBox(height: 12),
           FilledButton.icon(
-              onPressed: state.files.isEmpty || selected.isEmpty || state.isProcessing
-                  ? null
-                  : () => runWithRename(
-                      context: context, ctrl: ctrl, defaultName: defaultOutputName('Extracted')),
-              icon: const Icon(Icons.filter_none),
-              label: const Text('Extract')),
+            onPressed:
+                state.files.isEmpty || selected.isEmpty || state.isProcessing
+                ? null
+                : () => runWithRename(
+                    context: context,
+                    ctrl: ctrl,
+                    defaultName: defaultOutputName('Extracted'),
+                  ),
+            icon: const Icon(Icons.filter_none),
+            label: const Text('Extract'),
+          ),
         ],
       ),
     );

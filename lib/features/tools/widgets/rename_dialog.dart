@@ -34,8 +34,14 @@ Future<String?> askOutputName(
         onSubmitted: (v) => Navigator.pop(context, v.trim()),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('Continue')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, controller.text.trim()),
+          child: const Text('Continue'),
+        ),
       ],
     ),
   );
@@ -51,7 +57,11 @@ Future<void> runWithRename({
   required String defaultName,
   String title = 'Name your PDF',
 }) async {
-  final name = await askOutputName(context, defaultName: defaultName, title: title);
+  final name = await askOutputName(
+    context,
+    defaultName: defaultName,
+    title: title,
+  );
   if (name == null || name.isEmpty || !context.mounted) return;
   ctrl.outputName = name;
   await ctrl.run();

@@ -13,19 +13,27 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
 final organizeControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
-  final repo = ref.watch(toolsRepositoryProvider);
-  return ToolController(persistenceKey: 'organize', processFn: (inputs, ctrl) async {
-    final count = await repo.pageCount(inputs.first);
-    final natural = [for (var i = 0; i < count; i++) i];
-    final order = ref.read(organizeOrderProvider) ?? natural;
-    if (order.isEmpty) throw Exception('No pages left — tap Reset to restore them');
-    final rotations = ref.read(organizeRotationsProvider);
-    ctrl.setProgress(null, 'Applying changes to ${order.length} pages…');
-    final out = await repo.organizePdf(inputs.first,
-        order: order, rotations: rotations, outputName: ctrl.outputName);
-    return [out];
-  });
-});
+      final repo = ref.watch(toolsRepositoryProvider);
+      return ToolController(
+        persistenceKey: 'organize',
+        processFn: (inputs, ctrl) async {
+          final count = await repo.pageCount(inputs.first);
+          final natural = [for (var i = 0; i < count; i++) i];
+          final order = ref.read(organizeOrderProvider) ?? natural;
+          if (order.isEmpty)
+            throw Exception('No pages left — tap Reset to restore them');
+          final rotations = ref.read(organizeRotationsProvider);
+          ctrl.setProgress(null, 'Applying changes to ${order.length} pages…');
+          final out = await repo.organizePdf(
+            inputs.first,
+            order: order,
+            rotations: rotations,
+            outputName: ctrl.outputName,
+          );
+          return [out];
+        },
+      );
+    });
 
 /// Working page order as original 0-based indices. Duplicates allowed,
 /// deletions are items removed from the list. `null` = untouched natural order.
@@ -41,10 +49,12 @@ class OrganizeScreen extends ConsumerWidget {
     final ctrl = ref.read(organizeControllerProvider.notifier);
 
     final filePath = state.files.isEmpty ? null : state.files.first.path;
-    final pageCountAsync =
-        filePath == null ? null : ref.watch(pdfPageCountProvider(filePath));
-    final thumbsAsync =
-        filePath == null ? null : ref.watch(pdfThumbsProvider(filePath));
+    final pageCountAsync = filePath == null
+        ? null
+        : ref.watch(pdfPageCountProvider(filePath));
+    final thumbsAsync = filePath == null
+        ? null
+        : ref.watch(pdfThumbsProvider(filePath));
 
     void resetAll() {
       ref.read(organizeOrderProvider.notifier).state = null;
@@ -63,7 +73,8 @@ class OrganizeScreen extends ConsumerWidget {
 
     return ToolScaffold(
       title: 'Organize Pages',
-      subtitle: 'Long-press and drag to reorder · ⧉ duplicate · ↻ rotate · ✕ delete',
+      subtitle:
+          'Long-press and drag to reorder · ⧉ duplicate · ↻ rotate · ✕ delete',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -77,7 +88,8 @@ class OrganizeScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           if (filePath != null)
             pageCountAsync?.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (e, _) => Text('Could not read page count: $e'),
                   data: (count) => _WorkingGrid(
                     count: count,
@@ -88,7 +100,8 @@ class OrganizeScreen extends ConsumerWidget {
                 const SizedBox.shrink(),
           const SizedBox(height: 12),
           if (state.isProcessing) const ToolProgress(label: 'Organizing…'),
-          if (state.hasError) ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
+          if (state.hasError)
+            ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
           if (state.hasResult)
             ToolSuccess(
               message: 'Organized!',
@@ -100,7 +113,10 @@ class OrganizeScreen extends ConsumerWidget {
             onPressed: state.files.isEmpty || state.isProcessing
                 ? null
                 : () => runWithRename(
-                    context: context, ctrl: ctrl, defaultName: defaultOutputName('Organized')),
+                    context: context,
+                    ctrl: ctrl,
+                    defaultName: defaultOutputName('Organized'),
+                  ),
             icon: const Icon(Icons.view_carousel_outlined),
             label: const Text('Apply'),
           ),
@@ -111,7 +127,11 @@ class OrganizeScreen extends ConsumerWidget {
 }
 
 class _WorkingGrid extends ConsumerWidget {
-  const _WorkingGrid({required this.count, required this.thumbsAsync, required this.onReset});
+  const _WorkingGrid({
+    required this.count,
+    required this.thumbsAsync,
+    required this.onReset,
+  });
 
   final int count;
   final AsyncValue<List<String>>? thumbsAsync;
@@ -125,7 +145,8 @@ class _WorkingGrid extends ConsumerWidget {
     final rotations = ref.watch(organizeRotationsProvider);
     final thumbs = thumbsAsync?.valueOrNull;
 
-    void setOrder(List<int> next) => ref.read(organizeOrderProvider.notifier).state = next;
+    void setOrder(List<int> next) =>
+        ref.read(organizeOrderProvider.notifier).state = next;
 
     void reorder(int from, int to) {
       final next = [...order];
@@ -159,22 +180,24 @@ class _WorkingGrid extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(children: [
-          Expanded(
-            child: Text(
-              '${order.length} pages'
-              '${dupCount > 0 ? ' · $dupCount duplicated' : ''}'
-              '${deletedCount > 0 ? ' · $deletedCount deleted' : ''}'
-              '${rotations.isNotEmpty ? ' · ${rotations.length} rotated' : ''}',
-              style: Theme.of(context).textTheme.bodySmall,
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${order.length} pages'
+                '${dupCount > 0 ? ' · $dupCount duplicated' : ''}'
+                '${deletedCount > 0 ? ' · $deletedCount deleted' : ''}'
+                '${rotations.isNotEmpty ? ' · ${rotations.length} rotated' : ''}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ),
-          ),
-          TextButton.icon(
-            onPressed: onReset,
-            icon: const Icon(Icons.restart_alt_rounded, size: 18),
-            label: const Text('Reset'),
-          ),
-        ]),
+            TextButton.icon(
+              onPressed: onReset,
+              icon: const Icon(Icons.restart_alt_rounded, size: 18),
+              label: const Text('Reset'),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         if (order.isEmpty)
           Container(
@@ -183,15 +206,24 @@ class _WorkingGrid extends ConsumerWidget {
               color: scheme.errorContainer.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Text('All pages removed — tap Reset to restore them.',
-                textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+            child: Text(
+              'All pages removed — tap Reset to restore them.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           )
         else if (thumbsAsync is AsyncLoading)
           const Center(
-              child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: CircularProgressIndicator(),
+            ),
+          )
         else if (thumbsAsync is AsyncError)
-          Text('Previews unavailable — you can still apply changes.',
-              style: Theme.of(context).textTheme.bodySmall)
+          Text(
+            'Previews unavailable — you can still apply changes.',
+            style: Theme.of(context).textTheme.bodySmall,
+          )
         else
           GridView.builder(
             shrinkWrap: true,
@@ -205,7 +237,9 @@ class _WorkingGrid extends ConsumerWidget {
             itemCount: order.length,
             itemBuilder: (context, pos) {
               final orig = order[pos];
-              final thumb = (thumbs != null && orig < thumbs.length) ? thumbs[orig] : null;
+              final thumb = (thumbs != null && orig < thumbs.length)
+                  ? thumbs[orig]
+                  : null;
               final tile = _OrganizeTile(
                 position: pos + 1,
                 original: orig + 1,
@@ -270,7 +304,11 @@ class _OrganizeTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
         boxShadow: [
-          BoxShadow(color: scheme.shadow.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: scheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: ClipRRect(
@@ -283,37 +321,62 @@ class _OrganizeTile extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   if (thumbPath != null)
-                    Image.file(File(thumbPath!), fit: BoxFit.cover, width: double.infinity)
+                    Image.file(
+                      File(thumbPath!),
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    )
                   else
                     ColoredBox(
                       color: scheme.surfaceContainerHighest,
-                      child: Icon(Icons.picture_as_pdf_rounded,
-                          size: 28, color: scheme.onSurfaceVariant),
+                      child: Icon(
+                        Icons.picture_as_pdf_rounded,
+                        size: 28,
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                   Positioned(
                     top: 4,
                     left: 4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(999)),
-                      child: Text('$position',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                        color: Colors.black.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '$position',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ),
                   ),
                   Positioned(
                     top: 4,
                     right: 4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(999)),
-                      child: Text('p$original',
-                          style: const TextStyle(
-                              color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w600)),
+                        color: Colors.black.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'p$original',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                   if (rotation != 0)
@@ -321,12 +384,22 @@ class _OrganizeTile extends StatelessWidget {
                       bottom: 4,
                       left: 4,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                            color: scheme.primary, borderRadius: BorderRadius.circular(999)),
-                        child: Text('↻$rotation°',
-                            style: TextStyle(
-                                color: scheme.onPrimary, fontSize: 10, fontWeight: FontWeight.w800)),
+                          color: scheme.primary,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          '↻$rotation°',
+                          style: TextStyle(
+                            color: scheme.onPrimary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
                     ),
                 ],
@@ -339,14 +412,21 @@ class _OrganizeTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _TileButton(
-                      icon: Icons.copy_rounded, tooltip: 'Duplicate page', onTap: onDuplicate),
+                    icon: Icons.copy_rounded,
+                    tooltip: 'Duplicate page',
+                    onTap: onDuplicate,
+                  ),
                   _TileButton(
-                      icon: Icons.rotate_right_rounded, tooltip: 'Rotate 90°', onTap: onRotate),
+                    icon: Icons.rotate_right_rounded,
+                    tooltip: 'Rotate 90°',
+                    onTap: onRotate,
+                  ),
                   _TileButton(
-                      icon: Icons.close_rounded,
-                      tooltip: 'Delete page',
-                      onTap: onDelete,
-                      danger: true),
+                    icon: Icons.close_rounded,
+                    tooltip: 'Delete page',
+                    onTap: onDelete,
+                    danger: true,
+                  ),
                 ],
               ),
             ),
@@ -358,7 +438,12 @@ class _OrganizeTile extends StatelessWidget {
 }
 
 class _TileButton extends StatelessWidget {
-  const _TileButton({required this.icon, required this.tooltip, required this.onTap, this.danger = false});
+  const _TileButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+    this.danger = false,
+  });
 
   final IconData icon;
   final String tooltip;
@@ -380,9 +465,13 @@ class _TileButton extends StatelessWidget {
             color: danger ? scheme.errorContainer : scheme.secondaryContainer,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon,
-              size: 15,
-              color: danger ? scheme.onErrorContainer : scheme.onSecondaryContainer),
+          child: Icon(
+            icon,
+            size: 15,
+            color: danger
+                ? scheme.onErrorContainer
+                : scheme.onSecondaryContainer,
+          ),
         ),
       ),
     );

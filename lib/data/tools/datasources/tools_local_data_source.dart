@@ -3,6 +3,7 @@ import 'dart:isolate';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
+
 import '../../../core/storage/storage_location.dart';
 
 abstract class ToolsLocalDataSource {
@@ -17,7 +18,9 @@ class ToolsLocalDataSourceImpl implements ToolsLocalDataSource {
     // Placeholder — real impl delegates to EngineBridge via file URLs.
     // For strict arch demo, we simulate by copying first file.
     final temp = await getTemporaryDirectory();
-    final out = File('${temp.path}/merged_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    final out = File(
+      '${temp.path}/merged_${DateTime.now().millisecondsSinceEpoch}.pdf',
+    );
     await inputs.first.copy(out.path);
     return out;
   }
@@ -29,13 +32,19 @@ class ToolsLocalDataSourceImpl implements ToolsLocalDataSource {
       for (final p in images.map((f) => f.path).toList()) {
         final bytes = await File(p).readAsBytes();
         final image = pw.MemoryImage(bytes);
-        pdf.addPage(pw.Page(build: (ctx) => pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain))));
+        pdf.addPage(
+          pw.Page(
+            build: (ctx) =>
+                pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
+          ),
+        );
       }
       return pdf.save();
     });
     // Save only once to the chosen location (custom/default Documents) to avoid duplicates in Files tab
     final saveDir = (await getSaveDirectory()).path;
-    var baseName = outputName?.trim() ?? 'images_${DateTime.now().millisecondsSinceEpoch}';
+    var baseName =
+        outputName?.trim() ?? 'images_${DateTime.now().millisecondsSinceEpoch}';
     if (!baseName.toLowerCase().endsWith('.pdf')) baseName = '$baseName.pdf';
     // sanitize
     baseName = baseName.replaceAll(RegExp(r'[^\w\-. ]'), '_');
@@ -44,7 +53,10 @@ class ToolsLocalDataSourceImpl implements ToolsLocalDataSource {
     var finalFile = outFile;
     var counter = 1;
     while (await finalFile.exists()) {
-      final nameNoExt = baseName.replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
+      final nameNoExt = baseName.replaceAll(
+        RegExp(r'\.pdf$', caseSensitive: false),
+        '',
+      );
       finalFile = File('$saveDir/${nameNoExt}_$counter.pdf');
       counter++;
     }

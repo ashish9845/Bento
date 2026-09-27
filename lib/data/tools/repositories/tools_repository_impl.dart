@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:pdf_manipulator/pdf_manipulator.dart';
+
 import '../datasources/pdf_engine_data_source.dart';
 import 'tools_repository.dart';
 import '../../../core/errors/failures.dart';
@@ -29,7 +30,11 @@ class ToolsRepositoryImpl implements ToolsRepository {
   }
 
   @override
-  Future<List<File>> splitPdf(File input, String rangesSpec, {String? baseName}) async {
+  Future<List<File>> splitPdf(
+    File input,
+    String rangesSpec, {
+    String? baseName,
+  }) async {
     try {
       return await engine.split(input, rangesSpec, baseName: baseName);
     } catch (e) {
@@ -38,7 +43,11 @@ class ToolsRepositoryImpl implements ToolsRepository {
   }
 
   @override
-  Future<File> extractPages(File input, List<int> pages, {String? outputName}) async {
+  Future<File> extractPages(
+    File input,
+    List<int> pages, {
+    String? outputName,
+  }) async {
     try {
       return await engine.extract(input, pages, outputName: outputName);
     } catch (e) {
@@ -55,14 +64,24 @@ class ToolsRepositoryImpl implements ToolsRepository {
     String? outputName,
   }) async {
     try {
-      return await engine.organize(input, delete: delete, rotations: rotations, order: order, outputName: outputName);
+      return await engine.organize(
+        input,
+        delete: delete,
+        rotations: rotations,
+        order: order,
+        outputName: outputName,
+      );
     } catch (e) {
       throw CacheException(e.toString());
     }
   }
 
   @override
-  Future<File> compressPdf(File input, PdfImagePolicy policy, {String? outputName}) async {
+  Future<File> compressPdf(
+    File input,
+    PdfImagePolicy policy, {
+    String? outputName,
+  }) async {
     try {
       return await engine.compress(input, policy, outputName: outputName);
     } catch (e) {
@@ -123,7 +142,11 @@ class ToolsRepositoryImpl implements ToolsRepository {
     String? outputName,
   }) async {
     try {
-      return await engine.unlockPdf(input, password: password, outputName: outputName);
+      return await engine.unlockPdf(
+        input,
+        password: password,
+        outputName: outputName,
+      );
     } catch (e) {
       throw CacheException(e.toString());
     }

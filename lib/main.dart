@@ -27,11 +27,15 @@ class BenoApp extends ConsumerWidget {
         title: 'Bento',
         theme: AppTheme.lightFor(
           palette,
-          dynamicScheme: lightDynamic == null ? null : toMaterialScheme(lightDynamic),
+          dynamicScheme: lightDynamic == null
+              ? null
+              : toMaterialScheme(lightDynamic),
         ),
         darkTheme: AppTheme.darkFor(
           palette,
-          dynamicScheme: darkDynamic == null ? null : toMaterialScheme(darkDynamic),
+          dynamicScheme: darkDynamic == null
+              ? null
+              : toMaterialScheme(darkDynamic),
         ),
         themeMode: themeMode,
         routerConfig: appRouter,

@@ -36,8 +36,9 @@ Future<DetectionResult> detectDocumentIsolateEntry(String path) async {
     final originalHeight = decoded.height;
 
     final longestEdge = max(originalWidth, originalHeight).toDouble();
-    final workingScale =
-        longestEdge > kDetectionMaxDimension ? kDetectionMaxDimension / longestEdge : 1.0;
+    final workingScale = longestEdge > kDetectionMaxDimension
+        ? kDetectionMaxDimension / longestEdge
+        : 1.0;
     final workWidth = max(1, (originalWidth * workingScale).round());
     final workHeight = max(1, (originalHeight * workingScale).round());
 
@@ -98,8 +99,12 @@ const List<double> _thresholdMultipliers = [0.7, 1.0, 1.3];
 /// Always null for the one-shot file-detection path above (no "previous
 /// frame" concept there); the live-scan worker isolate supplies its own
 /// last-seen quad.
-Quad? detectQuadFromGrayscale(Uint8List gray, int width, int height,
-    {Quad? previousQuad}) {
+Quad? detectQuadFromGrayscale(
+  Uint8List gray,
+  int width,
+  int height, {
+  Quad? previousQuad,
+}) {
   final blurred = gaussianBlur3(gray, width, height);
   final magnitude = sobelMagnitude(blurred, width, height);
   final baseThreshold = otsuThreshold(magnitude);

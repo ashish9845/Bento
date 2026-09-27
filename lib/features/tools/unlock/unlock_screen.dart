@@ -12,14 +12,21 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
 final unlockControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
-  final repo = ref.watch(toolsRepositoryProvider);
-  return ToolController(persistenceKey: 'unlock', processFn: (inputs, ctrl) async {
-    final password = ref.read(unlockPasswordProvider);
-    ctrl.setProgress(null, 'Removing encryption…');
-    final out = await repo.unlockPdf(inputs.first, password: password, outputName: ctrl.outputName);
-    return [out];
-  });
-});
+      final repo = ref.watch(toolsRepositoryProvider);
+      return ToolController(
+        persistenceKey: 'unlock',
+        processFn: (inputs, ctrl) async {
+          final password = ref.read(unlockPasswordProvider);
+          ctrl.setProgress(null, 'Removing encryption…');
+          final out = await repo.unlockPdf(
+            inputs.first,
+            password: password,
+            outputName: ctrl.outputName,
+          );
+          return [out];
+        },
+      );
+    });
 
 final unlockPasswordProvider = StateProvider<String>((ref) => '');
 
@@ -36,7 +43,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   @override
   void initState() {
     super.initState();
-    _passwordCtrl = TextEditingController(text: ref.read(unlockPasswordProvider));
+    _passwordCtrl = TextEditingController(
+      text: ref.read(unlockPasswordProvider),
+    );
   }
 
   @override
@@ -50,7 +59,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final state = ref.watch(unlockControllerProvider);
     final ctrl = ref.read(unlockControllerProvider.notifier);
     final password = ref.watch(unlockPasswordProvider);
-    final canRun = state.files.isNotEmpty && password.isNotEmpty && !state.isProcessing;
+    final canRun =
+        state.files.isNotEmpty && password.isNotEmpty && !state.isProcessing;
 
     return ToolScaffold(
       title: 'Unlock PDF',
@@ -82,39 +92,59 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                         hintText: 'The password that opens this file',
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
-                          icon: Icon(_showPassword ? Icons.visibility_off_rounded : Icons.visibility_rounded),
-                          tooltip: _showPassword ? 'Hide password' : 'Show password',
-                          onPressed: () => setState(() => _showPassword = !_showPassword),
+                          icon: Icon(
+                            _showPassword
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                          ),
+                          tooltip: _showPassword
+                              ? 'Hide password'
+                              : 'Show password',
+                          onPressed: () =>
+                              setState(() => _showPassword = !_showPassword),
                         ),
                       ),
-                      onChanged: (v) => ref.read(unlockPasswordProvider.notifier).state = v,
+                      onChanged: (v) =>
+                          ref.read(unlockPasswordProvider.notifier).state = v,
                     ),
                     const SizedBox(height: 6),
-                    Text('Wrong passwords are reported, never retried silently. The unlocked copy has no security — re-protect it if needed.',
-                        style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      'Wrong passwords are reported, never retried silently. The unlocked copy has no security — re-protect it if needed.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 12),
           ],
-          if (state.isProcessing) ToolProgress(label: state.message ?? 'Unlocking…', progress: state.progress),
-          if (state.hasError) ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
+          if (state.isProcessing)
+            ToolProgress(
+              label: state.message ?? 'Unlocking…',
+              progress: state.progress,
+            ),
+          if (state.hasError)
+            ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
           if (state.hasResult)
             ToolSuccess(
               message: 'Unlocked! ${state.resultFiles.first.path}',
               onOpen: () => openDoc(context, state.resultFiles.first.path),
               onShare: ctrl.shareResult,
-              onSendTo: () => SendToToolSheet.show(context, state.resultFiles.first),
+              onSendTo: () =>
+                  SendToToolSheet.show(context, state.resultFiles.first),
             ),
           const SizedBox(height: 12),
           FilledButton.icon(
-              onPressed: canRun
-                  ? () => runWithRename(
-                      context: context, ctrl: ctrl, defaultName: defaultOutputName('Unlocked'))
-                  : null,
-              icon: const Icon(Icons.lock_open_rounded),
-              label: const Text('Unlock')),
+            onPressed: canRun
+                ? () => runWithRename(
+                    context: context,
+                    ctrl: ctrl,
+                    defaultName: defaultOutputName('Unlocked'),
+                  )
+                : null,
+            icon: const Icon(Icons.lock_open_rounded),
+            label: const Text('Unlock'),
+          ),
         ],
       ),
     );

@@ -22,11 +22,11 @@ class Quad {
   });
 
   Quad scaled(double sx, double sy) => Quad(
-        topLeft: topLeft.scaled(sx, sy),
-        topRight: topRight.scaled(sx, sy),
-        bottomRight: bottomRight.scaled(sx, sy),
-        bottomLeft: bottomLeft.scaled(sx, sy),
-      );
+    topLeft: topLeft.scaled(sx, sy),
+    topRight: topRight.scaled(sx, sy),
+    bottomRight: bottomRight.scaled(sx, sy),
+    bottomLeft: bottomLeft.scaled(sx, sy),
+  );
 
   List<Pt> get points => [topLeft, topRight, bottomRight, bottomLeft];
 }

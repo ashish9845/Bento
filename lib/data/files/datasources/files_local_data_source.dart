@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../core/storage/storage_location.dart';
 import '../models/bento_file.dart';
 
@@ -36,13 +37,22 @@ class FilesLocalDataSourceImpl implements FilesLocalDataSource {
             final stat = await e.stat();
             final name = e.path.split('/').last;
             final existing = byName[name];
-            final candidate = BentoFile(path: e.path, name: name, size: stat.size, modified: stat.modified);
+            final candidate = BentoFile(
+              path: e.path,
+              name: name,
+              size: stat.size,
+              modified: stat.modified,
+            );
             // Prefer docs/custom over tmp, and newer modified
             if (existing == null) {
               byName[name] = candidate;
             } else {
-              final isExistingTmp = existing.path.contains('/cache/') || existing.path.contains('/tmp/');
-              final isCandidateTmp = candidate.path.contains('/cache/') || candidate.path.contains('/tmp/');
+              final isExistingTmp =
+                  existing.path.contains('/cache/') ||
+                  existing.path.contains('/tmp/');
+              final isCandidateTmp =
+                  candidate.path.contains('/cache/') ||
+                  candidate.path.contains('/tmp/');
               if (isExistingTmp && !isCandidateTmp) {
                 byName[name] = candidate;
               } else if (candidate.modified.isAfter(existing.modified)) {
@@ -53,7 +63,8 @@ class FilesLocalDataSourceImpl implements FilesLocalDataSource {
         }
       }
     }
-    final out = byName.values.toList()..sort((a, b) => b.modified.compareTo(a.modified));
+    final out = byName.values.toList()
+      ..sort((a, b) => b.modified.compareTo(a.modified));
     return out.take(limit).toList();
   }
 
@@ -76,7 +87,10 @@ class FilesLocalDataSourceImpl implements FilesLocalDataSource {
       } else {
         var counter = 1;
         while (await dest.exists()) {
-          final stem = name.replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
+          final stem = name.replaceAll(
+            RegExp(r'\.pdf$', caseSensitive: false),
+            '',
+          );
           dest = File('${target.path}/${stem}_$counter.pdf');
           counter++;
         }
@@ -84,7 +98,14 @@ class FilesLocalDataSourceImpl implements FilesLocalDataSource {
       }
       try {
         final stat = await dest.stat();
-        saved.add(BentoFile(path: dest.path, name: dest.path.split('/').last, size: stat.size, modified: stat.modified));
+        saved.add(
+          BentoFile(
+            path: dest.path,
+            name: dest.path.split('/').last,
+            size: stat.size,
+            modified: stat.modified,
+          ),
+        );
       } catch (_) {}
     }
     if (saved.isEmpty) throw Exception('Nothing could be imported');

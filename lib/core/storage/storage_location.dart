@@ -23,7 +23,9 @@ Future<Directory> getDefaultSaveDirectory() async {
       if (ext != null) {
         final idx = ext.path.indexOf('/Android/data');
         if (idx != -1) {
-          final docs = Directory('${ext.path.substring(0, idx)}/Documents/Bento');
+          final docs = Directory(
+            '${ext.path.substring(0, idx)}/Documents/Bento',
+          );
           await docs.create(recursive: true);
           return docs;
         }
@@ -61,9 +63,10 @@ Future<bool> ensureStoragePermission() async {
   }
 }
 
-final storageLocationProvider = StateNotifierProvider<StorageLocationNotifier, String?>((ref) {
-  return StorageLocationNotifier();
-});
+final storageLocationProvider =
+    StateNotifierProvider<StorageLocationNotifier, String?>((ref) {
+      return StorageLocationNotifier();
+    });
 
 class StorageLocationNotifier extends StateNotifier<String?> {
   StorageLocationNotifier() : super(null) {

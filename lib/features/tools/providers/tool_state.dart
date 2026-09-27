@@ -27,12 +27,11 @@ class ToolState {
     String? message,
     List<File>? resultFiles,
     double? progress,
-  }) =>
-      ToolState(
-        files: files ?? this.files,
-        status: status ?? this.status,
-        message: message,
-        resultFiles: resultFiles ?? this.resultFiles,
-        progress: progress ?? this.progress,
-      );
+  }) => ToolState(
+    files: files ?? this.files,
+    status: status ?? this.status,
+    message: message,
+    resultFiles: resultFiles ?? this.resultFiles,
+    progress: progress ?? this.progress,
+  );
 }

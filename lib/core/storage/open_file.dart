@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
+
 import 'storage_location.dart';
 
 /// Opens a file or folder with the system viewer, with visible feedback.
@@ -26,7 +27,9 @@ Future<void> openDoc(BuildContext context, String path) async {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Storage permission is needed to open files. Allow "All files access" in Settings.'),
+          content: const Text(
+            'Storage permission is needed to open files. Allow "All files access" in Settings.',
+          ),
           action: SnackBarAction(label: 'Settings', onPressed: openAppSettings),
         ),
       );
@@ -43,14 +46,15 @@ Future<void> openDoc(BuildContext context, String path) async {
         content: Text(msg),
         action: SnackBarAction(
           label: 'Share instead',
-          onPressed: () => SharePlus.instance.share(ShareParams(files: [XFile(path)])),
+          onPressed: () =>
+              SharePlus.instance.share(ShareParams(files: [XFile(path)])),
         ),
       ),
     );
   } catch (e) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Could not open $displayName: $e')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Could not open $displayName: $e')));
   }
 }

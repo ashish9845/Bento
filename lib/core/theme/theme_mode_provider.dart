@@ -5,7 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 const _key = 'theme_mode';
 
 /// In-app theme choice, persisted. Defaults to system.
-final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((
+  ref,
+) {
   return ThemeModeNotifier();
 });
 

@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:scan/core/widgets/entrance.dart';
 
 class ToolProgress extends StatelessWidget {
-  const ToolProgress({required this.label, super.key, this.progress, this.onCancel});
+  const ToolProgress({
+    required this.label,
+    super.key,
+    this.progress,
+    this.onCancel,
+  });
   final String label;
   final double? progress;
   final VoidCallback? onCancel;
@@ -27,13 +32,21 @@ class ToolProgress extends StatelessWidget {
                 SizedBox(
                   width: 22,
                   height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2.5, color: scheme.primary, backgroundColor: scheme.surfaceContainerHighest),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: scheme.primary,
+                    backgroundColor: scheme.surfaceContainerHighest,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Semantics(
                     liveRegion: true,
-                    child: Text(label, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                    child: Text(
+                      label,
+                      style: Theme.of(context).textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ),
                 if (onCancel != null)
@@ -79,19 +92,35 @@ class ToolError extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: scheme.error, shape: BoxShape.circle),
-                child: Icon(Icons.error_outline_rounded, size: 18, color: scheme.onError),
+                decoration: BoxDecoration(
+                  color: scheme.error,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.error_outline_rounded,
+                  size: 18,
+                  color: scheme.onError,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Semantics(
                   liveRegion: true,
-                  child: Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onErrorContainer, height: 1.35)),
+                  child: Text(
+                    message,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: scheme.onErrorContainer,
+                      height: 1.35,
+                    ),
+                  ),
                 ),
               ),
               if (onRetry != null) ...[
                 const SizedBox(width: 8),
-                FilledButton.tonal(onPressed: onRetry, child: const Text('Retry')),
+                FilledButton.tonal(
+                  onPressed: onRetry,
+                  child: const Text('Retry'),
+                ),
               ],
             ],
           ),
@@ -102,14 +131,15 @@ class ToolError extends StatelessWidget {
 }
 
 class ToolSuccess extends StatefulWidget {
-  const ToolSuccess(
-      {required this.message,
-      super.key,
-      this.onSave,
-      this.onShare,
-      this.onSendTo,
-      this.onOpenFolder,
-      this.onOpen});
+  const ToolSuccess({
+    required this.message,
+    super.key,
+    this.onSave,
+    this.onShare,
+    this.onSendTo,
+    this.onOpenFolder,
+    this.onOpen,
+  });
   final String message;
   final VoidCallback? onSave;
   final VoidCallback? onShare;
@@ -126,15 +156,22 @@ class ToolSuccess extends StatefulWidget {
   State<ToolSuccess> createState() => _ToolSuccessState();
 }
 
-class _ToolSuccessState extends State<ToolSuccess> with SingleTickerProviderStateMixin {
+class _ToolSuccessState extends State<ToolSuccess>
+    with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 420));
-    _scale = Tween<double>(begin: 0.92, end: 1).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 420),
+    );
+    _scale = Tween<double>(
+      begin: 0.92,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
     _ctrl.forward();
   }
 
@@ -155,20 +192,41 @@ class _ToolSuccessState extends State<ToolSuccess> with SingleTickerProviderStat
           decoration: BoxDecoration(
             color: scheme.primaryContainer,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: scheme.primary.withValues(alpha: 0.12), blurRadius: 18, offset: const Offset(0, 8))],
+            boxShadow: [
+              BoxShadow(
+                color: scheme.primary.withValues(alpha: 0.12),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
-                  child: Icon(Icons.check_rounded, size: 18, color: scheme.onPrimary),
-                ),
-                const SizedBox(width: 10),
-                Expanded(child: Text(widget.message, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800))),
-              ]),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: scheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.check_rounded,
+                      size: 18,
+                      color: scheme.onPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      widget.message,
+                      style: Theme.of(context).textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 14),
               Wrap(
                 spacing: 10,

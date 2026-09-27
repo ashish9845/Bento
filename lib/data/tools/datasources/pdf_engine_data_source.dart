@@ -5,6 +5,7 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_manipulator/io.dart';
 import 'package:pdf_manipulator/pdf_manipulator.dart';
+
 import '../../../core/storage/storage_location.dart';
 
 /// Parses UI range specs like "1-3, 5, 7-end" (1-based, "end" = last page)
@@ -61,9 +62,17 @@ abstract class PdfEngineDataSource {
     List<int>? order,
     String? outputName,
   });
-  Future<File> compress(File input, PdfImagePolicy policy, {String? outputName});
+  Future<File> compress(
+    File input,
+    PdfImagePolicy policy, {
+    String? outputName,
+  });
   Future<File> imagesToPdf(List<File> images, {String? outputName});
-  Future<List<File>> renderPages(File input, {int maxSize = 1440, String? outputName});
+  Future<List<File>> renderPages(
+    File input, {
+    int maxSize = 1440,
+    String? outputName,
+  });
 
   /// Small page previews for the Organize grid. Written to temp (never shown
   /// in Files) and keyed by original page index order.
@@ -93,15 +102,24 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   /// Shared engine instance reused everywhere (per package guidance).
   static final Pdf _pdf = Pdf();
 
-  Future<File> _outputFile(String prefix, {String? name, String extension = 'pdf'}) async {
+  Future<File> _outputFile(
+    String prefix, {
+    String? name,
+    String extension = 'pdf',
+  }) async {
     final dir = (await getSaveDirectory()).path;
-    String base = (name?.trim().isNotEmpty ?? false ? name!.trim() : '${prefix}_${DateTime.now().millisecondsSinceEpoch}');
+    String base = (name?.trim().isNotEmpty ?? false
+        ? name!.trim()
+        : '${prefix}_${DateTime.now().millisecondsSinceEpoch}');
     if (!base.toLowerCase().endsWith('.$extension')) base = '$base.$extension';
     base = base.replaceAll(RegExp(r'[^\w\-. ]'), '_');
     var out = File('$dir/$base');
     var counter = 1;
     while (await out.exists()) {
-      final stem = base.replaceAll(RegExp('\\.$extension\$', caseSensitive: false), '');
+      final stem = base.replaceAll(
+        RegExp('\\.$extension\$', caseSensitive: false),
+        '',
+      );
       out = File('$dir/${stem}_$counter.$extension');
       counter++;
     }
@@ -112,7 +130,11 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   /// expected page count, first page renders. Deletes corrupt output and
   /// throws instead of handing a broken file to the user. Pass [password]
   /// when the output itself is encrypted (Protect PDF).
-  Future<void> _verifyPdf(File file, {required int expectedPages, String? password}) async {
+  Future<void> _verifyPdf(
+    File file, {
+    required int expectedPages,
+    String? password,
+  }) async {
     final len = await file.length();
     if (len == 0) {
       try {
@@ -124,18 +146,24 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     try {
       doc = await _pdf.open(FileSource(file), password: password);
       if (doc.pageCount != expectedPages) {
-        throw Exception('Output has ${doc.pageCount} pages, expected $expectedPages — please retry');
+        throw Exception(
+          'Output has ${doc.pageCount} pages, expected $expectedPages — please retry',
+        );
       }
       var rendered = false;
       await for (final page in doc.render(
         pages: PdfPages.single(0),
         size: const PdfRenderSize.thumbnail(200),
       )) {
-        if (page.data.isEmpty) throw Exception('Output failed a render check — please retry');
+        if (page.data.isEmpty)
+          throw Exception('Output failed a render check — please retry');
         rendered = true;
       }
-      if (!rendered) throw Exception('Output failed a render check — please retry');
-      debugPrint('[PdfEngine] verified ${file.path.split('/').last}: $len bytes, $expectedPages pages');
+      if (!rendered)
+        throw Exception('Output failed a render check — please retry');
+      debugPrint(
+        '[PdfEngine] verified ${file.path.split('/').last}: $len bytes, $expectedPages pages',
+      );
     } finally {
       await doc?.dispose();
     }
@@ -156,7 +184,8 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
       // messages ("password required: …", "wrong password") rather than the
       // typed PdfPasswordRequired/PdfWrongPassword — match on text.
       final msg = e.message.toLowerCase();
-      if (msg.contains('password required') || msg.contains('password-protected')) {
+      if (msg.contains('password required') ||
+          msg.contains('password-protected')) {
         throw Exception('This PDF is password-protected — unlock it first');
       }
       if (msg.contains('wrong password') ||
@@ -204,13 +233,21 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   }
 
   @override
-  Future<List<File>> split(File input, String rangesSpec, {String? baseName}) async {
+  Future<List<File>> split(
+    File input,
+    String rangesSpec, {
+    String? baseName,
+  }) async {
     final count = await pageCount(input);
     final chunks = parsePageRanges(rangesSpec, count);
-    final stem = (baseName?.trim().isNotEmpty ?? false
-            ? baseName!.trim()
-            : input.path.split('/').last.replaceAll(RegExp(r'\.pdf$', caseSensitive: false), ''))
-        .replaceAll(RegExp(r'[^\w\-. ]'), '_');
+    final stem =
+        (baseName?.trim().isNotEmpty ?? false
+                ? baseName!.trim()
+                : input.path
+                      .split('/')
+                      .last
+                      .replaceAll(RegExp(r'\.pdf$', caseSensitive: false), ''))
+            .replaceAll(RegExp(r'[^\w\-. ]'), '_');
     final results = <File>[];
     for (var i = 0; i < chunks.length; i++) {
       final out = await _outputFile('${stem}_part${i + 1}');
@@ -229,12 +266,18 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   }
 
   @override
-  Future<File> extract(File input, List<int> pages, {String? outputName}) async {
+  Future<File> extract(
+    File input,
+    List<int> pages, {
+    String? outputName,
+  }) async {
     if (pages.isEmpty) throw Exception('Select at least one page to extract');
     final count = await pageCount(input);
     final valid = pages.where((p) => p >= 0 && p < count).toList();
     if (valid.isEmpty) {
-      throw Exception('Selected pages are outside this $count-page PDF — reselect and retry');
+      throw Exception(
+        'Selected pages are outside this $count-page PDF — reselect and retry',
+      );
     }
     final sorted = [...valid]..sort();
     final out = await _outputFile('extracted', name: outputName);
@@ -261,8 +304,11 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     final count = await pageCount(input);
     // Final order in original indices: explicit order (minus deleted) or natural.
     final natural = [for (var i = 0; i < count; i++) i];
-    final finalOrder = (order ?? natural).where((i) => !delete.contains(i)).toList();
-    if (finalOrder.isEmpty) throw Exception('Deleting every page would leave an empty PDF');
+    final finalOrder = (order ?? natural)
+        .where((i) => !delete.contains(i))
+        .toList();
+    if (finalOrder.isEmpty)
+      throw Exception('Deleting every page would leave an empty PDF');
     // Remap rotations (tracked on original indices) into working-list
     // positions. Every copy of a rotated page rotates, including duplicates.
     final newRotations = <int, int>{};
@@ -303,7 +349,11 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   }
 
   @override
-  Future<File> compress(File input, PdfImagePolicy policy, {String? outputName}) async {
+  Future<File> compress(
+    File input,
+    PdfImagePolicy policy, {
+    String? outputName,
+  }) async {
     final count = await pageCount(input);
     final out = await _outputFile('compressed', name: outputName);
     final sink = await FileSink.create(out);
@@ -335,8 +385,16 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   }
 
   @override
-  Future<List<File>> renderPages(File input, {int maxSize = 1440, String? outputName}) async {
-    final rawStem = (outputName?.trim().isNotEmpty ?? false ? outputName!.trim() : input.path.split('/').last).replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
+  Future<List<File>> renderPages(
+    File input, {
+    int maxSize = 1440,
+    String? outputName,
+  }) async {
+    final rawStem =
+        (outputName?.trim().isNotEmpty ?? false
+                ? outputName!.trim()
+                : input.path.split('/').last)
+            .replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
     final sanitized = rawStem.replaceAll(RegExp(r'[^\w\-. ]'), '_');
     final safeStem = sanitized.isEmpty ? 'pdf_images' : sanitized;
     final baseDir = (await getSaveDirectory()).path;
@@ -363,7 +421,9 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   @override
   Future<List<File>> renderThumbnails(File input, {int maxSize = 360}) async {
     final temp = await getTemporaryDirectory();
-    final folder = Directory('${temp.path}/bento_thumbs_${DateTime.now().millisecondsSinceEpoch}');
+    final folder = Directory(
+      '${temp.path}/bento_thumbs_${DateTime.now().millisecondsSinceEpoch}',
+    );
     await folder.create(recursive: true);
     try {
       return await _renderInto(folder, input, maxSize: maxSize, prefix: 't');
@@ -378,8 +438,12 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   /// Renders every page of [input] as PNGs into [folder], one bad page at a
   /// time so a single failure can't poison the whole batch. Never writes
   /// 0-byte files.
-  Future<List<File>> _renderInto(Directory folder, File input,
-      {required int maxSize, required String prefix}) async {
+  Future<List<File>> _renderInto(
+    Directory folder,
+    File input, {
+    required int maxSize,
+    required String prefix,
+  }) async {
     final doc = await _pdf.open(FileSource(input));
     final results = <File>[];
     final failures = <int>[];
@@ -405,7 +469,9 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
               } catch (_) {}
               throw Exception('write produced an empty file');
             }
-            debugPrint('[PdfEngine] rendered page ${i + 1}/$count: ${page.width}x${page.height}, $len bytes');
+            debugPrint(
+              '[PdfEngine] rendered page ${i + 1}/$count: ${page.width}x${page.height}, $len bytes',
+            );
             results.add(out);
             rendered = true;
           }
@@ -422,7 +488,9 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     }
     if (results.isEmpty) {
       if (failures.isNotEmpty) {
-        throw Exception('Could not render page(s) ${failures.join(', ')} from this PDF');
+        throw Exception(
+          'Could not render page(s) ${failures.join(', ')} from this PDF',
+        );
       }
       throw Exception('No pages could be rendered from this PDF');
     }
@@ -460,7 +528,9 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
         targetPage,
         MemorySource(signaturePng),
         rect: PdfRect(
-          x: (media.x + media.width - margin - w).clamp(0.0, media.width).toDouble(),
+          x: (media.x + media.width - margin - w)
+              .clamp(0.0, media.width)
+              .toDouble(),
           y: media.y + margin,
           width: w,
           height: h,
@@ -484,13 +554,16 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     String? ownerPassword,
     String? outputName,
   }) async {
-    if (userPassword.isEmpty) throw Exception('Enter a password to protect this PDF');
+    if (userPassword.isEmpty)
+      throw Exception('Enter a password to protect this PDF');
     final count = await pageCount(input);
     // A distinct owner password locks usage down (no printing, copying,
     // modifying, annotating); without one the file just needs the user
     // password to open. Owner falls back to the user password so the file
     // is never left owner-less.
-    final owner = (ownerPassword?.isNotEmpty ?? false) ? ownerPassword! : userPassword;
+    final owner = (ownerPassword?.isNotEmpty ?? false)
+        ? ownerPassword!
+        : userPassword;
     final restricted = owner != userPassword;
     final out = await _outputFile('protected', name: outputName);
     final sink = await FileSink.create(out);
@@ -504,7 +577,9 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
             ownerPassword: owner,
             userPassword: userPassword,
             algorithm: PdfEncryptionAlgorithm.aes256,
-            permissions: restricted ? const PdfPermissions.readOnly() : const PdfPermissions.all(),
+            permissions: restricted
+                ? const PdfPermissions.readOnly()
+                : const PdfPermissions.all(),
           ),
         ),
       );
@@ -533,7 +608,9 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
       editor = await _pdf.edit(FileSource(input), password: password);
       await editor.save(
         sink,
-        options: const PdfSaveOptions.fullRewrite(encryption: PdfEncryption.remove()),
+        options: const PdfSaveOptions.fullRewrite(
+          encryption: PdfEncryption.remove(),
+        ),
       );
     } catch (e) {
       _wrap(e);

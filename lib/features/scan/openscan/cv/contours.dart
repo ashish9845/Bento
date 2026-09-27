@@ -16,8 +16,12 @@ import 'models/quad.dart';
 /// a sweep happens to reach first — see [pickBestQuad]. Returns the quad
 /// in the mask's own coordinate space (the caller is responsible for
 /// rescaling to the original image size).
-Quad? findDocumentQuad(Uint8List mask, int width, int height,
-    {Quad? previousQuad}) {
+Quad? findDocumentQuad(
+  Uint8List mask,
+  int width,
+  int height, {
+  Quad? previousQuad,
+}) {
   final candidates = findDocumentQuadCandidates(mask, width, height);
   return pickBestQuad(candidates, width, height, previousQuad: previousQuad);
 }
@@ -115,7 +119,8 @@ Quad? pickBestQuad(
   Quad? best;
   double bestScore = double.negativeInfinity;
   for (final cluster in clusters) {
-    var score = _qualityScore(cluster.quad, width, height) +
+    var score =
+        _qualityScore(cluster.quad, width, height) +
         kCandidateSupportWeight * (cluster.support / candidates.length);
     var result = cluster.quad;
 
@@ -186,24 +191,27 @@ List<({Quad quad, int support})> _clusterCandidates(
   }
 
   return [
-    for (int i = 0; i < means.length; i++)
-      (quad: means[i], support: counts[i]),
+    for (int i = 0; i < means.length; i++) (quad: means[i], support: counts[i]),
   ];
 }
 
 List<double> _scalars(Quad q) => [
-      q.topLeft.x, q.topLeft.y,
-      q.topRight.x, q.topRight.y,
-      q.bottomRight.x, q.bottomRight.y,
-      q.bottomLeft.x, q.bottomLeft.y,
-    ];
+  q.topLeft.x,
+  q.topLeft.y,
+  q.topRight.x,
+  q.topRight.y,
+  q.bottomRight.x,
+  q.bottomRight.y,
+  q.bottomLeft.x,
+  q.bottomLeft.y,
+];
 
 Quad _quadOfScalars(List<double> sums, int count) => Quad(
-      topLeft: Pt(sums[0] / count, sums[1] / count),
-      topRight: Pt(sums[2] / count, sums[3] / count),
-      bottomRight: Pt(sums[4] / count, sums[5] / count),
-      bottomLeft: Pt(sums[6] / count, sums[7] / count),
-    );
+  topLeft: Pt(sums[0] / count, sums[1] / count),
+  topRight: Pt(sums[2] / count, sums[3] / count),
+  bottomRight: Pt(sums[4] / count, sums[5] / count),
+  bottomLeft: Pt(sums[6] / count, sums[7] / count),
+);
 
 /// Area (as a fraction of the frame) weighted by squareness — mirrors the
 /// reference app's `getContourSortFactor`: `area + weight * (1 - maxCos)`,
@@ -236,12 +244,30 @@ double _maxAngleDeviationFraction(Quad quad) {
 /// [bestCornerAssignment] to brute-force the best correspondence between
 /// an unordered set of 4 points and a reference [Quad]'s corner slots.
 const List<List<int>> _cornerPermutations = [
-  [0, 1, 2, 3], [0, 1, 3, 2], [0, 2, 1, 3], [0, 2, 3, 1],
-  [0, 3, 1, 2], [0, 3, 2, 1], [1, 0, 2, 3], [1, 0, 3, 2],
-  [1, 2, 0, 3], [1, 2, 3, 0], [1, 3, 0, 2], [1, 3, 2, 0],
-  [2, 0, 1, 3], [2, 0, 3, 1], [2, 1, 0, 3], [2, 1, 3, 0],
-  [2, 3, 0, 1], [2, 3, 1, 0], [3, 0, 1, 2], [3, 0, 2, 1],
-  [3, 1, 0, 2], [3, 1, 2, 0], [3, 2, 0, 1], [3, 2, 1, 0],
+  [0, 1, 2, 3],
+  [0, 1, 3, 2],
+  [0, 2, 1, 3],
+  [0, 2, 3, 1],
+  [0, 3, 1, 2],
+  [0, 3, 2, 1],
+  [1, 0, 2, 3],
+  [1, 0, 3, 2],
+  [1, 2, 0, 3],
+  [1, 2, 3, 0],
+  [1, 3, 0, 2],
+  [1, 3, 2, 0],
+  [2, 0, 1, 3],
+  [2, 0, 3, 1],
+  [2, 1, 0, 3],
+  [2, 1, 3, 0],
+  [2, 3, 0, 1],
+  [2, 3, 1, 0],
+  [3, 0, 1, 2],
+  [3, 0, 2, 1],
+  [3, 1, 0, 2],
+  [3, 1, 2, 0],
+  [3, 2, 0, 1],
+  [3, 2, 1, 0],
 ];
 
 /// Assigns [points] (exactly 4, unordered) to the corner slots of
@@ -512,8 +538,7 @@ double _angleAtVertexDegrees(Pt a, Pt b, Pt c) {
   final magAB = sqrt(abx * abx + aby * aby);
   final magCB = sqrt(cbx * cbx + cby * cby);
   if (magAB == 0 || magCB == 0) return 0;
-  final cosAngle =
-      ((abx * cbx + aby * cby) / (magAB * magCB)).clamp(-1.0, 1.0);
+  final cosAngle = ((abx * cbx + aby * cby) / (magAB * magCB)).clamp(-1.0, 1.0);
   return acos(cosAngle) * 180 / pi;
 }
 
@@ -546,8 +571,9 @@ Quad sortCorners(List<Pt> pts) {
   // grows downward: a point above the centre has a negative dy and so
   // comes before one to its right.
   final ordered = List<Pt>.from(pts)
-    ..sort((a, b) =>
-        atan2(a.y - cy, a.x - cx).compareTo(atan2(b.y - cy, b.x - cx)));
+    ..sort(
+      (a, b) => atan2(a.y - cy, a.x - cx).compareTo(atan2(b.y - cy, b.x - cx)),
+    );
 
   int bestStart = 0;
   double bestScore = double.negativeInfinity;
@@ -560,8 +586,7 @@ Quad sortCorners(List<Pt> pts) {
     // "right" corners right of their "left" counterparts, the two
     // "bottom" corners below their "top" ones. The rotation that agrees
     // most is the one a person would have drawn.
-    final score =
-        (tr.x - tl.x) + (br.x - bl.x) + (bl.y - tl.y) + (br.y - tr.y);
+    final score = (tr.x - tl.x) + (br.x - bl.x) + (bl.y - tl.y) + (br.y - tr.y);
     if (score > bestScore) {
       bestScore = score;
       bestStart = start;

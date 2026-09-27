@@ -38,7 +38,11 @@ class HomeShortcut {
 /// 4-column shortcut grid. Every tile uses the primary theme tint so the
 /// whole grid follows the active palette (light + dark safe).
 class HomeShortcutGrid extends StatelessWidget {
-  const HomeShortcutGrid({required this.shortcuts, required this.onSelect, super.key});
+  const HomeShortcutGrid({
+    required this.shortcuts,
+    required this.onSelect,
+    super.key,
+  });
 
   final List<HomeShortcut> shortcuts;
   final void Function(HomeShortcut shortcut) onSelect;
@@ -85,9 +89,7 @@ class HomeShortcutGrid extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
+                    style: Theme.of(context).textTheme.labelSmall
                         ?.copyWith(fontWeight: FontWeight.w600, height: 1.2),
                   ),
                 ],

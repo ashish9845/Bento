@@ -33,17 +33,26 @@ class AppTheme {
       // Title colors are pinned to onSurface explicitly (not inherited):
       // inherited colors break under MIUI's text/background adjustments,
       // which left titles invisible white-on-white in light mode.
-      textTheme: base.textTheme.apply(fontFamily: AppFonts.family).copyWith(
-        displaySmall: base.textTheme.displaySmall?.copyWith(
-            fontFamily: AppFonts.family,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.5,
-            color: scheme.onSurface),
-        titleLarge: base.textTheme.titleLarge?.copyWith(
-            fontFamily: AppFonts.family, fontWeight: FontWeight.w700, color: scheme.onSurface),
-        titleMedium: base.textTheme.titleMedium?.copyWith(
-            fontFamily: AppFonts.family, fontWeight: FontWeight.w600, color: scheme.onSurface),
-      ),
+      textTheme: base.textTheme
+          .apply(fontFamily: AppFonts.family)
+          .copyWith(
+            displaySmall: base.textTheme.displaySmall?.copyWith(
+              fontFamily: AppFonts.family,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.5,
+              color: scheme.onSurface,
+            ),
+            titleLarge: base.textTheme.titleLarge?.copyWith(
+              fontFamily: AppFonts.family,
+              fontWeight: FontWeight.w700,
+              color: scheme.onSurface,
+            ),
+            titleMedium: base.textTheme.titleMedium?.copyWith(
+              fontFamily: AppFonts.family,
+              fontWeight: FontWeight.w600,
+              color: scheme.onSurface,
+            ),
+          ),
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
@@ -67,7 +76,11 @@ class AppTheme {
         indicatorColor: scheme.primaryContainer,
         elevation: isLight ? 1 : 0,
         labelTextStyle: const WidgetStatePropertyAll(
-          TextStyle(fontFamily: AppFonts.family, fontWeight: FontWeight.w500, fontSize: 12),
+          TextStyle(
+            fontFamily: AppFonts.family,
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+          ),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -75,8 +88,13 @@ class AppTheme {
           backgroundColor: scheme.primary,
           foregroundColor: scheme.onPrimary,
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: const TextStyle(fontFamily: AppFonts.family, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: AppFonts.family,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       chipTheme: ChipThemeData(
@@ -91,7 +109,10 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: scheme.inverseSurface,
-        contentTextStyle: TextStyle(fontFamily: AppFonts.family, color: scheme.onInverseSurface),
+        contentTextStyle: TextStyle(
+          fontFamily: AppFonts.family,
+          color: scheme.onInverseSurface,
+        ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),

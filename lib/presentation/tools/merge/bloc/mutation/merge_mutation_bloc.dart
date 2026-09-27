@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../../../data/tools/repositories/tools_repository.dart';
 import 'merge_mutation_event.dart';
 import 'merge_mutation_state.dart';
@@ -11,15 +12,31 @@ class MergeMutationBloc extends Bloc<MergeMutationEvent, MergeMutationState> {
     on<SubmitMerge>(_onSubmit);
   }
 
-  Future<void> _onSubmit(SubmitMerge event, Emitter<MergeMutationState> emit) async {
+  Future<void> _onSubmit(
+    SubmitMerge event,
+    Emitter<MergeMutationState> emit,
+  ) async {
     emit(state.copyWith(status: MergeMutationStatus.inProgress));
     try {
       final files = event.filePaths.map(File.new).toList();
-      final result = await repository.mergePdfs(files, outputName: event.outputName);
+      final result = await repository.mergePdfs(
+        files,
+        outputName: event.outputName,
+      );
       await repository.saveFile(result);
-      emit(state.copyWith(status: MergeMutationStatus.success, resultPath: result.path));
+      emit(
+        state.copyWith(
+          status: MergeMutationStatus.success,
+          resultPath: result.path,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(status: MergeMutationStatus.failure, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          status: MergeMutationStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 }

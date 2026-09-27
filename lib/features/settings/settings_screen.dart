@@ -32,7 +32,10 @@ class SettingsScreen extends ConsumerWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [scheme.primaryContainer, scheme.secondaryContainer.withValues(alpha: 0.6)],
+                      colors: [
+                        scheme.primaryContainer,
+                        scheme.secondaryContainer.withValues(alpha: 0.6),
+                      ],
                     ),
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -40,31 +43,55 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
-                        child: Icon(Icons.lunch_dining_rounded, color: scheme.onPrimary, size: 26),
+                        decoration: BoxDecoration(
+                          color: scheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.lunch_dining_rounded,
+                          color: scheme.onPrimary,
+                          size: 26,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Bento',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w900,
-                                      height: 1.1,
-                                      color: scheme.onPrimaryContainer,
-                                    )),
+                            Text(
+                              'Bento',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w900,
+                                    height: 1.1,
+                                    color: scheme.onPrimaryContainer,
+                                  ),
+                            ),
                             const SizedBox(height: 2),
-                            Text('v1.0.0 • AGPL-3.0',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: scheme.onPrimaryContainer.withValues(alpha: 0.8),
-                                    fontWeight: FontWeight.w600)),
+                            Text(
+                              'v1.0.0 • AGPL-3.0',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: scheme.onPrimaryContainer.withValues(
+                                      alpha: 0.8,
+                                    ),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
                             const SizedBox(height: 8),
-                            Row(children: const [
-                              _MiniBadge(icon: Icons.offline_bolt_rounded, label: 'Offline'),
-                              SizedBox(width: 6),
-                              _MiniBadge(icon: Icons.picture_as_pdf_rounded, label: '10 tools'),
-                            ]),
+                            Row(
+                              children: const [
+                                _MiniBadge(
+                                  icon: Icons.offline_bolt_rounded,
+                                  label: 'Offline',
+                                ),
+                                SizedBox(width: 6),
+                                _MiniBadge(
+                                  icon: Icons.picture_as_pdf_rounded,
+                                  label: '10 tools',
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -86,44 +113,90 @@ class SettingsScreen extends ConsumerWidget {
                     child: ListTile(
                       leading: Container(
                         padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(12)),
-                        child: Icon(Icons.folder_rounded, size: 20, color: scheme.onSecondaryContainer),
+                        decoration: BoxDecoration(
+                          color: scheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.folder_rounded,
+                          size: 20,
+                          color: scheme.onSecondaryContainer,
+                        ),
                       ),
                       title: const Text('Save location'),
-                      subtitle: Consumer(builder: (context, ref, _) {
-                        final custom = ref.watch(storageLocationProvider);
-                        if (custom != null) return Text(custom, maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall);
-                        return FutureBuilder(
-                          future: getDefaultSaveDirectory(),
-                          builder: (context, snap) => Text(snap.data?.path ?? 'Documents/Bento', maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall),
-                        );
-                      }),
-                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Consumer(builder: (context, ref, _) {
+                      subtitle: Consumer(
+                        builder: (context, ref, _) {
                           final custom = ref.watch(storageLocationProvider);
-                          if (custom == null) return const SizedBox.shrink();
-                          return IconButton(
-                            icon: const Icon(Icons.restart_alt_rounded, size: 20),
-                            tooltip: 'Reset to default',
-                            onPressed: () async {
-                              await ref.read(storageLocationProvider.notifier).clear();
-                              final def = await getDefaultSaveDirectory();
-                              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Reset to ${def.path}')));
-                            },
+                          if (custom != null)
+                            return Text(
+                              custom,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            );
+                          return FutureBuilder(
+                            future: getDefaultSaveDirectory(),
+                            builder: (context, snap) => Text(
+                              snap.data?.path ?? 'Documents/Bento',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                           );
-                        }),
-                        const Icon(Icons.chevron_right_rounded, size: 20),
-                      ]),
+                        },
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Consumer(
+                            builder: (context, ref, _) {
+                              final custom = ref.watch(storageLocationProvider);
+                              if (custom == null)
+                                return const SizedBox.shrink();
+                              return IconButton(
+                                icon: const Icon(
+                                  Icons.restart_alt_rounded,
+                                  size: 20,
+                                ),
+                                tooltip: 'Reset to default',
+                                onPressed: () async {
+                                  await ref
+                                      .read(storageLocationProvider.notifier)
+                                      .clear();
+                                  final def = await getDefaultSaveDirectory();
+                                  if (context.mounted)
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Reset to ${def.path}'),
+                                      ),
+                                    );
+                                },
+                              );
+                            },
+                          ),
+                          const Icon(Icons.chevron_right_rounded, size: 20),
+                        ],
+                      ),
                       onTap: () async {
                         // Best-effort: allow writes to shared storage before picking.
                         await ensureStoragePermission();
-                        final dir = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Pick storage location');
+                        final dir = await FilePicker.platform.getDirectoryPath(
+                          dialogTitle: 'Pick storage location',
+                        );
                         if (dir != null) {
-                          await ref.read(storageLocationProvider.notifier).setLocation(dir);
+                          await ref
+                              .read(storageLocationProvider.notifier)
+                              .setLocation(dir);
                         }
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(dir == null ? 'No selection' : 'Storage set to $dir — new PDFs will save there')),
+                            SnackBar(
+                              content: Text(
+                                dir == null
+                                    ? 'No selection'
+                                    : 'Storage set to $dir — new PDFs will save there',
+                              ),
+                            ),
                           );
                         }
                       },
@@ -142,8 +215,15 @@ class SettingsScreen extends ConsumerWidget {
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Privacy'),
-                      content: const Text('All PDF processing and scanning happens on-device. No file is uploaded. The native engine (pdf_manipulator, MIT) runs via FFI off the main thread — no WebView, no network.'),
-                      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+                      content: const Text(
+                        'All PDF processing and scanning happens on-device. No file is uploaded. The native engine (pdf_manipulator, MIT) runs via FFI off the main thread — no WebView, no network.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -152,12 +232,22 @@ class SettingsScreen extends ConsumerWidget {
                   title: 'Engine',
                   subtitle: 'Native FFI engine (pdf_manipulator, MIT)',
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Native Rust engine over FFI — merge, split, organize, compress, render, all on-device')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Native Rust engine over FFI — merge, split, organize, compress, render, all on-device',
+                        ),
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(height: 24),
                 Center(
-                  child: Text('Bento • AGPL-3.0 • v1.0.0+1', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                  child: Text(
+                    'Bento • AGPL-3.0 • v1.0.0+1',
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
                 ),
               ],
             ),
@@ -177,14 +267,25 @@ class _MiniBadge extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      decoration: BoxDecoration(color: scheme.onPrimaryContainer, borderRadius: BorderRadius.circular(999)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 12, color: scheme.primaryContainer),
-        const SizedBox(width: 4),
-        Text(label,
+      decoration: BoxDecoration(
+        color: scheme.onPrimaryContainer,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: scheme.primaryContainer),
+          const SizedBox(width: 4),
+          Text(
+            label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700, fontSize: 11, color: scheme.primaryContainer)),
-      ]),
+              fontWeight: FontWeight.w700,
+              fontSize: 11,
+              color: scheme.primaryContainer,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -197,11 +298,20 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-      child: Row(children: [
-        Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: 6),
-        Text(title.toUpperCase(), style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0.8, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.primary)),
-      ]),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            title.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              letterSpacing: 0.8,
+              fontWeight: FontWeight.w800,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -222,10 +332,14 @@ class _AboutCard extends StatelessWidget {
               applicationLegalese: 'AGPL-3.0. Engine: pdf_manipulator (MIT). Scanner: ML Kit (Android) / OpenScan (iOS, BSD-3-Clause).',
               children: [
                 const SizedBox(height: 12),
-                Text('This app ships AGPL-3.0. Full source including UI is published with every build. Offline-only: no CDN, no download-on-first-use.',
-                    style: Theme.of(context).textTheme.bodySmall),
-                Text('Document scanner: Google ML Kit on Android; OpenScan pipeline by Vijay T S and Vikram H (BSD-3-Clause, see third_party/openscan/LICENSE) on iOS.',
-                    style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  'This app ships AGPL-3.0. Full source including UI is published with every build. Offline-only: no CDN, no download-on-first-use.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                Text(
+                  'Document scanner: Google ML Kit on Android; OpenScan pipeline by Vijay T S and Vikram H (BSD-3-Clause, see third_party/openscan/LICENSE) on iOS.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             );
           },
@@ -235,17 +349,38 @@ class _AboutCard extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
-                  child: Icon(Icons.lunch_dining_rounded, color: scheme.onPrimary, size: 22),
+                  decoration: BoxDecoration(
+                    color: scheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.lunch_dining_rounded,
+                    color: scheme.onPrimary,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('About & Licenses', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
-                    Text('AGPL-3.0 — full source published', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-                  ]),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'About & Licenses',
+                        style: Theme.of(context).textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      Text(
+                        'AGPL-3.0 — full source published',
+                        style: Theme.of(context).textTheme.bodySmall
+                            ?.copyWith(color: scheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: scheme.onSurfaceVariant,
+                ),
               ],
             ),
           ),
@@ -256,7 +391,12 @@ class _AboutCard extends StatelessWidget {
 }
 
 class _InfoTile extends StatelessWidget {
-  const _InfoTile({required this.icon, required this.title, required this.subtitle, this.onTap});
+  const _InfoTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.onTap,
+  });
   final IconData icon;
   final String title;
   final String subtitle;
@@ -268,10 +408,17 @@ class _InfoTile extends StatelessWidget {
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(9),
-          decoration: BoxDecoration(color: scheme.secondaryContainer.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            color: scheme.secondaryContainer.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Icon(icon, size: 20, color: scheme.onSecondaryContainer),
         ),
-        title: Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.titleSmall
+              ?.copyWith(fontWeight: FontWeight.w600),
+        ),
         subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
         trailing: const Icon(Icons.chevron_right_rounded, size: 20),
         onTap: onTap,

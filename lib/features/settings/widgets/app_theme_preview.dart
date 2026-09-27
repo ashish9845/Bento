@@ -44,7 +44,9 @@ class AppThemePreview extends StatelessWidget {
                       color: scheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: selected ? scheme.primary : scheme.outlineVariant,
+                        color: selected
+                            ? scheme.primary
+                            : scheme.outlineVariant,
                         width: selected ? 2.5 : 1,
                       ),
                     ),
@@ -118,7 +120,11 @@ class AppThemePreview extends StatelessWidget {
                           shape: BoxShape.circle,
                           border: Border.all(color: scheme.surface, width: 2),
                         ),
-                        child: Icon(Icons.check_rounded, size: 14, color: scheme.onPrimary),
+                        child: Icon(
+                          Icons.check_rounded,
+                          size: 14,
+                          color: scheme.onPrimary,
+                        ),
                       ),
                     ),
                 ],
@@ -126,13 +132,16 @@ class AppThemePreview extends StatelessWidget {
               const SizedBox(height: 6),
               SizedBox(
                 width: 104,
-                child: Text(palette.label,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: selected ? scheme.primary : scheme.onSurfaceVariant)),
+                child: Text(
+                  palette.label,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: selected ? scheme.primary : scheme.onSurfaceVariant,
+                  ),
+                ),
               ),
             ],
           ),

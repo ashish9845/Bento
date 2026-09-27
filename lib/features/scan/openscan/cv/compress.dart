@@ -64,8 +64,9 @@ Future<void> normalizeImageIsolateEntry(Map<String, dynamic> params) async {
   }
 
   await File(dest).writeAsBytes(
-      img.encodeJpg(fitToMaxEdge(decoded, maxEdge), quality: quality),
-      flush: true);
+    img.encodeJpg(fitToMaxEdge(decoded, maxEdge), quality: quality),
+    flush: true,
+  );
 }
 
 /// [image] scaled down so its long edge is at most [maxEdge], or [image]

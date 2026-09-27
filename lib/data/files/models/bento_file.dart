@@ -12,5 +12,6 @@ abstract class BentoFile with _$BentoFile {
     required DateTime modified,
   }) = _BentoFile;
 
-  factory BentoFile.fromJson(Map<String, dynamic> json) => _$BentoFileFromJson(json);
+  factory BentoFile.fromJson(Map<String, dynamic> json) =>
+      _$BentoFileFromJson(json);
 }

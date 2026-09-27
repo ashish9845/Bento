@@ -30,8 +30,21 @@ class FilePickerCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: files.isEmpty ? scheme.outlineVariant.withValues(alpha: 0.6) : scheme.primary.withValues(alpha: 0.25), width: files.isEmpty ? 1.2 : 1.6),
-          boxShadow: files.isEmpty ? [] : [BoxShadow(color: scheme.primary.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, 8))],
+          border: Border.all(
+            color: files.isEmpty
+                ? scheme.outlineVariant.withValues(alpha: 0.6)
+                : scheme.primary.withValues(alpha: 0.25),
+            width: files.isEmpty ? 1.2 : 1.6,
+          ),
+          boxShadow: files.isEmpty
+              ? []
+              : [
+                  BoxShadow(
+                    color: scheme.primary.withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -42,17 +55,34 @@ class FilePickerCard extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(9),
-                    decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
-                    child: Icon(Icons.folder_open_rounded, size: 20, color: scheme.onPrimaryContainer),
+                    decoration: BoxDecoration(
+                      color: scheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.folder_open_rounded,
+                      size: 20,
+                      color: scheme.onPrimaryContainer,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(label, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
-                      if (files.isNotEmpty)
-                        Text('${files.length} selected • tap to add more',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-                    ]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          label,
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        if (files.isNotEmpty)
+                          Text(
+                            '${files.length} selected • tap to add more',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: scheme.onSurfaceVariant),
+                          ),
+                      ],
+                    ),
                   ),
                   if (files.isNotEmpty)
                     Semantics(
@@ -62,7 +92,11 @@ class FilePickerCard extends StatelessWidget {
                         icon: const Icon(Icons.close_rounded, size: 20),
                         onPressed: onClear,
                         tooltip: 'Clear',
-                        style: IconButton.styleFrom(backgroundColor: scheme.errorContainer, foregroundColor: scheme.onErrorContainer, minimumSize: const Size(36, 36)),
+                        style: IconButton.styleFrom(
+                          backgroundColor: scheme.errorContainer,
+                          foregroundColor: scheme.onErrorContainer,
+                          minimumSize: const Size(36, 36),
+                        ),
                       ),
                     ),
                 ],
@@ -81,19 +115,39 @@ class FilePickerCard extends StatelessWidget {
                     child: Container(
                       height: 92,
                       decoration: BoxDecoration(
-                        color: scheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                        color: scheme.surfaceContainerHighest.withValues(
+                          alpha: 0.35,
+                        ),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5), style: BorderStyle.solid),
+                        border: Border.all(
+                          color: scheme.outlineVariant.withValues(alpha: 0.5),
+                          style: BorderStyle.solid,
+                        ),
                       ),
                       child: Center(
-                        child: Column(mainAxisSize: MainAxisSize.min, children: [
-                          Icon(Icons.add_photo_alternate_rounded, size: 28, color: scheme.primary),
-                          const SizedBox(height: 6),
-                          Text('Tap to pick ${allowedExtensions?.join(', ') ?? 'files'}',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-                          Text(allowMultiple ? 'Multiple allowed' : 'Single file',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-                        ]),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.add_photo_alternate_rounded,
+                              size: 28,
+                              color: scheme.primary,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Tap to pick ${allowedExtensions?.join(', ') ?? 'files'}',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              allowMultiple
+                                  ? 'Multiple allowed'
+                                  : 'Single file',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: scheme.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -111,25 +165,53 @@ class FilePickerCard extends StatelessWidget {
                       itemBuilder: (context, i) {
                         final f = files[i];
                         return Container(
-                          decoration: BoxDecoration(color: scheme.surfaceContainerHighest.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(12)),
+                          decoration: BoxDecoration(
+                            color: scheme.surfaceContainerHighest.withValues(
+                              alpha: 0.5,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: ListTile(
                             dense: true,
                             leading: Container(
                               padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(color: scheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(10)),
-                              child: Icon(allowedExtensions?.contains('pdf') ?? true ? Icons.picture_as_pdf_rounded : Icons.image_rounded, size: 18, color: scheme.primary),
+                              decoration: BoxDecoration(
+                                color: scheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                allowedExtensions?.contains('pdf') ?? true
+                                    ? Icons.picture_as_pdf_rounded
+                                    : Icons.image_rounded,
+                                size: 18,
+                                color: scheme.primary,
+                              ),
                             ),
-                            title: Text(f.path.split('/').last, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                            title: Text(
+                              f.path.split('/').last,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
                             subtitle: FutureBuilder<int>(
                               future: f.length().catchError((_) => 0),
                               builder: (context, snap) {
-                                if (!snap.hasData) return const SizedBox.shrink();
-                                final kb = (snap.data! / 1024).toStringAsFixed(1);
-                                return Text('$kb KB', style: Theme.of(context).textTheme.bodySmall);
+                                if (!snap.hasData)
+                                  return const SizedBox.shrink();
+                                final kb = (snap.data! / 1024).toStringAsFixed(
+                                  1,
+                                );
+                                return Text(
+                                  '$kb KB',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                );
                               },
                             ),
                             trailing: null,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
                           ),
                         );
                       },
@@ -137,7 +219,12 @@ class FilePickerCard extends StatelessWidget {
                     const SizedBox(height: 12),
                     FilledButton.icon(
                       onPressed: () async => onPick(),
-                      icon: Icon(allowMultiple ? Icons.add_rounded : Icons.swap_horiz_rounded, size: 18),
+                      icon: Icon(
+                        allowMultiple
+                            ? Icons.add_rounded
+                            : Icons.swap_horiz_rounded,
+                        size: 18,
+                      ),
                       label: Text(allowMultiple ? 'Add more' : 'Replace file'),
                     ),
                   ],

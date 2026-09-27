@@ -66,13 +66,15 @@ Uint8List sobelMagnitude(Uint8List gray, int width, int height) {
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      final gx = -at(x - 1, y - 1) -
+      final gx =
+          -at(x - 1, y - 1) -
           2 * at(x - 1, y) -
           at(x - 1, y + 1) +
           at(x + 1, y - 1) +
           2 * at(x + 1, y) +
           at(x + 1, y + 1);
-      final gy = -at(x - 1, y - 1) -
+      final gy =
+          -at(x - 1, y - 1) -
           2 * at(x, y - 1) -
           at(x + 1, y - 1) +
           at(x - 1, y + 1) +

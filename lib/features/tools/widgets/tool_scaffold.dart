@@ -37,23 +37,27 @@ class ToolScaffold extends StatelessWidget {
             backgroundColor: scheme.surface,
             surfaceTintColor: Colors.transparent,
             actions: actions,
-            title: Row(mainAxisSize: MainAxisSize.min, children: [
-              if (icon != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: scheme.primaryContainer, borderRadius: BorderRadius.circular(10)),
-                  child: Icon(icon, size: 18, color: scheme.onPrimaryContainer),
-                ),
-                const SizedBox(width: 10),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: scheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 18,
+                      color: scheme.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                Flexible(child: Text(title, overflow: TextOverflow.ellipsis)),
               ],
-              Flexible(
-                child: Text(
-                  title,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ]),
+            ),
           ),
           SliverPadding(
             padding: EdgeInsets.symmetric(
@@ -67,16 +71,26 @@ class ToolScaffold extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                          color: scheme.secondaryContainer.withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(14)),
-                      child: Row(children: [
-                        Icon(Icons.info_outline_rounded,
-                            size: 18, color: scheme.onSecondaryContainer),
-                        const SizedBox(width: 10),
-                        Expanded(
-                            child: Text(subtitle!,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.35))),
-                      ]),
+                        color: scheme.secondaryContainer.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline_rounded,
+                            size: 18,
+                            color: scheme.onSecondaryContainer,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              subtitle!,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(height: 1.35),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -87,9 +101,12 @@ class ToolScaffold extends StatelessWidget {
                   duration: const Duration(milliseconds: 320),
                   curve: Curves.easeOutCubic,
                   builder: (context, v, child) => Opacity(
-                      opacity: v,
-                      child: Transform.translate(
-                          offset: Offset(0, 12 * (1 - v)), child: child)),
+                    opacity: v,
+                    child: Transform.translate(
+                      offset: Offset(0, 12 * (1 - v)),
+                      child: child,
+                    ),
+                  ),
                   child: RepaintBoundary(child: child),
                 ),
                 const SizedBox(height: 24),
@@ -110,10 +127,17 @@ class ToolPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(Icons.auto_awesome_rounded, size: 44, color: Theme.of(context).colorScheme.primary),
+        Icon(
+          Icons.auto_awesome_rounded,
+          size: 44,
+          color: Theme.of(context).colorScheme.primary,
+        ),
         const SizedBox(height: 12),
-        Text('$toolName — ready',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+        Text(
+          '$toolName — ready',
+          style: Theme.of(context).textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.w700),
+        ),
         const SizedBox(height: 8),
         Text(
           'Pick files → tune options → run. Processing runs on-device in the native engine.',
@@ -134,21 +158,40 @@ class ToolEmptyState extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest
+            .withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant
+              .withValues(alpha: 0.5),
+        ),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: Theme.of(context).colorScheme.primaryContainer, shape: BoxShape.circle),
-            child: Icon(Icons.folder_open_rounded, size: 32, color: Theme.of(context).colorScheme.onPrimaryContainer),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.folder_open_rounded,
+              size: 32,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
           ),
           const SizedBox(height: 14),
-          Text('No file selected', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+          Text(
+            'No file selected',
+            style: Theme.of(context).textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 4),
-          Text('Tap Pick file to begin — 60fps, off-main-thread PDF work', style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+          Text(
+            'Tap Pick file to begin — 60fps, off-main-thread PDF work',
+            style: Theme.of(context).textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );

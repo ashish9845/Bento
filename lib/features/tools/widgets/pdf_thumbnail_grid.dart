@@ -27,11 +27,20 @@ class PdfThumbnailGrid extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest
+              .withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5)),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant
+                .withValues(alpha: 0.5),
+          ),
         ),
-        child: Center(child: Text('No pages — pick a PDF first', style: Theme.of(context).textTheme.bodyMedium)),
+        child: Center(
+          child: Text(
+            'No pages — pick a PDF first',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
       );
     }
     return GridView.builder(
@@ -61,8 +70,13 @@ class PdfThumbnailGrid extends StatelessWidget {
 }
 
 class _PageTile extends StatelessWidget {
-  const _PageTile(
-      {required this.pageNumber, required this.selected, this.onDelete, this.onRotate, this.onTap});
+  const _PageTile({
+    required this.pageNumber,
+    required this.selected,
+    this.onDelete,
+    this.onRotate,
+    this.onTap,
+  });
   final int pageNumber;
   final bool selected;
   final VoidCallback? onDelete;
@@ -77,8 +91,19 @@ class _PageTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: selected ? scheme.primaryContainer : scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: selected ? scheme.primary : scheme.outlineVariant.withValues(alpha: 0.5), width: selected ? 1.8 : 1),
-        boxShadow: [BoxShadow(color: scheme.shadow.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
+        border: Border.all(
+          color: selected
+              ? scheme.primary
+              : scheme.outlineVariant.withValues(alpha: 0.5),
+          width: selected ? 1.8 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
@@ -88,67 +113,96 @@ class _PageTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             onTap: onTap,
             child: Stack(
-          children: [
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: scheme.surfaceContainerHighest, shape: BoxShape.circle),
-                    child: Icon(Icons.picture_as_pdf_rounded, size: 28, color: scheme.onSurfaceVariant),
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerHighest,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.picture_as_pdf_rounded,
+                          size: 28,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Page $pageNumber',
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  Text('Page $pageNumber', style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700)),
-                ],
-              ),
+                ),
+                if (onDelete != null)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Semantics(
+                      label: 'Delete page $pageNumber',
+                      button: true,
+                      child: InkWell(
+                        onTap: onDelete,
+                        borderRadius: BorderRadius.circular(999),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: scheme.errorContainer,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close_rounded,
+                            size: 14,
+                            color: scheme.onErrorContainer,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (onRotate != null)
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: Semantics(
+                      label: 'Rotate page $pageNumber',
+                      button: true,
+                      child: InkWell(
+                        onTap: onRotate,
+                        borderRadius: BorderRadius.circular(999),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: scheme.secondaryContainer,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.rotate_right_rounded,
+                            size: 14,
+                            color: scheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (selected)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Icon(
+                      Icons.check_circle_rounded,
+                      size: 18,
+                      color: scheme.primary,
+                    ),
+                  ),
+              ],
             ),
-            if (onDelete != null)
-              Positioned(
-                top: 6,
-                right: 6,
-                child: Semantics(
-                  label: 'Delete page $pageNumber',
-                  button: true,
-                  child: InkWell(
-                    onTap: onDelete,
-                    borderRadius: BorderRadius.circular(999),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: scheme.errorContainer, shape: BoxShape.circle),
-                      child: Icon(Icons.close_rounded, size: 14, color: scheme.onErrorContainer),
-                    ),
-                  ),
-                ),
-              ),
-            if (onRotate != null)
-              Positioned(
-                bottom: 6,
-                right: 6,
-                child: Semantics(
-                  label: 'Rotate page $pageNumber',
-                  button: true,
-                  child: InkWell(
-                    onTap: onRotate,
-                    borderRadius: BorderRadius.circular(999),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: scheme.secondaryContainer, shape: BoxShape.circle),
-                      child: Icon(Icons.rotate_right_rounded, size: 14, color: scheme.onSecondaryContainer),
-                    ),
-                  ),
-                ),
-              ),
-            if (selected)
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Icon(Icons.check_circle_rounded, size: 18, color: scheme.primary),
-              ),
-            ],
           ),
         ),
-      ),
       ),
     );
   }

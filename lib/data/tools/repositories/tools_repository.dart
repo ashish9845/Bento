@@ -6,7 +6,11 @@ import 'package:pdf_manipulator/pdf_manipulator.dart';
 abstract class ToolsRepository {
   Future<int> pageCount(File input);
   Future<File> mergePdfs(List<File> inputs, {String? outputName});
-  Future<List<File>> splitPdf(File input, String rangesSpec, {String? baseName});
+  Future<List<File>> splitPdf(
+    File input,
+    String rangesSpec, {
+    String? baseName,
+  });
   Future<File> extractPages(File input, List<int> pages, {String? outputName});
   Future<File> organizePdf(
     File input, {
@@ -15,7 +19,11 @@ abstract class ToolsRepository {
     List<int>? order,
     String? outputName,
   });
-  Future<File> compressPdf(File input, PdfImagePolicy policy, {String? outputName});
+  Future<File> compressPdf(
+    File input,
+    PdfImagePolicy policy, {
+    String? outputName,
+  });
   Future<File> imageToPdf(List<File> images, {String? outputName});
   Future<List<File>> renderPages(File input, {String? outputName});
   Future<List<File>> renderThumbnails(File input);

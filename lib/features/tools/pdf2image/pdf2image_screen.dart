@@ -11,12 +11,15 @@ import 'package:scan/features/tools/widgets/tool_scaffold.dart';
 
 final pdf2imageControllerProvider =
     StateNotifierProvider<ToolController, ToolState>((ref) {
-  final repo = ref.watch(toolsRepositoryProvider);
-  return ToolController(persistenceKey: 'pdf2image', processFn: (inputs, ctrl) async {
-    ctrl.setProgress(null, 'Exporting pages as images…');
-    return repo.renderPages(inputs.first, outputName: ctrl.outputName);
-  });
-});
+      final repo = ref.watch(toolsRepositoryProvider);
+      return ToolController(
+        persistenceKey: 'pdf2image',
+        processFn: (inputs, ctrl) async {
+          ctrl.setProgress(null, 'Exporting pages as images…');
+          return repo.renderPages(inputs.first, outputName: ctrl.outputName);
+        },
+      );
+    });
 
 class Pdf2ImageScreen extends ConsumerWidget {
   const Pdf2ImageScreen({super.key});
@@ -41,45 +44,57 @@ class Pdf2ImageScreen extends ConsumerWidget {
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: Row(children: [
-                const Icon(Icons.image_outlined),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text('PNG images, saved in a folder named after the PDF',
-                      style: Theme.of(context).textTheme.bodyMedium),
-                ),
-              ]),
+              child: Row(
+                children: [
+                  const Icon(Icons.image_outlined),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'PNG images, saved in a folder named after the PDF',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 12),
-          if (state.isProcessing) ToolProgress(label: state.message ?? 'Exporting…'),
-          if (state.hasError) ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
+          if (state.isProcessing)
+            ToolProgress(label: state.message ?? 'Exporting…'),
+          if (state.hasError)
+            ToolError(message: state.message ?? 'Failed', onRetry: ctrl.run),
           if (state.hasResult)
             ToolSuccess(
               message:
                   'Exported ${state.resultFiles.length} image(s) to ${state.resultFiles.first.parent.path.split('/').last}/',
-              onOpenFolder: () => openDoc(context, state.resultFiles.first.parent.path),
+              onOpenFolder: () =>
+                  openDoc(context, state.resultFiles.first.parent.path),
               onShare: ctrl.shareResult,
             ),
           if (!state.hasResult) ...[
             const SizedBox(height: 12),
             FilledButton.icon(
-                onPressed: state.files.isEmpty || state.isProcessing
-                    ? null
-                    : () {
-                        final stem = state.files.first.path
-                            .split('/')
-                            .last
-                            .replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
-                        final fallback = stem.isEmpty ? 'Images' : stem;
-                        runWithRename(
-                            context: context,
-                            ctrl: ctrl,
-                            defaultName: fallback,
-                            title: 'Name the image folder');
-                      },
-                icon: const Icon(Icons.image),
-                label: const Text('Export')),
+              onPressed: state.files.isEmpty || state.isProcessing
+                  ? null
+                  : () {
+                      final stem = state.files.first.path
+                          .split('/')
+                          .last
+                          .replaceAll(
+                            RegExp(r'\.pdf$', caseSensitive: false),
+                            '',
+                          );
+                      final fallback = stem.isEmpty ? 'Images' : stem;
+                      runWithRename(
+                        context: context,
+                        ctrl: ctrl,
+                        defaultName: fallback,
+                        title: 'Name the image folder',
+                      );
+                    },
+              icon: const Icon(Icons.image),
+              label: const Text('Export'),
+            ),
           ],
         ],
       ),

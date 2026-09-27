@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scan/core/storage/open_file.dart';
 import 'package:share_plus/share_plus.dart';
+
 import '../../shared/widgets/buttons/app_button.dart';
 import '../../shared/widgets/feedback/app_error_view.dart';
 import '../../shared/widgets/feedback/app_loading_indicator.dart';
@@ -61,10 +62,16 @@ class FilesPage extends StatelessWidget {
               onTap: () => Navigator.pop(sheetContext, 'details'),
             ),
             ListTile(
-              leading: Icon(Icons.delete_outline_rounded,
-                  color: Theme.of(sheetContext).colorScheme.error),
-              title: Text('Delete',
-                  style: TextStyle(color: Theme.of(sheetContext).colorScheme.error)),
+              leading: Icon(
+                Icons.delete_outline_rounded,
+                color: Theme.of(sheetContext).colorScheme.error,
+              ),
+              title: Text(
+                'Delete',
+                style: TextStyle(
+                  color: Theme.of(sheetContext).colorScheme.error,
+                ),
+              ),
               onTap: () => Navigator.pop(sheetContext, 'delete'),
             ),
             const SizedBox(height: 8),
@@ -77,7 +84,9 @@ class FilesPage extends StatelessWidget {
       case 'open':
         unawaited(openDoc(context, f.path));
       case 'share':
-        unawaited(SharePlus.instance.share(ShareParams(files: [XFile(f.path)])));
+        unawaited(
+          SharePlus.instance.share(ShareParams(files: [XFile(f.path)])),
+        );
       case 'send':
         unawaited(SendToToolSheet.show(context, File(f.path)));
       case 'details':
@@ -110,21 +119,35 @@ class FilesPage extends StatelessWidget {
           ],
         ),
         actions: [
-          FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+          FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
         ],
       ),
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, String fileName, String filePath) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    String fileName,
+    String filePath,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         icon: const Icon(Icons.delete_outline_rounded),
         title: const Text('Delete file?'),
-        content: Text('“$fileName” will be permanently deleted.', maxLines: 3, overflow: TextOverflow.ellipsis),
+        content: Text(
+          '“$fileName” will be permanently deleted.',
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(
@@ -137,7 +160,9 @@ class FilesPage extends StatelessWidget {
       ),
     );
     if ((confirmed ?? false) && context.mounted) {
-      context.read<FilesMutationBloc>().add(FilesMutationEvent.deleteFile(filePath));
+      context.read<FilesMutationBloc>().add(
+        FilesMutationEvent.deleteFile(filePath),
+      );
     }
   }
 
@@ -147,24 +172,29 @@ class FilesPage extends StatelessWidget {
       listener: (context, state) {
         if (state.status == FilesMutationStatus.success) {
           context.read<FilesQueryBloc>().add(const FilesQueryEvent.refresh());
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Deleted')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Deleted')));
         } else if (state.status == FilesMutationStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.errorMessage ?? 'Failed')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage ?? 'Failed')),
+          );
         }
       },
       child: Scaffold(
         body: CustomScrollView(
           slivers: [
-          SliverAppBar(
-            pinned: true,
-            floating: false,
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            surfaceTintColor: Colors.transparent,
-            title: const Text('Files'),
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              surfaceTintColor: Colors.transparent,
+              title: const Text('Files'),
               actions: [
                 IconButton.filledTonal(
                   icon: const Icon(Icons.refresh_rounded, size: 20),
-                  onPressed: () => context.read<FilesQueryBloc>().add(const FilesQueryEvent.refresh()),
+                  onPressed: () => context.read<FilesQueryBloc>().add(
+                    const FilesQueryEvent.refresh(),
+                  ),
                   tooltip: 'Refresh',
                 ),
                 const SizedBox(width: 8),
@@ -172,13 +202,18 @@ class FilesPage extends StatelessWidget {
             ),
             BlocBuilder<FilesQueryBloc, FilesQueryState>(
               builder: (context, state) {
-                if (state.status == FilesQueryStatus.loading || state.status == FilesQueryStatus.initial) {
-                  return const SliverFillRemaining(child: AppLoadingIndicator());
+                if (state.status == FilesQueryStatus.loading ||
+                    state.status == FilesQueryStatus.initial) {
+                  return const SliverFillRemaining(
+                    child: AppLoadingIndicator(),
+                  );
                 } else if (state.status == FilesQueryStatus.error) {
                   return SliverFillRemaining(
                     child: AppErrorView(
                       message: state.errorMessage ?? 'Something went wrong',
-                      onRetry: () => context.read<FilesQueryBloc>().add(const FilesQueryEvent.fetch()),
+                      onRetry: () => context.read<FilesQueryBloc>().add(
+                        const FilesQueryEvent.fetch(),
+                      ),
                     ),
                   );
                 } else if (state.status == FilesQueryStatus.loaded) {
@@ -189,20 +224,52 @@ class FilesPage extends StatelessWidget {
                       child: Center(
                         child: Padding(
                           padding: const EdgeInsets.all(28),
-                          child: Column(mainAxisSize: MainAxisSize.min, children: [
-                            Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer, shape: BoxShape.circle),
-                              child: Icon(Icons.folder_open_rounded, size: 40, color: Theme.of(context).colorScheme.onSecondaryContainer),
-                            ),
-                            const SizedBox(height: 16),
-                            Text('No PDFs yet', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                            const SizedBox(height: 8),
-                            Text('Your merged, compressed, scanned and converted PDFs will appear here.',
-                                textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                            const SizedBox(height: 16),
-                            AppButton(label: 'Refresh', isOutlined: true, onPressed: () => context.read<FilesQueryBloc>().add(const FilesQueryEvent.refresh())),
-                          ]),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.folder_open_rounded,
+                                  size: 40,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No PDFs yet',
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w800),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Your merged, compressed, scanned and converted PDFs will appear here.',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                              ),
+                              const SizedBox(height: 16),
+                              AppButton(
+                                label: 'Refresh',
+                                isOutlined: true,
+                                onPressed: () => context
+                                    .read<FilesQueryBloc>()
+                                    .add(const FilesQueryEvent.refresh()),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -215,7 +282,11 @@ class FilesPage extends StatelessWidget {
                       itemBuilder: (context, i) {
                         final f = files[i];
                         final kb = (f.size / 1024).toStringAsFixed(1);
-                        final date = f.modified.toLocal().toString().split('.').first;
+                        final date = f.modified
+                            .toLocal()
+                            .toString()
+                            .split('.')
+                            .first;
                         return RepaintBoundary(
                           child: Card(
                             // Clip the press highlight to the rounded card
@@ -223,37 +294,92 @@ class FilesPage extends StatelessWidget {
                             // square over the row.
                             clipBehavior: Clip.antiAlias,
                             child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 6,
+                              ),
                               leading: Container(
                                 padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(color: Theme.of(context).colorScheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
-                                child: Icon(Icons.picture_as_pdf_rounded, size: 20, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.picture_as_pdf_rounded,
+                                  size: 20,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
+                                ),
                               ),
-                              title: Text(f.name, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
-                              subtitle: Text('$kb KB • $date', style: Theme.of(context).textTheme.bodySmall),
-                              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                                BlocBuilder<FilesMutationBloc, FilesMutationState>(
-                                  builder: (context, mState) {
-                                    final isDeleting = mState.status == FilesMutationStatus.inProgress;
-                                    return IconButton.filledTonal(
-                                      icon: Icon(Icons.delete_outline_rounded,
+                              title: Text(
+                                f.name,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              subtitle: Text(
+                                '$kb KB • $date',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  BlocBuilder<
+                                    FilesMutationBloc,
+                                    FilesMutationState
+                                  >(
+                                    builder: (context, mState) {
+                                      final isDeleting =
+                                          mState.status ==
+                                          FilesMutationStatus.inProgress;
+                                      return IconButton.filledTonal(
+                                        icon: Icon(
+                                          Icons.delete_outline_rounded,
                                           size: 16,
                                           color: isDeleting
-                                              ? Theme.of(context).colorScheme.onSurfaceVariant
-                                              : null),
-                                      onPressed: isDeleting ? null : () => _confirmDelete(context, f.name, f.path),
-                                      tooltip: 'Delete',
-                                      style: IconButton.styleFrom(minimumSize: const Size(36, 36)),
-                                    );
-                                  },
-                                ),
-                                const SizedBox(width: 6),
-                                IconButton(
-                                  icon: const Icon(Icons.share_rounded, size: 18),
-                                  onPressed: () => SharePlus.instance.share(ShareParams(files: [XFile(f.path)])),
-                                  style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary, minimumSize: const Size(36, 36)),
-                                ),
-                              ]),
+                                              ? Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant
+                                              : null,
+                                        ),
+                                        onPressed: isDeleting
+                                            ? null
+                                            : () => _confirmDelete(
+                                                context,
+                                                f.name,
+                                                f.path,
+                                              ),
+                                        tooltip: 'Delete',
+                                        style: IconButton.styleFrom(
+                                          minimumSize: const Size(36, 36),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 6),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.share_rounded,
+                                      size: 18,
+                                    ),
+                                    onPressed: () => SharePlus.instance.share(
+                                      ShareParams(files: [XFile(f.path)]),
+                                    ),
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
+                                      foregroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      minimumSize: const Size(36, 36),
+                                    ),
+                                  ),
+                                ],
+                              ),
                               onTap: () => openDoc(context, f.path),
                               onLongPress: () => _showFileActions(context, f),
                             ),
@@ -288,10 +414,13 @@ class _DetailRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label.toUpperCase(),
-            style: text.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        Text(
+          label.toUpperCase(),
+          style: text.labelSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
         const SizedBox(height: 2),
         SelectableText(value, style: text.bodyMedium),
       ],
@@ -310,8 +439,14 @@ class FilesRouteProviders extends StatelessWidget {
       create: (_) => FilesRepositoryImpl(FilesLocalDataSourceImpl()),
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (c) => FilesQueryBloc(c.read<FilesRepositoryImpl>())..add(const FilesQueryEvent.fetch())),
-          BlocProvider(create: (c) => FilesMutationBloc(c.read<FilesRepositoryImpl>())),
+          BlocProvider(
+            create: (c) =>
+                FilesQueryBloc(c.read<FilesRepositoryImpl>())
+                  ..add(const FilesQueryEvent.fetch()),
+          ),
+          BlocProvider(
+            create: (c) => FilesMutationBloc(c.read<FilesRepositoryImpl>()),
+          ),
         ],
         child: child,
       ),

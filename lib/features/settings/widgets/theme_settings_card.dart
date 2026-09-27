@@ -43,61 +43,86 @@ class _ThemeSettingsCardState extends ConsumerState<ThemeSettingsCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: [
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Theme',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 2),
-                    Text('${_modeLabel(mode)} · ${palette.label}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: scheme.onSurfaceVariant)),
-                  ]),
-                ),
-                IconButton(
-                  icon: Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded),
-                  tooltip: _expanded ? 'Collapse' : 'Expand',
-                  onPressed: () => setState(() => _expanded = !_expanded),
-                ),
-              ]),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Theme',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${_modeLabel(mode)} · ${palette.label}',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      _expanded
+                          ? Icons.expand_less_rounded
+                          : Icons.expand_more_rounded,
+                    ),
+                    tooltip: _expanded ? 'Collapse' : 'Expand',
+                    onPressed: () => setState(() => _expanded = !_expanded),
+                  ),
+                ],
+              ),
               if (_expanded) ...[
                 const SizedBox(height: 12),
-                Row(children: [
-                  for (final m in [ThemeMode.dark, ThemeMode.light, ThemeMode.system])
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(
+                Row(
+                  children: [
+                    for (final m in [
+                      ThemeMode.dark,
+                      ThemeMode.light,
+                      ThemeMode.system,
+                    ])
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(
                             left: m == ThemeMode.dark ? 0 : 4,
-                            right: m == ThemeMode.system ? 0 : 4),
-                        child: _ModePill(
-                          label: _modeLabel(m),
-                          selected: mode == m,
-                          onTap: () => ref.read(themeModeProvider.notifier).setMode(m),
+                            right: m == ThemeMode.system ? 0 : 4,
+                          ),
+                          child: _ModePill(
+                            label: _modeLabel(m),
+                            selected: mode == m,
+                            onTap: () =>
+                                ref.read(themeModeProvider.notifier).setMode(m),
+                          ),
                         ),
                       ),
-                    ),
-                ]),
+                  ],
+                ),
                 const SizedBox(height: 12),
-                Divider(height: 1, color: scheme.outlineVariant.withValues(alpha: 0.6)),
+                Divider(
+                  height: 1,
+                  color: scheme.outlineVariant.withValues(alpha: 0.6),
+                ),
                 const SizedBox(height: 12),
-                Text('App Theme',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700, color: scheme.onSurfaceVariant)),
+                Text(
+                  'App Theme',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
                 const SizedBox(height: 10),
                 // OS dynamic colors for the Dynamic preview (null where
                 // unsupported → palette falls back to Default).
                 DynamicColorBuilder(
                   builder: (lightDynamic, darkDynamic) {
-                    final isLight = Theme.of(context).brightness == Brightness.light;
-                    final rawDynamic =
-                        isLight ? lightDynamic : darkDynamic;
-                    final dynamicScheme =
-                        rawDynamic == null ? null : toMaterialScheme(rawDynamic);
+                    final isLight =
+                        Theme.of(context).brightness == Brightness.light;
+                    final rawDynamic = isLight ? lightDynamic : darkDynamic;
+                    final dynamicScheme = rawDynamic == null
+                        ? null
+                        : toMaterialScheme(rawDynamic);
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
@@ -113,8 +138,9 @@ class _ThemeSettingsCardState extends ConsumerState<ThemeSettingsCard> {
                                   dynamicScheme: dynamicScheme,
                                 ),
                                 selected: p == palette,
-                                onTap: () =>
-                                    ref.read(appPaletteProvider.notifier).setPalette(p),
+                                onTap: () => ref
+                                    .read(appPaletteProvider.notifier)
+                                    .setPalette(p),
                               ),
                             ),
                         ],
@@ -134,7 +160,11 @@ class _ThemeSettingsCardState extends ConsumerState<ThemeSettingsCard> {
 /// One Dark/Light/System pill — filled primary when selected, quiet surface
 /// otherwise, like a segmented control but with full-width thirds.
 class _ModePill extends StatelessWidget {
-  const _ModePill({required this.label, required this.selected, required this.onTap});
+  const _ModePill({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   final String label;
   final bool selected;
@@ -158,10 +188,13 @@ class _ModePill extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
           ),
           alignment: Alignment.center,
-          child: Text(label,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: selected ? scheme.onPrimary : scheme.onSurfaceVariant)),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
+            ),
+          ),
         ),
       ),
     );
