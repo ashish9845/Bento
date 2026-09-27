@@ -24,8 +24,9 @@ class _Image2PdfPageState extends State<Image2PdfPage> {
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
     );
-    if (result != null)
+    if (result != null) {
       setState(() => _paths = result.paths.whereType<String>().toList());
+    }
   }
 
   Future<void> _createWithRename() async {
