@@ -54,3 +54,5 @@ app.*.map.json
 
 # Proprietary (non-redistributable) fonts — kept locally, never committed.
 assets/fonts/GoogleSansFlex-*.ttf
+
+command.md
