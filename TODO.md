@@ -111,7 +111,7 @@ custom native Flutter UI (no BentoPDF web UI) · Riverpod for state management.
 - [x] GitHub Release workflow (`.github/workflows/release.yaml`) — builds signed universal APK + AAB and
       publishes to a GitHub Release on `v*` tags or manual dispatch (tag input); release signing via
       `ANDROID_KEYSTORE_BASE64`/`ANDROID_KEY_ALIAS`/`ANDROID_STORE_PASSWORD`/`ANDROID_KEY_PASSWORD`
-      secrets, debug-signing fallback with warning when unset
+      secrets (see `command.md`), debug-signing fallback with warning when unset
 - [x] Tag release, publish Android (Play Store) and iOS (App Store) builds — v1.0.0 (versionCode 1) release artifacts built 2026-09-24: `build/app/outputs/flutter-apk/app-release.apk` (~60M) + `build/app/outputs/bundle/release/app-release.aab` (~59M), signed with upload key (`CN=Bento`, `com.benopdf.scan`, label `Bento`, apksigner verified). Upload key at `android/upload-keystore.jks` + `android/key.properties` (gitignored — back up both; losing the key means a new app listing). Still open: `git tag v1.0.0`, Play Console upload (AAB), App Store `flutter build ipa` on macOS
 
 ## Ongoing / Maintenance

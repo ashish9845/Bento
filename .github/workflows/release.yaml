@@ -8,14 +8,12 @@ name: Release
 #
 # Required repository secrets (Settings > Secrets and variables > Actions):
 #   - ANDROID_KEYSTORE_BASE64  base64 of android/upload-keystore.jks
-#       (generate with: base64 -w0 android/upload-keystore.jks)
 #   - ANDROID_KEY_ALIAS        e.g. bento-upload
 #   - ANDROID_STORE_PASSWORD   keystore password
 #   - ANDROID_KEY_PASSWORD     key password
-# If ANDROID_KEYSTORE_BASE64 is missing, the build falls back to debug signing
-# (see android/app/build.gradle.kts) and warns — fine for a test release, NOT
-# for the Play Store (upload key at android/upload-keystore.jks + key.properties
-# is gitignored; back up both — losing the key means a new app listing).
+# To generate your own keystore and set these secrets, see command.md.
+# Without ANDROID_KEYSTORE_BASE64 the build falls back to debug signing
+# (see android/app/build.gradle.kts) — fine for testing, NOT for the Play Store.
 
 on:
   push:
@@ -81,16 +79,20 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           if [ -z "$KEYSTORE_B64" ]; then
-            echo "::warning::ANDROID_KEYSTORE_BASE64 not set — falling back to debug signing (see android/app/build.gradle.kts). Set the documented secrets for a signed store release."
+            echo "::warning::ANDROID_KEYSTORE_BASE64 not set — falling back to debug signing (see android/app/build.gradle.kts). See command.md to set up release signing."
             exit 0
           fi
-          echo "$KEYSTORE_B64" | base64 --decode > android/upload-keystore.jks
+          echo "$KEYSTORE_B64" | tr -d '[:space:]' | base64 --decode > android/upload-keystore.jks
           {
             printf 'storePassword=%s\n' "$STORE_PASSWORD"
             printf 'keyPassword=%s\n' "$KEY_PASSWORD"
             printf 'keyAlias=%s\n' "$KEY_ALIAS"
             printf 'storeFile=%s\n' '../upload-keystore.jks'
           } > android/key.properties
+          keytool -list -keystore android/upload-keystore.jks -storepass "$STORE_PASSWORD" > /dev/null || {
+            echo "::error::Restored keystore failed validation — re-set ANDROID_KEYSTORE_BASE64 (see command.md) and re-run."
+            exit 1
+          }
 
       - run: flutter pub get
 
