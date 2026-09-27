@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -128,8 +127,6 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
     _controller?.dispose();
     super.dispose();
   }
-
-  Filter _filterByName(String name) => _filterForName(name);
 
   Future<void> _toggleFlash() async {
     final controller = _controller;
@@ -382,7 +379,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
             fit: StackFit.expand,
             children: [
               if (editingCrop)
-                Container(
+                ColoredBox(
                   color: Colors.black,
                   child: _CropEditor(
                     imageBytes: _workImage!,
@@ -437,7 +434,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                   child: CustomPaint(painter: _ViewfinderPainter(), size: Size.infinite),
                 ),
               if (_stage == _Stage.working)
-                Container(
+                ColoredBox(
                   color: Colors.black.withValues(alpha: 0.45),
                   child: Center(
                     child: Card(
@@ -523,7 +520,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
                   Expanded(
                     flex: 2,
                     child: FilledButton.icon(
-                      onPressed: () => _editorApplyCurrent(),
+                      onPressed: _editorApplyCurrent,
                       icon: const Icon(Icons.crop_rounded),
                       label: const Text('Apply crop'),
                     ),
@@ -577,7 +574,7 @@ class _OpenScanCaptureScreenState extends State<OpenScanCaptureScreen>
   }
 
   /// Applies whatever quad the editor currently holds. The editor reports
-  /// changes through [onApply] continuously while dragging.
+  /// changes through `onApply` continuously while dragging.
   void _editorApplyCurrent() {
     final quad = _editorKey.currentState?.quad;
     if (quad != null) _applyCrop(quad);
@@ -596,7 +593,6 @@ class _CropEditor extends StatefulWidget {
     required this.initialQuad,
     required this.onApply,
     required this.onSkip,
-    super.key,
   });
 
   final Uint8List imageBytes;
@@ -946,7 +942,7 @@ Future<Map<String, dynamic>> _prepareEditorEntry(Map<String, dynamic> params) as
   };
 }
 
-/// Warps an already-decoded working image with [quad], filters, writes JPEG.
+/// Warps an already-decoded working image with `quad`, filters, writes JPEG.
 /// Operates on small working bytes — fast enough for instant filter preview.
 Future<String> _cropAndFilterEntry(Map<String, dynamic> params) async {
   final imageBytes = params['image'] as Uint8List;

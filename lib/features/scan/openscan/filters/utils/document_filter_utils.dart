@@ -111,7 +111,9 @@ List<int> percentileBounds(
   final lowTarget = (total * lowFraction).floor();
   final highTarget = (total * highFraction).floor();
 
-  int low = 0, high = 255, seen = 0;
+  int low = 0;
+  int high = 255;
+  int seen = 0;
   for (int v = 0; v < 256; v++) {
     seen += histogram[v];
     if (seen > lowTarget) {
@@ -184,7 +186,8 @@ Uint8List downscaleGray(
       final x0 = x * width ~/ newWidth;
       int x1 = (x + 1) * width ~/ newWidth;
       if (x1 <= x0) x1 = x0 + 1;
-      int sum = 0, count = 0;
+      int sum = 0;
+      int count = 0;
       for (int sy = y0; sy < y1; sy++) {
         final row = sy * width;
         for (int sx = x0; sx < x1; sx++) {

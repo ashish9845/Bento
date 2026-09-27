@@ -53,6 +53,6 @@ Future<void> runWithRename({
 }) async {
   final name = await askOutputName(context, defaultName: defaultName, title: title);
   if (name == null || name.isEmpty || !context.mounted) return;
-  ctrl.setOutputName(name);
+  ctrl.outputName = name;
   await ctrl.run();
 }

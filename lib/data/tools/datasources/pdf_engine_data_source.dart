@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
@@ -96,7 +95,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
 
   Future<File> _outputFile(String prefix, {String? name, String extension = 'pdf'}) async {
     final dir = (await getSaveDirectory()).path;
-    String base = (name?.trim().isNotEmpty == true ? name!.trim() : '${prefix}_${DateTime.now().millisecondsSinceEpoch}');
+    String base = (name?.trim().isNotEmpty ?? false ? name!.trim() : '${prefix}_${DateTime.now().millisecondsSinceEpoch}');
     if (!base.toLowerCase().endsWith('.$extension')) base = '$base.$extension';
     base = base.replaceAll(RegExp(r'[^\w\-. ]'), '_');
     var out = File('$dir/$base');
@@ -208,7 +207,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   Future<List<File>> split(File input, String rangesSpec, {String? baseName}) async {
     final count = await pageCount(input);
     final chunks = parsePageRanges(rangesSpec, count);
-    final stem = (baseName?.trim().isNotEmpty == true
+    final stem = (baseName?.trim().isNotEmpty ?? false
             ? baseName!.trim()
             : input.path.split('/').last.replaceAll(RegExp(r'\.pdf$', caseSensitive: false), ''))
         .replaceAll(RegExp(r'[^\w\-. ]'), '_');
@@ -337,7 +336,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
 
   @override
   Future<List<File>> renderPages(File input, {int maxSize = 1440, String? outputName}) async {
-    final rawStem = (outputName?.trim().isNotEmpty == true ? outputName!.trim() : input.path.split('/').last).replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
+    final rawStem = (outputName?.trim().isNotEmpty ?? false ? outputName!.trim() : input.path.split('/').last).replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '');
     final sanitized = rawStem.replaceAll(RegExp(r'[^\w\-. ]'), '_');
     final safeStem = sanitized.isEmpty ? 'pdf_images' : sanitized;
     final baseDir = (await getSaveDirectory()).path;
@@ -491,7 +490,7 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     // modifying, annotating); without one the file just needs the user
     // password to open. Owner falls back to the user password so the file
     // is never left owner-less.
-    final owner = (ownerPassword?.isNotEmpty == true) ? ownerPassword! : userPassword;
+    final owner = (ownerPassword?.isNotEmpty ?? false) ? ownerPassword! : userPassword;
     final restricted = owner != userPassword;
     final out = await _outputFile('protected', name: outputName);
     final sink = await FileSink.create(out);

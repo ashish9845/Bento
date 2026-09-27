@@ -9,9 +9,7 @@ class AppButton extends StatelessWidget {
   final IconData? icon;
 
   const AppButton({
-    super.key,
-    required this.label,
-    required this.onPressed,
+    required this.label, required this.onPressed, super.key,
     this.isLoading = false,
     this.isOutlined = false,
     this.icon,
@@ -48,7 +46,7 @@ class AppIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onPressed;
   final String? tooltip;
-  const AppIconButton({super.key, required this.icon, required this.onPressed, this.tooltip});
+  const AppIconButton({required this.icon, required this.onPressed, super.key, this.tooltip});
   @override
   Widget build(BuildContext context) {
     return IconButton(icon: Icon(icon), onPressed: onPressed, tooltip: tooltip);

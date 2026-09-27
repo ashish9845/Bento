@@ -14,7 +14,7 @@ class MergeMutationBloc extends Bloc<MergeMutationEvent, MergeMutationState> {
   Future<void> _onSubmit(SubmitMerge event, Emitter<MergeMutationState> emit) async {
     emit(state.copyWith(status: MergeMutationStatus.inProgress));
     try {
-      final files = event.filePaths.map((p) => File(p)).toList();
+      final files = event.filePaths.map(File.new).toList();
       final result = await repository.mergePdfs(files, outputName: event.outputName);
       await repository.saveFile(result);
       emit(state.copyWith(status: MergeMutationStatus.success, resultPath: result.path));

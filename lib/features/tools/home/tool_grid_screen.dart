@@ -63,8 +63,8 @@ class _ToolGridScreenState extends State<ToolGridScreen> {
       if (hay.contains(query) || query.contains(hay)) return true;
     }
     final tokens = [
-      for (final f in fields) ...f.split(RegExp(r'[^a-z]+')),
-      fields.join().replaceAll(RegExp(r'[^a-z]+'), ''),
+      for (final f in fields) ...f.split(RegExp('[^a-z]+')),
+      fields.join().replaceAll(RegExp('[^a-z]+'), ''),
     ].where((t) => t.isNotEmpty);
     for (final token in tokens) {
       if (_isSubsequence(query, token)) return true;

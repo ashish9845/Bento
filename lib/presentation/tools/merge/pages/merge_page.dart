@@ -109,12 +109,12 @@ class _MergePageState extends State<MergePage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: _pickedPaths.length,
-                        onReorder: (oldIndex, newIndex) {
+                        onReorderItem: (oldIndex, newIndex) {
+                          // onReorderItem already adjusts newIndex for the
+                          // removed item — insert directly.
                           setState(() {
-                            var adjusted = newIndex;
-                            if (adjusted > oldIndex) adjusted--;
                             final item = _pickedPaths.removeAt(oldIndex);
-                            _pickedPaths.insert(adjusted, item);
+                            _pickedPaths.insert(newIndex, item);
                           });
                         },
                         itemBuilder: (context, i) => ListTile(

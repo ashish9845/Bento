@@ -15,10 +15,10 @@ import 'filters.dart';
 /// These are *document* modes, not photo looks: the set mirrors what
 /// mainstream scanner apps ship (Adobe Scan's Original/Auto/Greyscale/
 /// Whiteboard, CamScanner's Original/Lighten/Magic-Colour/Greyscale/B&W).
-/// Each filter's [Filter.name] doubles as its stable id — it is the key
+/// Each filter's `Filter.name` doubles as its stable id — it is the key
 /// used to cache previews and the value written to the database — so it is
 /// deliberately not localized. The label shown to the user is resolved
-/// separately by [FilterLabels] in the picker.
+/// separately by `FilterLabels` in the picker.
 List<Filter> documentFiltersList = [
   OriginalFilter(),
   AutoFilter(),

@@ -152,8 +152,10 @@ Future<CropResult> _cropDecoded(img.Image decoded, Quad quad, String path,
 /// The size an unscaled warp of [quad] produces: the longest of each pair
 /// of opposite edges, so no part of the page is squeezed.
 ({int width, int height}) outputSize(Quad quad) {
-  final tl = quad.topLeft, tr = quad.topRight;
-  final br = quad.bottomRight, bl = quad.bottomLeft;
+  final tl = quad.topLeft;
+  final tr = quad.topRight;
+  final br = quad.bottomRight;
+  final bl = quad.bottomLeft;
   final width = max(_dist(tl.x, tl.y, tr.x, tr.y), _dist(bl.x, bl.y, br.x, br.y));
   final height = max(_dist(tl.x, tl.y, bl.x, bl.y), _dist(tr.x, tr.y, br.x, br.y));
   return (
@@ -162,16 +164,18 @@ Future<CropResult> _cropDecoded(img.Image decoded, Quad quad, String path,
   );
 }
 
-/// Inverse-samples [quad] out of [source] into an upright [outWidth] x
-/// [outHeight] rectangle. Both dimensions default to the quad's own size.
+/// Inverse-samples `quad` out of `source` into an upright `outWidth` x
+/// `outHeight` rectangle. Both dimensions default to the quad's own size.
 img.Image? _warp(img.Image decoded, Quad quad, int? width, int? height) {
   try {
     final srcWidth = decoded.width;
     final srcHeight = decoded.height;
     final srcRgba = decoded.getBytes(order: img.ChannelOrder.rgba);
 
-    final tl = quad.topLeft, tr = quad.topRight;
-    final br = quad.bottomRight, bl = quad.bottomLeft;
+    final tl = quad.topLeft;
+    final tr = quad.topRight;
+    final br = quad.bottomRight;
+    final bl = quad.bottomLeft;
 
     final natural = outputSize(quad);
     final outWidth = width ?? natural.width;
@@ -232,12 +236,14 @@ List<double> _solveHomography(double w, double h, Pt tl, Pt tr, Pt br, Pt bl) {
   // 8x8 linear system A*p = b for unknowns [a, b, c, d, e, f, g, h] where:
   //   x = (a*u + b*v + c) / (g*u + h*v + 1)
   //   y = (d*u + e*v + f) / (g*u + h*v + 1)
-  final a = List.generate(8, (_) => List<double>.filled(8, 0.0));
-  final bVec = List<double>.filled(8, 0.0);
+  final a = List.generate(8, (_) => List<double>.filled(8, 0));
+  final bVec = List<double>.filled(8, 0);
 
   for (int i = 0; i < 4; i++) {
-    final u = dst[i][0], v = dst[i][1];
-    final x = src[i][0], y = src[i][1];
+    final u = dst[i][0];
+    final v = dst[i][1];
+    final x = src[i][0];
+    final y = src[i][1];
 
     a[2 * i] = [u, v, 1, 0, 0, 0, -u * x, -v * x];
     bVec[2 * i] = x;

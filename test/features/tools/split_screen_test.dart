@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pdf_manipulator/pdf_manipulator.dart';
 import 'package:scan/data/tools/repositories/tools_repository.dart';
-import 'package:scan/features/tools/providers/tool_controller.dart';
 import 'package:scan/features/tools/providers/tool_providers.dart';
 import 'package:scan/features/tools/split/split_screen.dart';
 

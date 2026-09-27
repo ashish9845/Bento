@@ -46,7 +46,7 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
         return 'light';
       case ThemeMode.dark:
         return 'dark';
-      default:
+      case ThemeMode.system:
         return 'system';
     }
   }

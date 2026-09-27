@@ -59,7 +59,7 @@ List<Quad> findDocumentQuadCandidates(Uint8List mask, int width, int height) {
   return results;
 }
 
-/// Weight given to proximity to [previousQuad] (in [pickBestQuad]) versus
+/// Weight given to proximity to `previousQuad` (in `pickBestQuad`) versus
 /// intrinsic candidate quality (area + squareness). Deliberately small —
 /// a strong pull toward the previous frame's position is what caused the
 /// RDP-epsilon-sweep-era instability this scoring approach replaces
@@ -256,7 +256,7 @@ const List<List<int>> _cornerPermutations = [
   List<Pt> points,
   Quad reference,
 ) {
-  assert(points.length == 4);
+  assert(points.length == 4, 'bestCornerAssignment needs exactly 4 points');
   final refPts = reference.points;
 
   List<int>? bestPerm;
@@ -308,7 +308,8 @@ List<List<Pt>> _connectedComponents(Uint8List mask, int width, int height) {
       for (int dy = -1; dy <= 1; dy++) {
         for (int dx = -1; dx <= 1; dx++) {
           if (dx == 0 && dy == 0) continue;
-          final nx = x + dx, ny = y + dy;
+          final nx = x + dx;
+          final ny = y + dy;
           if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
           final nIdx = ny * width + nx;
           if (mask[nIdx] == 1 && visited[nIdx] == 0) {
@@ -365,7 +366,8 @@ List<Pt> _simplifyClosedPolygon(List<Pt> hull, double epsilonFactor) {
   }
   final epsilon = epsilonFactor * perimeter;
 
-  int ai = 0, bi = 0;
+  int ai = 0;
+  int bi = 0;
   double best = -1;
   for (int i = 0; i < hull.length; i++) {
     for (int j = i + 1; j < hull.length; j++) {
@@ -420,11 +422,13 @@ List<Pt> _rdp(List<Pt> points, double epsilon) {
 }
 
 double _perpendicularDistance(Pt p, Pt a, Pt b) {
-  final dx = b.x - a.x, dy = b.y - a.y;
+  final dx = b.x - a.x;
+  final dy = b.y - a.y;
   final len = sqrt(dx * dx + dy * dy);
   if (len == 0) return _dist(p, a);
   final t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / (len * len);
-  final projX = a.x + t * dx, projY = a.y + t * dy;
+  final projX = a.x + t * dx;
+  final projY = a.y + t * dy;
   return _dist(p, Pt(projX, projY));
 }
 
@@ -434,7 +438,9 @@ bool _isConvex(List<Pt> pts) {
   final n = pts.length;
   bool? positiveSign;
   for (int i = 0; i < n; i++) {
-    final a = pts[i], b = pts[(i + 1) % n], c = pts[(i + 2) % n];
+    final a = pts[i];
+    final b = pts[(i + 1) % n];
+    final c = pts[(i + 2) % n];
     final cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
     if (cross == 0) continue;
     final positive = cross > 0;
@@ -450,7 +456,8 @@ bool _isConvex(List<Pt> pts) {
 double _polygonArea(List<Pt> pts) {
   double area = 0;
   for (int i = 0; i < pts.length; i++) {
-    final a = pts[i], b = pts[(i + 1) % pts.length];
+    final a = pts[i];
+    final b = pts[(i + 1) % pts.length];
     area += a.x * b.y - b.x * a.y;
   }
   return area.abs() / 2;
@@ -467,7 +474,7 @@ const double kMinQuadAreaRatio = 0.05;
 /// (or, symmetrically, above `180 - kMinQuadAngleDegrees`) has one corner
 /// that has effectively collapsed onto its neighbors — a sliver or
 /// near-triangle, not a usable crop target.
-const double kMinQuadAngleDegrees = 15.0;
+const double kMinQuadAngleDegrees = 15;
 
 /// Rejects degenerate quads before they're ever returned as a detection
 /// result: too small relative to the frame, or so thin/sliver-shaped
@@ -498,8 +505,10 @@ bool isPlausibleQuad(Quad quad, int width, int height) {
 /// b->c. Returns 0 if either ray has zero length (two corners coincide),
 /// which callers should treat as maximally degenerate.
 double _angleAtVertexDegrees(Pt a, Pt b, Pt c) {
-  final abx = a.x - b.x, aby = a.y - b.y;
-  final cbx = c.x - b.x, cby = c.y - b.y;
+  final abx = a.x - b.x;
+  final aby = a.y - b.y;
+  final cbx = c.x - b.x;
+  final cby = c.y - b.y;
   final magAB = sqrt(abx * abx + aby * aby);
   final magCB = sqrt(cbx * cbx + cby * cby);
   if (magAB == 0 || magCB == 0) return 0;
@@ -529,7 +538,7 @@ double _angleAtVertexDegrees(Pt a, Pt b, Pt c) {
 ///    the right of left ones. Rotating a cycle can never duplicate or drop
 ///    a point, so the result is always a permutation of the input.
 Quad sortCorners(List<Pt> pts) {
-  assert(pts.length == 4);
+  assert(pts.length == 4, 'sortCorners needs exactly 4 points');
   final cx = (pts[0].x + pts[1].x + pts[2].x + pts[3].x) / 4;
   final cy = (pts[0].y + pts[1].y + pts[2].y + pts[3].y) / 4;
 

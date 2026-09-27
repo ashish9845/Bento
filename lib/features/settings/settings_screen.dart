@@ -1,7 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:scan/core/storage/storage_location.dart';
 
 import 'widgets/theme_settings_card.dart';
@@ -61,9 +60,9 @@ class SettingsScreen extends ConsumerWidget {
                                     color: scheme.onPrimaryContainer.withValues(alpha: 0.8),
                                     fontWeight: FontWeight.w600)),
                             const SizedBox(height: 8),
-                            Row(children: [
+                            Row(children: const [
                               _MiniBadge(icon: Icons.offline_bolt_rounded, label: 'Offline'),
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6),
                               _MiniBadge(icon: Icons.picture_as_pdf_rounded, label: '10 tools'),
                             ]),
                           ],

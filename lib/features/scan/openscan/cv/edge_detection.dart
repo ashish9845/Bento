@@ -19,7 +19,9 @@ import 'dart:typed_data';
 Uint8List rgbaToGrayscale(Uint8List rgba, int width, int height) {
   final gray = Uint8List(width * height);
   for (int i = 0, p = 0; p < gray.length; i += 4, p++) {
-    final r = rgba[i], g = rgba[i + 1], b = rgba[i + 2];
+    final r = rgba[i];
+    final g = rgba[i + 1];
+    final b = rgba[i + 2];
     gray[p] = (0.2126 * r + 0.7152 * g + 0.0722 * b).round().clamp(0, 255);
   }
   return gray;

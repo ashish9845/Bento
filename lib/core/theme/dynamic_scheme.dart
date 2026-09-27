@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' as material;
 import 'package:material_ui/material_ui.dart' as mui;
 
 /// Converts a dynamic_color 2.x scheme (built on the standalone
-/// `material_ui` package) to Flutter's material [ColorScheme].
+/// `material_ui` package) to Flutter's material ColorScheme.
 /// Every role maps 1:1 by name; both schemes derive from the same M3
 /// tonal spot, so nothing is lost in translation.
 material.ColorScheme toMaterialScheme(mui.ColorScheme s) {

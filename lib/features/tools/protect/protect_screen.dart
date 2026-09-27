@@ -31,9 +31,9 @@ String _strengthLabel(String password) {
   var score = 0;
   if (password.length >= 8) score++;
   if (password.length >= 12) score++;
-  if (RegExp(r'[A-Z]').hasMatch(password) && RegExp(r'[a-z]').hasMatch(password)) score++;
-  if (RegExp(r'[0-9]').hasMatch(password)) score++;
-  if (RegExp(r'[^A-Za-z0-9]').hasMatch(password)) score++;
+  if (RegExp('[A-Z]').hasMatch(password) && RegExp('[a-z]').hasMatch(password)) score++;
+  if (RegExp('[0-9]').hasMatch(password)) score++;
+  if (RegExp('[^A-Za-z0-9]').hasMatch(password)) score++;
   if (score <= 2) return 'Weak';
   if (score <= 3) return 'Medium';
   return 'Strong';

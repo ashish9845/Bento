@@ -20,7 +20,7 @@ Uint8List filterRgba(Filter filter, Uint8List rgba, int width, int height) {
   return rgba;
 }
 
-/// Decodes [image], applies [filter] and re-encodes as JPEG.
+/// Decodes `image`, applies `filter` and re-encodes as JPEG.
 ///
 /// The `image` package hands out a *copy* of the pixel buffer from
 /// `getBytes()`, so the filtered bytes have to be wrapped back into a new

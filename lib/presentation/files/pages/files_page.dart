@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scan/core/storage/open_file.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../../core/router/route_names.dart';
 import '../../shared/widgets/buttons/app_button.dart';
 import '../../shared/widgets/feedback/app_error_view.dart';
 import '../../shared/widgets/feedback/app_loading_indicator.dart';
@@ -75,15 +75,15 @@ class FilesPage extends StatelessWidget {
     if (action == null || !context.mounted) return;
     switch (action) {
       case 'open':
-        openDoc(context, f.path);
+        unawaited(openDoc(context, f.path));
       case 'share':
-        SharePlus.instance.share(ShareParams(files: [XFile(f.path)]));
+        unawaited(SharePlus.instance.share(ShareParams(files: [XFile(f.path)])));
       case 'send':
-        SendToToolSheet.show(context, File(f.path));
+        unawaited(SendToToolSheet.show(context, File(f.path)));
       case 'details':
-        _showFileDetails(context, f);
+        unawaited(_showFileDetails(context, f));
       case 'delete':
-        _confirmDelete(context, f.name, f.path);
+        unawaited(_confirmDelete(context, f.name, f.path));
     }
   }
 
@@ -136,7 +136,7 @@ class FilesPage extends StatelessWidget {
         ],
       ),
     );
-    if (confirmed == true && context.mounted) {
+    if ((confirmed ?? false) && context.mounted) {
       context.read<FilesMutationBloc>().add(FilesMutationEvent.deleteFile(filePath));
     }
   }
@@ -303,7 +303,7 @@ class _DetailRow extends StatelessWidget {
 /// Call this from app_router's builder for /files.
 class FilesRouteProviders extends StatelessWidget {
   final Widget child;
-  const FilesRouteProviders({super.key, required this.child});
+  const FilesRouteProviders({required this.child, super.key});
   @override
   Widget build(BuildContext context) {
     return RepositoryProvider(

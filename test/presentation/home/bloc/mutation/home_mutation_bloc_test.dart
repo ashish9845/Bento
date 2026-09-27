@@ -64,7 +64,7 @@ void main() {
       'emits nothing for empty picks',
       build: () => HomeMutationBloc(mockRepo),
       act: (bloc) => bloc.add(const HomeMutationEvent.importFiles([])),
-      expect: () => [],
+      expect: () => <HomeMutationState>[],
       verify: (_) => verifyNever(() => mockRepo.importFiles(any())),
     );
   });

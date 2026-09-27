@@ -39,7 +39,6 @@ class OrganizeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(organizeControllerProvider);
     final ctrl = ref.read(organizeControllerProvider.notifier);
-    final scheme = Theme.of(context).colorScheme;
 
     final filePath = state.files.isEmpty ? null : state.files.first.path;
     final pageCountAsync =
@@ -286,7 +285,7 @@ class _OrganizeTile extends StatelessWidget {
                   if (thumbPath != null)
                     Image.file(File(thumbPath!), fit: BoxFit.cover, width: double.infinity)
                   else
-                    Container(
+                    ColoredBox(
                       color: scheme.surfaceContainerHighest,
                       child: Icon(Icons.picture_as_pdf_rounded,
                           size: 28, color: scheme.onSurfaceVariant),

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -261,7 +260,7 @@ class _SignScreenState extends ConsumerState<SignScreen> {
                                 .primary
                                 .withValues(alpha: 0.4)),
                       ),
-                      child: Image.memory(sigBytes!, fit: BoxFit.contain),
+                      child: Image.memory(sigBytes, fit: BoxFit.contain),
                     ),
                   ],
                 ],

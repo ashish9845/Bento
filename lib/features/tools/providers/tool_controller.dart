@@ -63,8 +63,6 @@ class ToolController extends StateNotifier<ToolState> {
   /// Persists across retries until files change or it is set again.
   String? outputName;
 
-  void setOutputName(String? name) => outputName = name;
-
   void setFiles(List<File> files) {
     state = state.copyWith(files: files, status: ToolStatus.idle, message: null, resultFiles: []);
     _persist();

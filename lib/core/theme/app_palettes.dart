@@ -53,8 +53,8 @@ enum AppPalette {
   /// Static scheme for [brightness]. Dynamic resolves via [resolve] instead
   /// (needs the OS-provided scheme).
   ColorScheme _schemeFor(Brightness brightness) => brightness == Brightness.light
-      ? _ThemeGenerator.lightScheme(_TABLE[this]!)
-      : _ThemeGenerator.darkScheme(_TABLE[this]!);
+      ? _ThemeGenerator.lightScheme(_themeTable[this]!)
+      : _ThemeGenerator.darkScheme(_themeTable[this]!);
 
   /// Resolve this palette to a concrete scheme, applying the OS dynamic
   /// scheme when this is [dynamic] and one is available.
@@ -94,7 +94,7 @@ class _ThemeColors {
   final Color backgroundDark;
 }
 
-const _TABLE = <AppPalette, _ThemeColors>{
+const _themeTable = <AppPalette, _ThemeColors>{
   AppPalette.defaultPalette: _ThemeColors(
     primaryLight: Color(0xFF794F81), primaryDark: Color(0xFFE8B5EF),
     secondaryLight: Color(0xFF6A596C), secondaryDark: Color(0xFFD6C0D6),
@@ -456,7 +456,8 @@ abstract class _ThemeGenerator {
     final blackOk = backgrounds.map((bg) => _ratio(const Color(0xFF000000), bg)).reduce((a, b) => a < b ? a : b);
     final whiteOk = backgrounds.map((bg) => _ratio(const Color(0xFFFFFFFF), bg)).reduce((a, b) => a < b ? a : b);
     final target = blackOk >= whiteOk ? const Color(0xFF000000) : const Color(0xFFFFFFFF);
-    var lo = 0.0, hi = 1.0;
+    var lo = 0.0;
+    var hi = 1.0;
     for (var i = 0; i < 12; i++) {
       final mid = (lo + hi) / 2;
       if (ok(Color.lerp(c, target, mid)!)) {

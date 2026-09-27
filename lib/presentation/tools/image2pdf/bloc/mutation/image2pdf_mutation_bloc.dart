@@ -14,7 +14,7 @@ class Image2PdfMutationBloc extends Bloc<Image2PdfMutationEvent, Image2PdfMutati
   Future<void> _onSubmit(SubmitImage2Pdf event, Emitter<Image2PdfMutationState> emit) async {
     emit(state.copyWith(status: Image2PdfMutationStatus.inProgress));
     try {
-      final files = event.imagePaths.map((p) => File(p)).toList();
+      final files = event.imagePaths.map(File.new).toList();
       final result = await repository.imageToPdf(files, outputName: event.outputName);
       // Already saved to chosen location inside data source; just expose path
       emit(state.copyWith(status: Image2PdfMutationStatus.success, resultPath: result.path));
