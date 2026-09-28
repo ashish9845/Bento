@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FilesMutationState {
 
- FilesMutationStatus get status; String? get errorMessage;
+ FilesMutationStatus get status; String? get errorMessage; String? get sharedPath;
 /// Create a copy of FilesMutationState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $FilesMutationStateCopyWith<FilesMutationState> get copyWith => _$FilesMutationS
 @override
 bool operator ==(Object other) {
   final _this = this as FilesMutationState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FilesMutationState&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.errorMessage, _this.errorMessage) || other.errorMessage == _this.errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FilesMutationState&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.errorMessage, _this.errorMessage) || other.errorMessage == _this.errorMessage)&&(identical(other.sharedPath, _this.sharedPath) || other.sharedPath == _this.sharedPath));
 }
 
 
 @override
 int get hashCode {
   final _this = this as FilesMutationState;
-  return Object.hash(runtimeType,_this.status,_this.errorMessage);
+  return Object.hash(runtimeType,_this.status,_this.errorMessage,_this.sharedPath);
 }
 
 @override
 String toString() {
   final _this = this as FilesMutationState;
-  return 'FilesMutationState(status: ${_this.status}, errorMessage: ${_this.errorMessage})';
+  return 'FilesMutationState(status: ${_this.status}, errorMessage: ${_this.errorMessage}, sharedPath: ${_this.sharedPath})';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $FilesMutationStateCopyWith<$Res>  {
   factory $FilesMutationStateCopyWith(FilesMutationState value, $Res Function(FilesMutationState) _then) = _$FilesMutationStateCopyWithImpl;
 @useResult
 $Res call({
- FilesMutationStatus status, String? errorMessage
+ FilesMutationStatus status, String? errorMessage, String? sharedPath
 });
 
 
@@ -68,10 +68,11 @@ class _$FilesMutationStateCopyWithImpl<$Res>
 
 /// Create a copy of FilesMutationState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? errorMessage = freezed,Object? sharedPath = freezed,}) {
   return _then(FilesMutationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as FilesMutationStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,sharedPath: freezed == sharedPath ? _self.sharedPath : sharedPath // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( FilesMutationStatus status,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( FilesMutationStatus status,  String? errorMessage,  String? sharedPath)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FilesMutationState() when $default != null:
-return $default(_that.status,_that.errorMessage);case _:
+return $default(_that.status,_that.errorMessage,_that.sharedPath);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.status,_that.errorMessage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( FilesMutationStatus status,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( FilesMutationStatus status,  String? errorMessage,  String? sharedPath)  $default,) {final _that = this;
 switch (_that) {
 case _FilesMutationState():
-return $default(_that.status,_that.errorMessage);case _:
+return $default(_that.status,_that.errorMessage,_that.sharedPath);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.status,_that.errorMessage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( FilesMutationStatus status,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( FilesMutationStatus status,  String? errorMessage,  String? sharedPath)?  $default,) {final _that = this;
 switch (_that) {
 case _FilesMutationState() when $default != null:
-return $default(_that.status,_that.errorMessage);case _:
+return $default(_that.status,_that.errorMessage,_that.sharedPath);case _:
   return null;
 
 }
@@ -213,11 +214,12 @@ return $default(_that.status,_that.errorMessage);case _:
 
 
 class _FilesMutationState implements FilesMutationState {
-  const _FilesMutationState({this.status = FilesMutationStatus.idle, this.errorMessage});
+  const _FilesMutationState({this.status = FilesMutationStatus.idle, this.errorMessage, this.sharedPath});
   
 
 @override@JsonKey() final  FilesMutationStatus status;
 @override final  String? errorMessage;
+@override final  String? sharedPath;
 
 /// Create a copy of FilesMutationState
 /// with the given fields replaced by the non-null parameter values.
@@ -229,18 +231,18 @@ _$FilesMutationStateCopyWith<_FilesMutationState> get copyWith => __$FilesMutati
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FilesMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FilesMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.sharedPath, sharedPath) || other.sharedPath == sharedPath));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,status,errorMessage);
+    return Object.hash(runtimeType,status,errorMessage,sharedPath);
 }
 
 @override
 String toString() {
-    return 'FilesMutationState(status: $status, errorMessage: $errorMessage)';
+    return 'FilesMutationState(status: $status, errorMessage: $errorMessage, sharedPath: $sharedPath)';
 }
 
 
@@ -251,7 +253,7 @@ abstract mixin class _$FilesMutationStateCopyWith<$Res> implements $FilesMutatio
   factory _$FilesMutationStateCopyWith(_FilesMutationState value, $Res Function(_FilesMutationState) _then) = __$FilesMutationStateCopyWithImpl;
 @override @useResult
 $Res call({
- FilesMutationStatus status, String? errorMessage
+ FilesMutationStatus status, String? errorMessage, String? sharedPath
 });
 
 
@@ -268,10 +270,11 @@ class __$FilesMutationStateCopyWithImpl<$Res>
 
 /// Create a copy of FilesMutationState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? errorMessage = freezed,Object? sharedPath = freezed,}) {
   return _then(_FilesMutationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as FilesMutationStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,sharedPath: freezed == sharedPath ? _self.sharedPath : sharedPath // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

@@ -79,6 +79,13 @@ kotlin {
     }
 }
 
+dependencies {
+    // Same artifact google_mlkit_document_scanner pulls in transitively.
+    // Declared explicitly so MainActivity can parse the scanner's activity
+    // result for process-death recovery (see onActivityResult).
+    implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
+}
+
 flutter {
     source = "../.."
 }

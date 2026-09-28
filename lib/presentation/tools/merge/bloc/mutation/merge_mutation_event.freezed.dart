@@ -15,67 +15,30 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MergeMutationEvent {
 
- List<String> get filePaths; String? get outputName;
-/// Create a copy of MergeMutationEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$MergeMutationEventCopyWith<MergeMutationEvent> get copyWith => _$MergeMutationEventCopyWithImpl<MergeMutationEvent>(this as MergeMutationEvent, _$identity);
+
 
 
 
 @override
 bool operator ==(Object other) {
-  final _this = this as MergeMutationEvent;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationEvent&&const DeepCollectionEquality().equals(other.filePaths, _this.filePaths)&&(identical(other.outputName, _this.outputName) || other.outputName == _this.outputName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationEvent);
 }
 
 
 @override
-int get hashCode {
-  final _this = this as MergeMutationEvent;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.filePaths),_this.outputName);
-}
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  final _this = this as MergeMutationEvent;
-  return 'MergeMutationEvent(filePaths: ${_this.filePaths}, outputName: ${_this.outputName})';
+    return 'MergeMutationEvent()';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $MergeMutationEventCopyWith<$Res>  {
-  factory $MergeMutationEventCopyWith(MergeMutationEvent value, $Res Function(MergeMutationEvent) _then) = _$MergeMutationEventCopyWithImpl;
-@useResult
-$Res call({
- List<String> filePaths, String? outputName
-});
-
-
-
-
-}
-/// @nodoc
-class _$MergeMutationEventCopyWithImpl<$Res>
-    implements $MergeMutationEventCopyWith<$Res> {
-  _$MergeMutationEventCopyWithImpl(this._self, this._then);
-
-  final MergeMutationEvent _self;
-  final $Res Function(MergeMutationEvent) _then;
-
-/// Create a copy of MergeMutationEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? filePaths = null,Object? outputName = freezed,}) {
-  return _then(MergeMutationEvent.submitMerge(
-null == filePaths ? _self.filePaths : filePaths // ignore: cast_nullable_to_non_nullable
-as List<String>,outputName: freezed == outputName ? _self.outputName : outputName // ignore: cast_nullable_to_non_nullable
-as String?,
-  ));
-}
-
+class $MergeMutationEventCopyWith<$Res>  {
+$MergeMutationEventCopyWith(MergeMutationEvent _, $Res Function(MergeMutationEvent) __);
 }
 
 
@@ -93,11 +56,16 @@ extension MergeMutationEventPatterns on MergeMutationEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SubmitMerge value)?  submitMerge,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SubmitMerge value)?  submitMerge,TResult Function( PickRequested value)?  pickRequested,TResult Function( Picked value)?  picked,TResult Function( RemoveAt value)?  removeAt,TResult Function( Reordered value)?  reordered,TResult Function( ClearSelection value)?  clearSelection,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case SubmitMerge() when submitMerge != null:
-return submitMerge(_that);case _:
+return submitMerge(_that);case PickRequested() when pickRequested != null:
+return pickRequested(_that);case Picked() when picked != null:
+return picked(_that);case RemoveAt() when removeAt != null:
+return removeAt(_that);case Reordered() when reordered != null:
+return reordered(_that);case ClearSelection() when clearSelection != null:
+return clearSelection(_that);case _:
   return orElse();
 
 }
@@ -115,11 +83,16 @@ return submitMerge(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SubmitMerge value)  submitMerge,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SubmitMerge value)  submitMerge,required TResult Function( PickRequested value)  pickRequested,required TResult Function( Picked value)  picked,required TResult Function( RemoveAt value)  removeAt,required TResult Function( Reordered value)  reordered,required TResult Function( ClearSelection value)  clearSelection,}){
 final _that = this;
 switch (_that) {
 case SubmitMerge():
-return submitMerge(_that);case _:
+return submitMerge(_that);case PickRequested():
+return pickRequested(_that);case Picked():
+return picked(_that);case RemoveAt():
+return removeAt(_that);case Reordered():
+return reordered(_that);case ClearSelection():
+return clearSelection(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -136,11 +109,16 @@ return submitMerge(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SubmitMerge value)?  submitMerge,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SubmitMerge value)?  submitMerge,TResult? Function( PickRequested value)?  pickRequested,TResult? Function( Picked value)?  picked,TResult? Function( RemoveAt value)?  removeAt,TResult? Function( Reordered value)?  reordered,TResult? Function( ClearSelection value)?  clearSelection,}){
 final _that = this;
 switch (_that) {
 case SubmitMerge() when submitMerge != null:
-return submitMerge(_that);case _:
+return submitMerge(_that);case PickRequested() when pickRequested != null:
+return pickRequested(_that);case Picked() when picked != null:
+return picked(_that);case RemoveAt() when removeAt != null:
+return removeAt(_that);case Reordered() when reordered != null:
+return reordered(_that);case ClearSelection() when clearSelection != null:
+return clearSelection(_that);case _:
   return null;
 
 }
@@ -157,10 +135,15 @@ return submitMerge(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<String> filePaths,  String? outputName)?  submitMerge,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<String> filePaths,  String? outputName)?  submitMerge,TResult Function()?  pickRequested,TResult Function( List<String> paths)?  picked,TResult Function( int index)?  removeAt,TResult Function( int oldIndex,  int newIndex)?  reordered,TResult Function()?  clearSelection,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SubmitMerge() when submitMerge != null:
-return submitMerge(_that.filePaths,_that.outputName);case _:
+return submitMerge(_that.filePaths,_that.outputName);case PickRequested() when pickRequested != null:
+return pickRequested();case Picked() when picked != null:
+return picked(_that.paths);case RemoveAt() when removeAt != null:
+return removeAt(_that.index);case Reordered() when reordered != null:
+return reordered(_that.oldIndex,_that.newIndex);case ClearSelection() when clearSelection != null:
+return clearSelection();case _:
   return orElse();
 
 }
@@ -178,10 +161,15 @@ return submitMerge(_that.filePaths,_that.outputName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<String> filePaths,  String? outputName)  submitMerge,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<String> filePaths,  String? outputName)  submitMerge,required TResult Function()  pickRequested,required TResult Function( List<String> paths)  picked,required TResult Function( int index)  removeAt,required TResult Function( int oldIndex,  int newIndex)  reordered,required TResult Function()  clearSelection,}) {final _that = this;
 switch (_that) {
 case SubmitMerge():
-return submitMerge(_that.filePaths,_that.outputName);case _:
+return submitMerge(_that.filePaths,_that.outputName);case PickRequested():
+return pickRequested();case Picked():
+return picked(_that.paths);case RemoveAt():
+return removeAt(_that.index);case Reordered():
+return reordered(_that.oldIndex,_that.newIndex);case ClearSelection():
+return clearSelection();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +186,15 @@ return submitMerge(_that.filePaths,_that.outputName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<String> filePaths,  String? outputName)?  submitMerge,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<String> filePaths,  String? outputName)?  submitMerge,TResult? Function()?  pickRequested,TResult? Function( List<String> paths)?  picked,TResult? Function( int index)?  removeAt,TResult? Function( int oldIndex,  int newIndex)?  reordered,TResult? Function()?  clearSelection,}) {final _that = this;
 switch (_that) {
 case SubmitMerge() when submitMerge != null:
-return submitMerge(_that.filePaths,_that.outputName);case _:
+return submitMerge(_that.filePaths,_that.outputName);case PickRequested() when pickRequested != null:
+return pickRequested();case Picked() when picked != null:
+return picked(_that.paths);case RemoveAt() when removeAt != null:
+return removeAt(_that.index);case Reordered() when reordered != null:
+return reordered(_that.oldIndex,_that.newIndex);case ClearSelection() when clearSelection != null:
+return clearSelection();case _:
   return null;
 
 }
@@ -216,12 +209,12 @@ class SubmitMerge implements MergeMutationEvent {
   const SubmitMerge(this.filePaths, {this.outputName});
   
 
-@override final  List<String> filePaths;
-@override final  String? outputName;
+ final  List<String> filePaths;
+ final  String? outputName;
 
 /// Create a copy of MergeMutationEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
+@JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $SubmitMergeCopyWith<SubmitMerge> get copyWith => _$SubmitMergeCopyWithImpl<SubmitMerge>(this, _$identity);
 
@@ -249,7 +242,7 @@ String toString() {
 /// @nodoc
 abstract mixin class $SubmitMergeCopyWith<$Res> implements $MergeMutationEventCopyWith<$Res> {
   factory $SubmitMergeCopyWith(SubmitMerge value, $Res Function(SubmitMerge) _then) = _$SubmitMergeCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  List<String> filePaths, String? outputName
 });
@@ -268,7 +261,7 @@ class _$SubmitMergeCopyWithImpl<$Res>
 
 /// Create a copy of MergeMutationEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? filePaths = null,Object? outputName = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? filePaths = null,Object? outputName = freezed,}) {
   return _then(SubmitMerge(
 null == filePaths ? _self.filePaths : filePaths // ignore: cast_nullable_to_non_nullable
 as List<String>,outputName: freezed == outputName ? _self.outputName : outputName // ignore: cast_nullable_to_non_nullable
@@ -278,5 +271,275 @@ as String?,
 
 
 }
+
+/// @nodoc
+
+
+class PickRequested implements MergeMutationEvent {
+  const PickRequested();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is PickRequested);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'MergeMutationEvent.pickRequested()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class Picked implements MergeMutationEvent {
+  const Picked(this.paths);
+  
+
+ final  List<String> paths;
+
+/// Create a copy of MergeMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PickedCopyWith<Picked> get copyWith => _$PickedCopyWithImpl<Picked>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is Picked&&const DeepCollectionEquality().equals(other.paths, paths));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(paths));
+}
+
+@override
+String toString() {
+    return 'MergeMutationEvent.picked(paths: $paths)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PickedCopyWith<$Res> implements $MergeMutationEventCopyWith<$Res> {
+  factory $PickedCopyWith(Picked value, $Res Function(Picked) _then) = _$PickedCopyWithImpl;
+@useResult
+$Res call({
+ List<String> paths
+});
+
+
+
+
+}
+/// @nodoc
+class _$PickedCopyWithImpl<$Res>
+    implements $PickedCopyWith<$Res> {
+  _$PickedCopyWithImpl(this._self, this._then);
+
+  final Picked _self;
+  final $Res Function(Picked) _then;
+
+/// Create a copy of MergeMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? paths = null,}) {
+  return _then(Picked(
+null == paths ? _self.paths : paths // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class RemoveAt implements MergeMutationEvent {
+  const RemoveAt(this.index);
+  
+
+ final  int index;
+
+/// Create a copy of MergeMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RemoveAtCopyWith<RemoveAt> get copyWith => _$RemoveAtCopyWithImpl<RemoveAt>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is RemoveAt&&(identical(other.index, index) || other.index == index));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,index);
+}
+
+@override
+String toString() {
+    return 'MergeMutationEvent.removeAt(index: $index)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RemoveAtCopyWith<$Res> implements $MergeMutationEventCopyWith<$Res> {
+  factory $RemoveAtCopyWith(RemoveAt value, $Res Function(RemoveAt) _then) = _$RemoveAtCopyWithImpl;
+@useResult
+$Res call({
+ int index
+});
+
+
+
+
+}
+/// @nodoc
+class _$RemoveAtCopyWithImpl<$Res>
+    implements $RemoveAtCopyWith<$Res> {
+  _$RemoveAtCopyWithImpl(this._self, this._then);
+
+  final RemoveAt _self;
+  final $Res Function(RemoveAt) _then;
+
+/// Create a copy of MergeMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? index = null,}) {
+  return _then(RemoveAt(
+null == index ? _self.index : index // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class Reordered implements MergeMutationEvent {
+  const Reordered(this.oldIndex, this.newIndex);
+  
+
+ final  int oldIndex;
+ final  int newIndex;
+
+/// Create a copy of MergeMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ReorderedCopyWith<Reordered> get copyWith => _$ReorderedCopyWithImpl<Reordered>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is Reordered&&(identical(other.oldIndex, oldIndex) || other.oldIndex == oldIndex)&&(identical(other.newIndex, newIndex) || other.newIndex == newIndex));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,oldIndex,newIndex);
+}
+
+@override
+String toString() {
+    return 'MergeMutationEvent.reordered(oldIndex: $oldIndex, newIndex: $newIndex)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ReorderedCopyWith<$Res> implements $MergeMutationEventCopyWith<$Res> {
+  factory $ReorderedCopyWith(Reordered value, $Res Function(Reordered) _then) = _$ReorderedCopyWithImpl;
+@useResult
+$Res call({
+ int oldIndex, int newIndex
+});
+
+
+
+
+}
+/// @nodoc
+class _$ReorderedCopyWithImpl<$Res>
+    implements $ReorderedCopyWith<$Res> {
+  _$ReorderedCopyWithImpl(this._self, this._then);
+
+  final Reordered _self;
+  final $Res Function(Reordered) _then;
+
+/// Create a copy of MergeMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? oldIndex = null,Object? newIndex = null,}) {
+  return _then(Reordered(
+null == oldIndex ? _self.oldIndex : oldIndex // ignore: cast_nullable_to_non_nullable
+as int,null == newIndex ? _self.newIndex : newIndex // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ClearSelection implements MergeMutationEvent {
+  const ClearSelection();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ClearSelection);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'MergeMutationEvent.clearSelection()';
+}
+
+
+}
+
+
+
 
 // dart format on

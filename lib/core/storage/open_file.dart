@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
@@ -48,6 +51,81 @@ Future<void> openDoc(BuildContext context, String path) async {
           label: 'Share instead',
           onPressed: () =>
               SharePlus.instance.share(ShareParams(files: [XFile(path)])),
+        ),
+      ),
+    );
+  } on Exception catch (e) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Could not open $displayName: $e')));
+  }
+}
+
+/// Opens a folder in the system file manager, with visible feedback.
+///
+/// `OpenFilex.open` resolves viewers by file extension, so it can never
+/// open a directory — folders need an explicit `resource/folder` MIME type
+/// (honored by Files by Google, Xiaomi/Samsung file managers, and most
+/// others) paired with the plugin's FileProvider URI. When nothing handles
+/// that intent, falls back to launching the phone's default file manager
+/// app directly via the native `folders` channel (known packages, no extra
+/// permission). iOS has no open-a-folder API, so it guides to the Files app
+/// instead.
+const _foldersChannel = MethodChannel('com.benopdf.scan/folders');
+
+Future<void> openFolder(BuildContext context, String dirPath) async {
+  final name = dirPath.split('/').last;
+  final displayName = name.isEmpty ? 'folder' : name;
+  if (!Platform.isAndroid) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Open the Files app to browse exported images.'),
+      ),
+    );
+    return;
+  }
+  try {
+    var result = await OpenFilex.open(dirPath, type: 'resource/folder');
+    if (result.type == ResultType.done) return;
+    if (result.type == ResultType.permissionDenied) {
+      final granted = await ensureStoragePermission();
+      if (granted) {
+        result = await OpenFilex.open(dirPath, type: 'resource/folder');
+        if (result.type == ResultType.done) return;
+      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Storage permission is needed to open folders. Allow "All files access" in Settings.',
+          ),
+          action: SnackBarAction(label: 'Settings', onPressed: openAppSettings),
+        ),
+      );
+      return;
+    }
+    final msg = switch (result.type) {
+      ResultType.noAppToOpen => null, // handled by the fallback below
+      ResultType.fileNotFound => 'Folder not found: $displayName',
+      _ => 'Could not open $displayName (${result.message})',
+    };
+    // No viewer for the folder intent → open the phone's default file
+    // manager app directly (native fallback, no extra permission).
+    if (result.type == ResultType.noAppToOpen) {
+      try {
+        final opened =
+            await _foldersChannel.invokeMethod<bool>('launchFileManager');
+        if (opened == true) return;
+      } on Exception catch (_) {}
+    }
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          msg ??
+              'No file manager found — open it manually and look in $displayName',
         ),
       ),
     );

@@ -20,6 +20,14 @@ import 'filters/filters/filters.dart';
 /// manually (draggable corners, seeded with the detected boundary) →
 /// document filter → preview. Supports continuous multi-page sessions.
 /// Pops with `List<String>` of ready JPEG paths for the Scan review flow.
+///
+/// ARCH NOTE (strict REPO/DATA <-> BLOC <-> UI): camera + `compute`
+/// isolates intentionally stay in this UI screen — they are hardware-bound
+/// (`CameraController` lifecycle, viewfinder preview, `takePicture`) and
+/// frame-coupled (crop-editor gestures, filter preview). Session
+/// persistence, ML Kit capture, permissions, and PDF export live in the
+/// Scan cubits; this screen only returns JPEG paths to the Scan screen, which
+/// dispatches them to its session cubit.
 class OpenScanCaptureScreen extends StatefulWidget {
   const new({super.key});
 

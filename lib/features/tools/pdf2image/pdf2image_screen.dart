@@ -64,6 +64,7 @@ class _Pdf2ImageScreenState extends State<Pdf2ImageScreen> {
               children: [
                 FilePickerCard(
                   files: state.files,
+                  fileSizes: state.fileSizes,
                   allowedExtensions: const ['pdf'],
                   label: 'PDF to export',
                   onPick: () =>
@@ -100,8 +101,10 @@ class _Pdf2ImageScreenState extends State<Pdf2ImageScreen> {
                   ToolSuccess(
                     message:
                         'Exported ${state.resultFiles.length} image(s) to ${state.resultFiles.first.parent.path.split('/').last}/',
-                    onOpenFolder: () =>
-                        openDoc(context, state.resultFiles.first.parent.path),
+                    onOpenFolder: () => openFolder(
+                      context,
+                      state.resultFiles.first.parent.path,
+                    ),
                     onShare: _cubit.shareResult,
                   ),
                 if (!state.hasResult) ...[

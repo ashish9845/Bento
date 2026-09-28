@@ -212,10 +212,16 @@ return importFiles(_that.pickedPaths);case _:
 
 
 class ImportFiles implements HomeMutationEvent {
-  const ImportFiles(this.pickedPaths);
+  const ImportFiles( List<String> pickedPaths): _pickedPaths = pickedPaths;
   
 
-@override final  List<String> pickedPaths;
+ final  List<String> _pickedPaths;
+@override List<String> get pickedPaths {
+  if (_pickedPaths is EqualUnmodifiableListView) return _pickedPaths;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pickedPaths);
+}
+
 
 /// Create a copy of HomeMutationEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -227,13 +233,13 @@ $ImportFilesCopyWith<ImportFiles> get copyWith => _$ImportFilesCopyWithImpl<Impo
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportFiles&&const DeepCollectionEquality().equals(other.pickedPaths, pickedPaths));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportFiles&&const DeepCollectionEquality().equals(other.pickedPaths, _pickedPaths));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(pickedPaths));
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_pickedPaths));
 }
 
 @override
@@ -268,7 +274,7 @@ class _$ImportFilesCopyWithImpl<$Res>
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? pickedPaths = null,}) {
   return _then(ImportFiles(
-null == pickedPaths ? _self.pickedPaths : pickedPaths // ignore: cast_nullable_to_non_nullable
+null == pickedPaths ? _self._pickedPaths : pickedPaths // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
 }

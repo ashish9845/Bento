@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -64,29 +65,117 @@ Future<bool> ensureStoragePermission() async {
   }
 }
 
+/// Resolved save-location state. The cubit resolves the platform default
+/// once at startup; the UI only reads [effectivePath]/[displayPath] and
+/// never touches path_provider / SharedPreferences / dart:io itself.
+class StorageLocationState {
+  const new({this.customPath, this.defaultPath, this.message});
+
+  /// Custom directory picked in Settings (null = use the default).
+  final String? customPath;
+
+  /// Platform default, resolved once in the cubit (null until ready).
+  final String? defaultPath;
+
+  /// One-shot UI message (snackbar). Cleared via [StorageLocationCubit.consumeMessage].
+  final String? message;
+
+  /// Directory actually used for saves: custom override, else default.
+  String? get effectivePath => customPath ?? defaultPath;
+
+  /// Display fallback while the default is still resolving.
+  String get displayPath => effectivePath ?? 'Documents/Bento';
+
+  bool get isReady => defaultPath != null;
+  bool get hasCustom => customPath != null;
+
+  StorageLocationState copyWith({
+    String? customPath,
+    String? defaultPath,
+    String? message,
+    bool clearMessage = false,
+  }) => StorageLocationState(
+    customPath: customPath ?? this.customPath,
+    defaultPath: defaultPath ?? this.defaultPath,
+    message: clearMessage ? null : (message ?? this.message),
+  );
+
+  StorageLocationState withoutCustom() =>
+      StorageLocationState(defaultPath: defaultPath, message: message);
+}
+
 /// Selected save location override (custom directory path, or null for the
 /// default). Persisted in SharedPreferences.
-class StorageLocationCubit extends Cubit<String?> {
-  new() : super(null) {
-    unawaited(_load());
+///
+/// Owns ALL storage data access: default resolution, persistence,
+/// permission request, and the directory picker. UI layers only call
+/// [pickAndSet]/[setLocation]/[clear] and render [StorageLocationState].
+class StorageLocationCubit extends Cubit<StorageLocationState> {
+  new() : super(const StorageLocationState()) {
+    unawaited(_init());
   }
 
-  Future<void> _load() async {
+  /// Resolve the platform default once + restore the persisted override.
+  Future<void> _init() async {
+    String? def;
     try {
-      final prefs = await SharedPreferences.getInstance();
-      emit(prefs.getString(_key));
+      def = (await getDefaultSaveDirectory()).path;
     } on Exception catch (_) {}
+    if (isClosed) return;
+    String? custom;
+    try {
+      custom = (await SharedPreferences.getInstance()).getString(_key);
+    } on Exception catch (_) {}
+    if (isClosed) return;
+    emit(state.copyWith(customPath: custom, defaultPath: def));
   }
 
   Future<void> setLocation(String? path) async {
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (path == null) {
+        await prefs.remove(_key);
+      } else {
+        await prefs.setString(_key, path);
+      }
+    } on Exception catch (_) {}
+    if (isClosed) return;
     if (path == null) {
-      await prefs.remove(_key);
+      emit(
+        state.withoutCustom().copyWith(
+          message: 'Reset to ${state.defaultPath ?? 'default'}',
+        ),
+      );
     } else {
-      await prefs.setString(_key, path);
+      emit(
+        state.copyWith(
+          customPath: path,
+          message: 'Storage set to $path — new PDFs will save there',
+        ),
+      );
     }
-    emit(path);
+  }
+
+  /// Permission + directory picker + persist. Emits a
+  /// [StorageLocationState.message] for the UI listener to show as a
+  /// snackbar (including 'No selection').
+  Future<void> pickAndSet() async {
+    // Best-effort: allow writes to shared storage before picking.
+    await ensureStoragePermission();
+    final dir = await FilePicker.getDirectoryPath(
+      dialogTitle: 'Pick storage location',
+    );
+    if (isClosed) return;
+    if (dir == null) {
+      emit(state.copyWith(message: 'No selection'));
+      return;
+    }
+    await setLocation(dir);
   }
 
   Future<void> clear() => setLocation(null);
+
+  void consumeMessage() {
+    if (state.message != null) emit(state.copyWith(clearMessage: true));
+  }
 }

@@ -10,5 +10,6 @@ abstract class Image2PdfMutationState with _$Image2PdfMutationState {
     @Default(Image2PdfMutationStatus.idle) Image2PdfMutationStatus status,
     String? errorMessage,
     String? resultPath,
+    @Default([]) List<String> pickedPaths,
   }) = _Image2PdfMutationState;
 }

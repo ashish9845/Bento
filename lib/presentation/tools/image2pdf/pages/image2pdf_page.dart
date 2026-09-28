@@ -1,97 +1,48 @@
+// dart:io here is view-only (Image.file thumbnails). No data access;
+// picking + PDF work live in the Bloc.
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:scan/core/storage/open_file.dart';
 
 import '../../../shared/widgets/buttons/app_button.dart';
+import '../../../shared/widgets/dialogs/name_prompt_dialog.dart';
 import '../../../shared/widgets/feedback/app_error_view.dart';
 import '../bloc/mutation/image2pdf_mutation_bloc.dart';
 import '../bloc/mutation/image2pdf_mutation_event.dart';
 import '../bloc/mutation/image2pdf_mutation_state.dart';
 
-class Image2PdfPage extends StatefulWidget {
+/// Image2PdfPage — strict REPO/DATA <-> BLOC <-> UI.
+/// UI never imports Repository, DataSource, ImagePicker, SharedPreferences,
+/// path_provider, or SharePlus. Picking/reorder/remove/clear all live in
+/// [Image2PdfMutationBloc] via an injectable picker gateway; UI only
+/// dispatches events, renders via BlocBuilder/Listener, shows the rename
+/// dialog shell, and navigates. `dart:io` above is view-only (Image.file
+/// thumbnails). `openDoc` is a context-bound UI helper, not a data import.
+class Image2PdfPage extends StatelessWidget {
   const new({super.key});
-  @override
-  State<Image2PdfPage> createState() => _Image2PdfPageState();
-}
 
-class _Image2PdfPageState extends State<Image2PdfPage> {
-  List<String> _paths = [];
-
-  Future<void> _pickImages() async {
-    // Gallery image picker (not the file browser): multi-select from
-    // photos. New picks append to the current selection (no duplicates);
-    // cancelling leaves the selection alone.
-    final picked = await ImagePicker().pickMultiImage();
-    final paths = picked.map((f) => f.path).where((p) => p.isNotEmpty).toList();
-    if (paths.isNotEmpty && mounted) {
-      setState(() {
-        for (final p in paths) {
-          if (!_paths.contains(p)) _paths.add(p);
-        }
-      });
-    }
-  }
-
-  void _reorder(String fromPath, String toPath) {
-    final from = _paths.indexOf(fromPath);
-    final to = _paths.indexOf(toPath);
-    if (from < 0 || to < 0 || from == to) return;
-    setState(() {
-      // `to` is the dropped-onto cell: insert directly at its slot.
-      final next = [..._paths];
-      final item = next.removeAt(from);
-      next.insert(to, item);
-      _paths = next;
-    });
-  }
-
-  void _removeAt(int index) {
-    setState(() => _paths = [..._paths]..removeAt(index));
-  }
-
-  Future<void> _createWithRename() async {
-    if (_paths.isEmpty) return;
+  /// Pure view shell: collects the output name, then dispatches submit.
+  /// [paths] comes from Bloc state — never from local UI data.
+  Future<void> _createWithRename(
+    BuildContext context,
+    List<String> paths,
+  ) async {
+    if (paths.isEmpty) return;
     final now = DateTime.now();
     final defaultName =
         'Bento_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}';
-    final controller = TextEditingController(text: defaultName);
-    // NOTE: intentionally not disposed — the dialog's TextField is still
-    // mounted while the pop transition runs (see rename_dialog.dart).
-    final name = await showDialog<String>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Name your PDF'),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'File name',
-              hintText: 'MyDocument',
-              suffixText: '.pdf',
-              border: OutlineInputBorder(),
-            ),
-            textCapitalization: TextCapitalization.words,
-            onSubmitted: (v) => Navigator.pop(context, v.trim()),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: const Text('Create'),
-            ),
-          ],
-        ),
-      );
+    final name = await showNamePrompt(
+      context,
+      title: 'Name your PDF',
+      defaultName: defaultName,
+      confirmLabel: 'Create',
+    );
     if (name == null || name.isEmpty) return;
-    if (!mounted) return;
+    if (!context.mounted) return;
     context.read<Image2PdfMutationBloc>().add(
-      Image2PdfMutationEvent.submit(_paths, outputName: name),
+      Image2PdfMutationEvent.submit(paths, outputName: name),
     );
   }
 
@@ -118,198 +69,248 @@ class _Image2PdfPageState extends State<Image2PdfPage> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.image_rounded,
-                          size: 32,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _paths.isEmpty
-                              ? 'No images'
-                              : '${_paths.length} image${_paths.length == 1 ? '' : 's'}',
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        if (_paths.isEmpty) ...[
-                          const SizedBox(height: 12),
-                          AppButton(
-                            label: 'Pick images',
-                            isOutlined: true,
-                            onPressed: _pickImages,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-                if (_paths.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Long-press and drag to reorder',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () => setState(() => _paths = []),
-                        icon: const Icon(
-                          Icons.clear_all_rounded,
-                          size: 18,
-                        ),
-                        label: const Text('Clear all'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 10,
-                          childAspectRatio: 0.72,
-                        ),
-                    itemCount: _paths.length,
-                    itemBuilder: (context, index) {
-                      final path = _paths[index];
-                      final tile = _ImageTile(
-                        position: index + 1,
-                        path: path,
-                        onRemove: () => _removeAt(index),
-                      );
-                      return DragTarget<String>(
-                        onAcceptWithDetails: (details) =>
-                            _reorder(details.data, path),
-                        builder: (context, candidate, rejected) => Container(
-                          decoration: candidate.isNotEmpty
-                              ? BoxDecoration(
-                                  border: Border.all(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    width: 2,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                )
-                              : null,
-                          child: LongPressDraggable<String>(
-                            data: path,
-                            feedback: Material(
-                              color: Colors.transparent,
-                              child: SizedBox(
-                                width: 100,
-                                height: 135,
-                                child: tile,
-                              ),
+            child: BlocBuilder<Image2PdfMutationBloc, Image2PdfMutationState>(
+              builder: (context, selection) {
+                final paths = selection.pickedPaths;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.image_rounded,
+                              size: 32,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
-                            childWhenDragging: Opacity(
-                              opacity: 0.3,
-                              child: tile,
+                            const SizedBox(height: 8),
+                            Text(
+                              paths.isEmpty
+                                  ? 'No images'
+                                  : '${paths.length} image${paths.length == 1 ? '' : 's'}',
+                              style: Theme.of(context).textTheme.titleSmall,
                             ),
-                            child: tile,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  AppButton(
-                    label: 'Add more images',
-                    isOutlined: true,
-                    icon: Icons.add_photo_alternate_outlined,
-                    onPressed: _pickImages,
-                  ),
-                ],
-              const SizedBox(height: 16),
-              BlocBuilder<Image2PdfMutationBloc, Image2PdfMutationState>(
-                builder: (context, state) {
-                  final isLoading =
-                      state.status == Image2PdfMutationStatus.inProgress;
-                  if (state.status == Image2PdfMutationStatus.failure) {
-                    return AppErrorView(
-                      message: state.errorMessage ?? 'Failed',
-                      onRetry: _createWithRename,
-                    );
-                  }
-                  if (state.status == Image2PdfMutationStatus.success &&
-                      state.resultPath != null) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle_rounded,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Saved: ${state.resultPath!.split('/').last}',
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.w700),
-                                ),
+                            if (paths.isEmpty) ...[
+                              const SizedBox(height: 12),
+                              AppButton(
+                                label: 'Pick images',
+                                isOutlined: true,
+                                onPressed: () => context
+                                    .read<Image2PdfMutationBloc>()
+                                    .add(
+                                      const Image2PdfMutationEvent.pickRequested(),
+                                    ),
                               ),
                             ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: AppButton(
-                                label: 'Open PDF',
-                                icon: Icons.open_in_new_rounded,
-                                onPressed: () =>
-                                    openDoc(context, state.resultPath!),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: AppButton(
-                                label: 'Create another',
-                                isOutlined: true,
-                                onPressed: () => setState(() => _paths = []),
-                              ),
-                            ),
                           ],
                         ),
-                      ],
-                    );
-                  }
-                  return AppButton(
-                    label: 'Create PDF',
-                    isLoading: isLoading,
-                    onPressed: _paths.isEmpty || isLoading
-                        ? null
-                        : _createWithRename,
-                  );
-                },
-              ),
-            ],
+                      ),
+                    ),
+                    if (paths.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Long-press and drag to reorder',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () => context
+                                .read<Image2PdfMutationBloc>()
+                                .add(
+                                  const Image2PdfMutationEvent.clearSelection(),
+                                ),
+                            icon: const Icon(
+                              Icons.clear_all_rounded,
+                              size: 18,
+                            ),
+                            label: const Text('Clear all'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 10,
+                              childAspectRatio: 0.72,
+                            ),
+                        itemCount: paths.length,
+                        itemBuilder: (context, index) {
+                          final path = paths[index];
+                          final tile = _ImageTile(
+                            position: index + 1,
+                            path: path,
+                            onRemove: () => context
+                                .read<Image2PdfMutationBloc>()
+                                .add(
+                                  Image2PdfMutationEvent.removeAt(index),
+                                ),
+                          );
+                          return DragTarget<String>(
+                            onAcceptWithDetails: (details) {
+                              final from = paths.indexOf(details.data);
+                              final to = paths.indexOf(path);
+                              if (from >= 0 && to >= 0 && from != to) {
+                                context.read<Image2PdfMutationBloc>().add(
+                                  Image2PdfMutationEvent.reordered(from, to),
+                                );
+                              }
+                            },
+                            builder: (context, candidate, rejected) =>
+                                Container(
+                                  decoration: candidate.isNotEmpty
+                                      ? BoxDecoration(
+                                          border: Border.all(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                            width: 2,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        )
+                                      : null,
+                                  child: LongPressDraggable<String>(
+                                    data: path,
+                                    feedback: Material(
+                                      color: Colors.transparent,
+                                      child: SizedBox(
+                                        width: 100,
+                                        height: 135,
+                                        child: tile,
+                                      ),
+                                    ),
+                                    childWhenDragging: Opacity(
+                                      opacity: 0.3,
+                                      child: tile,
+                                    ),
+                                    child: tile,
+                                  ),
+                                ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      AppButton(
+                        label: 'Add more images',
+                        isOutlined: true,
+                        icon: Icons.add_photo_alternate_outlined,
+                        onPressed: () => context
+                            .read<Image2PdfMutationBloc>()
+                            .add(
+                              const Image2PdfMutationEvent.pickRequested(),
+                            ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    BlocBuilder<
+                      Image2PdfMutationBloc,
+                      Image2PdfMutationState
+                    >(
+                      builder: (context, state) {
+                        final isLoading =
+                            state.status ==
+                            Image2PdfMutationStatus.inProgress;
+                        if (state.status ==
+                            Image2PdfMutationStatus.failure) {
+                          return AppErrorView(
+                            message: state.errorMessage ?? 'Failed',
+                            onRetry: () =>
+                                _createWithRename(context, paths),
+                          );
+                        }
+                        if (state.status ==
+                                Image2PdfMutationStatus.success &&
+                            state.resultPath != null) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle_rounded,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        'Saved: ${state.resultPath!.split('/').last}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: AppButton(
+                                      label: 'Open PDF',
+                                      icon: Icons.open_in_new_rounded,
+                                      onPressed: () => openDoc(
+                                        context,
+                                        state.resultPath!,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: AppButton(
+                                      label: 'Create another',
+                                      isOutlined: true,
+                                      onPressed: () => context
+                                          .read<Image2PdfMutationBloc>()
+                                          .add(
+                                            const Image2PdfMutationEvent.clearSelection(),
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        }
+                        return AppButton(
+                          label: 'Create PDF',
+                          isLoading: isLoading,
+                          onPressed: paths.isEmpty || isLoading
+                              ? null
+                              : () => _createWithRename(context, paths),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
-      ),
       ),
     );
   }

@@ -15,67 +15,30 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Image2PdfMutationEvent {
 
- List<String> get imagePaths; String? get outputName;
-/// Create a copy of Image2PdfMutationEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$Image2PdfMutationEventCopyWith<Image2PdfMutationEvent> get copyWith => _$Image2PdfMutationEventCopyWithImpl<Image2PdfMutationEvent>(this as Image2PdfMutationEvent, _$identity);
+
 
 
 
 @override
 bool operator ==(Object other) {
-  final _this = this as Image2PdfMutationEvent;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Image2PdfMutationEvent&&const DeepCollectionEquality().equals(other.imagePaths, _this.imagePaths)&&(identical(other.outputName, _this.outputName) || other.outputName == _this.outputName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is Image2PdfMutationEvent);
 }
 
 
 @override
-int get hashCode {
-  final _this = this as Image2PdfMutationEvent;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.imagePaths),_this.outputName);
-}
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  final _this = this as Image2PdfMutationEvent;
-  return 'Image2PdfMutationEvent(imagePaths: ${_this.imagePaths}, outputName: ${_this.outputName})';
+    return 'Image2PdfMutationEvent()';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $Image2PdfMutationEventCopyWith<$Res>  {
-  factory $Image2PdfMutationEventCopyWith(Image2PdfMutationEvent value, $Res Function(Image2PdfMutationEvent) _then) = _$Image2PdfMutationEventCopyWithImpl;
-@useResult
-$Res call({
- List<String> imagePaths, String? outputName
-});
-
-
-
-
-}
-/// @nodoc
-class _$Image2PdfMutationEventCopyWithImpl<$Res>
-    implements $Image2PdfMutationEventCopyWith<$Res> {
-  _$Image2PdfMutationEventCopyWithImpl(this._self, this._then);
-
-  final Image2PdfMutationEvent _self;
-  final $Res Function(Image2PdfMutationEvent) _then;
-
-/// Create a copy of Image2PdfMutationEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? imagePaths = null,Object? outputName = freezed,}) {
-  return _then(Image2PdfMutationEvent.submit(
-null == imagePaths ? _self.imagePaths : imagePaths // ignore: cast_nullable_to_non_nullable
-as List<String>,outputName: freezed == outputName ? _self.outputName : outputName // ignore: cast_nullable_to_non_nullable
-as String?,
-  ));
-}
-
+class $Image2PdfMutationEventCopyWith<$Res>  {
+$Image2PdfMutationEventCopyWith(Image2PdfMutationEvent _, $Res Function(Image2PdfMutationEvent) __);
 }
 
 
@@ -93,11 +56,16 @@ extension Image2PdfMutationEventPatterns on Image2PdfMutationEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SubmitImage2Pdf value)?  submit,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SubmitImage2Pdf value)?  submit,TResult Function( ImagePickRequested value)?  pickRequested,TResult Function( ImagePicked value)?  picked,TResult Function( ImageRemoveAt value)?  removeAt,TResult Function( ImageReordered value)?  reordered,TResult Function( ImageClearSelection value)?  clearSelection,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case SubmitImage2Pdf() when submit != null:
-return submit(_that);case _:
+return submit(_that);case ImagePickRequested() when pickRequested != null:
+return pickRequested(_that);case ImagePicked() when picked != null:
+return picked(_that);case ImageRemoveAt() when removeAt != null:
+return removeAt(_that);case ImageReordered() when reordered != null:
+return reordered(_that);case ImageClearSelection() when clearSelection != null:
+return clearSelection(_that);case _:
   return orElse();
 
 }
@@ -115,11 +83,16 @@ return submit(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SubmitImage2Pdf value)  submit,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SubmitImage2Pdf value)  submit,required TResult Function( ImagePickRequested value)  pickRequested,required TResult Function( ImagePicked value)  picked,required TResult Function( ImageRemoveAt value)  removeAt,required TResult Function( ImageReordered value)  reordered,required TResult Function( ImageClearSelection value)  clearSelection,}){
 final _that = this;
 switch (_that) {
 case SubmitImage2Pdf():
-return submit(_that);case _:
+return submit(_that);case ImagePickRequested():
+return pickRequested(_that);case ImagePicked():
+return picked(_that);case ImageRemoveAt():
+return removeAt(_that);case ImageReordered():
+return reordered(_that);case ImageClearSelection():
+return clearSelection(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -136,11 +109,16 @@ return submit(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SubmitImage2Pdf value)?  submit,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SubmitImage2Pdf value)?  submit,TResult? Function( ImagePickRequested value)?  pickRequested,TResult? Function( ImagePicked value)?  picked,TResult? Function( ImageRemoveAt value)?  removeAt,TResult? Function( ImageReordered value)?  reordered,TResult? Function( ImageClearSelection value)?  clearSelection,}){
 final _that = this;
 switch (_that) {
 case SubmitImage2Pdf() when submit != null:
-return submit(_that);case _:
+return submit(_that);case ImagePickRequested() when pickRequested != null:
+return pickRequested(_that);case ImagePicked() when picked != null:
+return picked(_that);case ImageRemoveAt() when removeAt != null:
+return removeAt(_that);case ImageReordered() when reordered != null:
+return reordered(_that);case ImageClearSelection() when clearSelection != null:
+return clearSelection(_that);case _:
   return null;
 
 }
@@ -157,10 +135,15 @@ return submit(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<String> imagePaths,  String? outputName)?  submit,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<String> imagePaths,  String? outputName)?  submit,TResult Function()?  pickRequested,TResult Function( List<String> paths)?  picked,TResult Function( int index)?  removeAt,TResult Function( int fromIndex,  int toIndex)?  reordered,TResult Function()?  clearSelection,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SubmitImage2Pdf() when submit != null:
-return submit(_that.imagePaths,_that.outputName);case _:
+return submit(_that.imagePaths,_that.outputName);case ImagePickRequested() when pickRequested != null:
+return pickRequested();case ImagePicked() when picked != null:
+return picked(_that.paths);case ImageRemoveAt() when removeAt != null:
+return removeAt(_that.index);case ImageReordered() when reordered != null:
+return reordered(_that.fromIndex,_that.toIndex);case ImageClearSelection() when clearSelection != null:
+return clearSelection();case _:
   return orElse();
 
 }
@@ -178,10 +161,15 @@ return submit(_that.imagePaths,_that.outputName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<String> imagePaths,  String? outputName)  submit,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<String> imagePaths,  String? outputName)  submit,required TResult Function()  pickRequested,required TResult Function( List<String> paths)  picked,required TResult Function( int index)  removeAt,required TResult Function( int fromIndex,  int toIndex)  reordered,required TResult Function()  clearSelection,}) {final _that = this;
 switch (_that) {
 case SubmitImage2Pdf():
-return submit(_that.imagePaths,_that.outputName);case _:
+return submit(_that.imagePaths,_that.outputName);case ImagePickRequested():
+return pickRequested();case ImagePicked():
+return picked(_that.paths);case ImageRemoveAt():
+return removeAt(_that.index);case ImageReordered():
+return reordered(_that.fromIndex,_that.toIndex);case ImageClearSelection():
+return clearSelection();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +186,15 @@ return submit(_that.imagePaths,_that.outputName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<String> imagePaths,  String? outputName)?  submit,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<String> imagePaths,  String? outputName)?  submit,TResult? Function()?  pickRequested,TResult? Function( List<String> paths)?  picked,TResult? Function( int index)?  removeAt,TResult? Function( int fromIndex,  int toIndex)?  reordered,TResult? Function()?  clearSelection,}) {final _that = this;
 switch (_that) {
 case SubmitImage2Pdf() when submit != null:
-return submit(_that.imagePaths,_that.outputName);case _:
+return submit(_that.imagePaths,_that.outputName);case ImagePickRequested() when pickRequested != null:
+return pickRequested();case ImagePicked() when picked != null:
+return picked(_that.paths);case ImageRemoveAt() when removeAt != null:
+return removeAt(_that.index);case ImageReordered() when reordered != null:
+return reordered(_that.fromIndex,_that.toIndex);case ImageClearSelection() when clearSelection != null:
+return clearSelection();case _:
   return null;
 
 }
@@ -216,12 +209,12 @@ class SubmitImage2Pdf implements Image2PdfMutationEvent {
   const SubmitImage2Pdf(this.imagePaths, {this.outputName});
   
 
-@override final  List<String> imagePaths;
-@override final  String? outputName;
+ final  List<String> imagePaths;
+ final  String? outputName;
 
 /// Create a copy of Image2PdfMutationEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
+@JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $SubmitImage2PdfCopyWith<SubmitImage2Pdf> get copyWith => _$SubmitImage2PdfCopyWithImpl<SubmitImage2Pdf>(this, _$identity);
 
@@ -249,7 +242,7 @@ String toString() {
 /// @nodoc
 abstract mixin class $SubmitImage2PdfCopyWith<$Res> implements $Image2PdfMutationEventCopyWith<$Res> {
   factory $SubmitImage2PdfCopyWith(SubmitImage2Pdf value, $Res Function(SubmitImage2Pdf) _then) = _$SubmitImage2PdfCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  List<String> imagePaths, String? outputName
 });
@@ -268,7 +261,7 @@ class _$SubmitImage2PdfCopyWithImpl<$Res>
 
 /// Create a copy of Image2PdfMutationEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? imagePaths = null,Object? outputName = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? imagePaths = null,Object? outputName = freezed,}) {
   return _then(SubmitImage2Pdf(
 null == imagePaths ? _self.imagePaths : imagePaths // ignore: cast_nullable_to_non_nullable
 as List<String>,outputName: freezed == outputName ? _self.outputName : outputName // ignore: cast_nullable_to_non_nullable
@@ -278,5 +271,275 @@ as String?,
 
 
 }
+
+/// @nodoc
+
+
+class ImagePickRequested implements Image2PdfMutationEvent {
+  const ImagePickRequested();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImagePickRequested);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'Image2PdfMutationEvent.pickRequested()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class ImagePicked implements Image2PdfMutationEvent {
+  const ImagePicked(this.paths);
+  
+
+ final  List<String> paths;
+
+/// Create a copy of Image2PdfMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ImagePickedCopyWith<ImagePicked> get copyWith => _$ImagePickedCopyWithImpl<ImagePicked>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImagePicked&&const DeepCollectionEquality().equals(other.paths, paths));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(paths));
+}
+
+@override
+String toString() {
+    return 'Image2PdfMutationEvent.picked(paths: $paths)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ImagePickedCopyWith<$Res> implements $Image2PdfMutationEventCopyWith<$Res> {
+  factory $ImagePickedCopyWith(ImagePicked value, $Res Function(ImagePicked) _then) = _$ImagePickedCopyWithImpl;
+@useResult
+$Res call({
+ List<String> paths
+});
+
+
+
+
+}
+/// @nodoc
+class _$ImagePickedCopyWithImpl<$Res>
+    implements $ImagePickedCopyWith<$Res> {
+  _$ImagePickedCopyWithImpl(this._self, this._then);
+
+  final ImagePicked _self;
+  final $Res Function(ImagePicked) _then;
+
+/// Create a copy of Image2PdfMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? paths = null,}) {
+  return _then(ImagePicked(
+null == paths ? _self.paths : paths // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ImageRemoveAt implements Image2PdfMutationEvent {
+  const ImageRemoveAt(this.index);
+  
+
+ final  int index;
+
+/// Create a copy of Image2PdfMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ImageRemoveAtCopyWith<ImageRemoveAt> get copyWith => _$ImageRemoveAtCopyWithImpl<ImageRemoveAt>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImageRemoveAt&&(identical(other.index, index) || other.index == index));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,index);
+}
+
+@override
+String toString() {
+    return 'Image2PdfMutationEvent.removeAt(index: $index)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ImageRemoveAtCopyWith<$Res> implements $Image2PdfMutationEventCopyWith<$Res> {
+  factory $ImageRemoveAtCopyWith(ImageRemoveAt value, $Res Function(ImageRemoveAt) _then) = _$ImageRemoveAtCopyWithImpl;
+@useResult
+$Res call({
+ int index
+});
+
+
+
+
+}
+/// @nodoc
+class _$ImageRemoveAtCopyWithImpl<$Res>
+    implements $ImageRemoveAtCopyWith<$Res> {
+  _$ImageRemoveAtCopyWithImpl(this._self, this._then);
+
+  final ImageRemoveAt _self;
+  final $Res Function(ImageRemoveAt) _then;
+
+/// Create a copy of Image2PdfMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? index = null,}) {
+  return _then(ImageRemoveAt(
+null == index ? _self.index : index // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ImageReordered implements Image2PdfMutationEvent {
+  const ImageReordered(this.fromIndex, this.toIndex);
+  
+
+ final  int fromIndex;
+ final  int toIndex;
+
+/// Create a copy of Image2PdfMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ImageReorderedCopyWith<ImageReordered> get copyWith => _$ImageReorderedCopyWithImpl<ImageReordered>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImageReordered&&(identical(other.fromIndex, fromIndex) || other.fromIndex == fromIndex)&&(identical(other.toIndex, toIndex) || other.toIndex == toIndex));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,fromIndex,toIndex);
+}
+
+@override
+String toString() {
+    return 'Image2PdfMutationEvent.reordered(fromIndex: $fromIndex, toIndex: $toIndex)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ImageReorderedCopyWith<$Res> implements $Image2PdfMutationEventCopyWith<$Res> {
+  factory $ImageReorderedCopyWith(ImageReordered value, $Res Function(ImageReordered) _then) = _$ImageReorderedCopyWithImpl;
+@useResult
+$Res call({
+ int fromIndex, int toIndex
+});
+
+
+
+
+}
+/// @nodoc
+class _$ImageReorderedCopyWithImpl<$Res>
+    implements $ImageReorderedCopyWith<$Res> {
+  _$ImageReorderedCopyWithImpl(this._self, this._then);
+
+  final ImageReordered _self;
+  final $Res Function(ImageReordered) _then;
+
+/// Create a copy of Image2PdfMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? fromIndex = null,Object? toIndex = null,}) {
+  return _then(ImageReordered(
+null == fromIndex ? _self.fromIndex : fromIndex // ignore: cast_nullable_to_non_nullable
+as int,null == toIndex ? _self.toIndex : toIndex // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ImageClearSelection implements Image2PdfMutationEvent {
+  const ImageClearSelection();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ImageClearSelection);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'Image2PdfMutationEvent.clearSelection()';
+}
+
+
+}
+
+
+
 
 // dart format on

@@ -1,274 +1,238 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:scan/core/router/route_names.dart';
 import 'package:scan/core/storage/open_file.dart';
 import 'package:scan/features/tools/widgets/send_to_tool.dart';
+import 'package:scan/presentation/shared/widgets/dialogs/name_prompt_dialog.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'scanner_service.dart';
+import 'cubit/scan_cubit.dart';
+import 'cubit/scan_export_cubit.dart';
+import 'cubit/scan_session_cubit.dart';
+import 'widgets/scan_page_thumbnail.dart';
 
-class ScanScreen extends StatefulWidget {
+/// Scan review flow — strict REPO/DATA <-> BLOC <-> UI.
+///
+/// UI owns only: navigation (`pushNamed` openscan), SnackBars, Clipboard,
+/// open/share/send affordances, and the rename-dialog shell. All capture
+/// (permission + ML Kit), session hydrate/persist, and PDF export live in
+/// [ScanCubit]/[ScanSessionCubit]/[ScanExportCubit]. This file imports no
+/// SharedPreferences, Permission, DocumentScanner, ScannerService, or
+/// dart:io — thumbnail File rendering is encapsulated in
+/// [ScanPageThumbnail].
+class ScanScreen extends StatelessWidget {
   const new({super.key});
+
   @override
-  State<ScanScreen> createState() => _ScanScreenState();
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => ScanSessionCubit()),
+        BlocProvider(create: (_) => ScanCubit()),
+        BlocProvider(create: (_) => ScanExportCubit()),
+      ],
+      child: const _ScanView(),
+    );
+  }
 }
 
-class _ScanScreenState extends State<ScanScreen> {
-  bool _busy = false;
-  bool _creating = false;
-  String? _error;
+/// Capture entry: permission/platform routing lives in [ScanCubit].
+/// ML Kit results arrive via the success listener; OpenScan pages return
+/// from the pushed route and are dispatched to [ScanSessionCubit].
+/// UI never touches permission, scanner, or platform APIs directly.
+Future<void> scanPressed(BuildContext context) async {
+  final scanCubit = context.read<ScanCubit>();
+  final action = await scanCubit.prepareScan();
+  if (!context.mounted) return;
+  switch (action) {
+    case ScanAction.mlKit:
+      // Mark the flight: if the OS kills us while the scanner activity is
+      // in front, the surviving flag proves the result never arrived (the
+      // finally below cannot run on process death — that is the point).
+      // Awaited so the flag is on disk before the scanner takes over.
+      final session = context.read<ScanSessionCubit>();
+      await session.markScanStarted();
+      try {
+        await scanCubit.scanWithMlKit();
+      } finally {
+        await session.clearScanFlag();
+      }
+    case ScanAction.openScan:
+      final result = await context.pushNamed<List<String>?>(
+        RouteNames.openscan,
+      );
+      if (!context.mounted) return;
+      if (result == null || result.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Scan cancelled')));
+        return;
+      }
+      context.read<ScanSessionCubit>().appendPages(result);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${result.length} page(s) added — review below, then create PDF',
+          ),
+        ),
+      );
+    case ScanAction.blocked:
+      break; // Error card renders from ScanCubit state.
+  }
+}
 
-  /// Full technical detail for the current error (code/message/details/stack).
-  /// Shown via the Copy details button so failures can be diagnosed off-device.
-  String? _errorDetails;
-  bool _permissionError = false;
-  File? _pdf;
-  List<String> _images = [];
+/// Rename shell stays in UI — only the name string crosses to the cubit.
+/// Export work + errors live in [ScanExportCubit].
+Future<void> createPdfPressed(
+  BuildContext context,
+  List<String> images,
+) async {
+  if (images.isEmpty) return;
+  final now = DateTime.now();
+  final defaultName =
+      'Scan_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}';
+  final name = await showNamePrompt(
+    context,
+    title: 'Name your scan',
+    defaultName: defaultName,
+    hintText: 'MyScan',
+    confirmLabel: 'Create',
+  );
+  if (name == null || name.isEmpty || !context.mounted) return;
+  await context.read<ScanExportCubit>().createPdf(images, name);
+}
 
-  /// Review pages mirrored here so they survive Android killing the app
-  /// while the scanner activity is in front.
-  static const _pendingImagesKey = 'scan_pending_images';
+class _ScanView extends StatefulWidget {
+  const new();
 
+  @override
+  State<_ScanView> createState() => _ScanViewState();
+}
+
+class _ScanViewState extends State<_ScanView> {
   @override
   void initState() {
     super.initState();
-    unawaited(_hydrateImages());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkInterrupted());
   }
 
-  Future<void> _hydrateImages() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final paths = prefs.getStringList(_pendingImagesKey) ?? const [];
-      final existing = paths
-          .where((p) => p.isNotEmpty && File(p).existsSync())
-          .take(30)
-          .toList();
-      if (existing.isNotEmpty && mounted) {
-        setState(() => _images = existing);
-      } else if (existing.length != paths.length) {
-        await prefs.setStringList(_pendingImagesKey, existing);
-      }
-    } on Exception catch (_) {}
-  }
-
-  Future<void> _persistImages() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_pendingImagesKey, _images.take(30).toList());
-    } on Exception catch (_) {}
-  }
-
-  /// Capture pages and append them to the review list — no PDF is created yet.
-  Future<void> _scan() async {
-    setState(() {
-      _busy = true;
-      _error = null;
-      _errorDetails = null;
-      _permissionError = false;
-    });
-    try {
-      if (Platform.isAndroid) {
-        // ML Kit uses Play Services' camera permission — no app-level
-        // camera prompt needed.
-        await _scanWithMlKit();
-        return;
-      }
-      // iOS: OpenScan uses our own camera, so ask up-front — denial shows
-      // our guidance instead of failing silently.
-      var status = await Permission.camera.status;
-      if (!status.isGranted) {
-        status = await Permission.camera.request();
-      }
-      if (status.isPermanentlyDenied) {
-        setState(() {
-          _error =
-              'Camera access is blocked. Allow it in system Settings to scan.';
-          _permissionError = true;
-        });
-        return;
-      }
-      if (!status.isGranted) {
-        setState(
-          () => _error = 'Camera permission is required to scan documents.',
-        );
-        return;
-      }
-
-      // iOS only: OpenScan capture screen returns cropped, filtered pages
-      // (the ML Kit plugin is Android-only).
-      await _scanWithOpenScan();
-    } on Exception catch (e) {
-      setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  /// OpenScan capture flow (built-in camera + edge detection). iOS only —
-  /// the ML Kit plugin is Android-only, so this is the iOS scanner.
-  Future<void> _scanWithOpenScan() async {
-    final result = await context.pushNamed<List<String>?>(RouteNames.openscan);
+  /// A surviving in-flight flag means the OS killed us mid-scan and the
+  /// result died with the process. The native side stashes the image paths
+  /// when the result is delivered to the recreated activity, so first try
+  /// to restore the pages; only then fall back to the interrupted notice.
+  Future<void> _checkInterrupted() async {
     if (!mounted) return;
-    if (result == null || result.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Scan cancelled')));
-      return;
-    }
-    _appendPages(result);
-  }
-
-  void _appendPages(List<String> images) {
-    setState(() => _images = [..._images, ...images]);
-    unawaited(_persistImages());
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${images.length} page(s) added — review below, then create PDF',
-        ),
-      ),
-    );
-  }
-
-  /// Android: Google ML Kit document scanner (edge detection, crop, filters
-  /// built in). JPEGs flow into the same review list as every other source.
-  Future<void> _scanWithMlKit() async {
-    // Full mode: filters + enhancements. (A BASE-mode workaround was tried
-    // 2026-09-25 for release-build NPEs, but dex forensics proved the NPE
-    // came from R8 stripping ML Kit constructors in release builds, not
-    // from the scanner mode. R8 is now disabled via shrink=false, so FULL
-    // is safe again.)
-    final scanner = DocumentScanner(
-      options: DocumentScannerOptions(
-        documentFormats: {DocumentFormat.jpeg},
-        pageLimit: 10,
-        mode: ScannerMode.full,
-        isGalleryImport: true,
-      ),
-    );
-    try {
-      final res = await scanner.scanDocument();
-      if (!mounted) return;
-      final images = res.images?.whereType<String>().toList() ?? [];
-      if (images.isEmpty) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Scan cancelled')));
-        return;
-      }
-      _appendPages(images);
-    } on PlatformException catch (e, s) {
-      // The native side reports user cancellation as an error.
-      if ((e.message ?? '').toLowerCase().contains('cancel')) {
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Scan cancelled')));
-        }
-        return;
-      }
-      // Capture everything — code, message, native details, Dart stack —
-      // so the exact cause can be read off the device via the Copy details
-      // button (e.g. "Failed to start document scanner" when Play Services
-      // can't provision the ML Kit module).
-      final full = StringBuffer()
-        ..writeln('Scanner: ML Kit document scanner')
-        ..writeln('Code: ${e.code}')
-        ..writeln('Message: ${e.message}')
-        ..writeln('Details: ${e.details}')
-        ..writeln('Dart stack: $s')
-        ..writeln(
-          'Platform: ${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
-        );
-      debugPrint('[Scan] ML Kit failed:\n$full');
-      setState(() {
-        _error =
-            'ML Kit scanner failed [${e.code}]: ${e.message ?? e.details?.toString() ?? 'unknown error'}';
-        _errorDetails = full.toString();
-      });
-    } finally {
-      // Closed separately so a close-time failure can never mask the scan result.
-      try {
-        await scanner.close();
-      } on Exception catch (e) {
-        debugPrint('[Scan] scanner.close failed (ignored): $e');
-      }
-    }
-  }
-
-  void _removeImage(int index) {
-    setState(() => _images = [..._images]..removeAt(index));
-    unawaited(_persistImages());
-  }
-
-  /// Ask for a file name, then build the PDF from the reviewed pages.
-  Future<void> _createPdf() async {
-    if (_images.isEmpty) return;
-    final now = DateTime.now();
-    final defaultName =
-        'Scan_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}';
-    final controller = TextEditingController(text: defaultName);
-    String? name;
-    try {
-      name = await showDialog<String>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Name your scan'),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'File name',
-              hintText: 'MyScan',
-              suffixText: '.pdf',
-              border: OutlineInputBorder(),
-            ),
-            textCapitalization: TextCapitalization.words,
-            onSubmitted: (v) => Navigator.pop(context, v.trim()),
+    if (!await ScanSessionCubit.consumeInterrupted()) return;
+    if (!mounted) return;
+    final recovered = await context.read<ScanCubit>().recoverInterruptedScan();
+    if (!mounted) return;
+    if (recovered.isNotEmpty) {
+      context.read<ScanSessionCubit>().appendPages(recovered);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Recovered ${recovered.length} page(s) from the interrupted scan '
+            '— review below, then create PDF',
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: const Text('Create'),
-            ),
-          ],
         ),
       );
-    } finally {
-      controller.dispose();
+      return;
     }
-    if (name == null || name.isEmpty || !mounted) return;
-    setState(() {
-      _creating = true;
-      _error = null;
-    });
-    try {
-      final svc = ScannerService();
-      final pdf = await svc.imagesToPdf(_images, outputName: name);
-      setState(() => _pdf = pdf);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('PDF created: ${pdf.path.split('/').last}')),
-        );
-      }
-    } on Exception catch (e) {
-      setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
-    } finally {
-      if (mounted) setState(() => _creating = false);
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Previous scan was interrupted — the system closed Bento while '
+          'scanning. Earlier pages are kept. Tip: lock Bento in recents.',
+        ),
+        action: SnackBarAction(
+          label: 'Scan again',
+          onPressed: () {
+            if (mounted) unawaited(scanPressed(context));
+          },
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    return MultiBlocListener(
+      listeners: [
+        // ML Kit success → append to session + confirm. Cancellation →
+        // lightweight notice. Errors render in the error card.
+        BlocListener<ScanCubit, ScanState>(
+          listenWhen: (prev, next) => prev.status != next.status,
+          listener: (context, state) {
+            switch (state.status) {
+              case ScanStatus.success:
+                if (state.pages.isNotEmpty) {
+                  context.read<ScanSessionCubit>().appendPages(state.pages);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '${state.pages.length} page(s) added — review below, then create PDF',
+                      ),
+                    ),
+                  );
+                }
+              case ScanStatus.cancelled:
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Scan cancelled')),
+                );
+              case ScanStatus.idle:
+              case ScanStatus.scanning:
+              case ScanStatus.error:
+              case ScanStatus.permissionDenied:
+                break;
+            }
+          },
+        ),
+        // Export success → confirm. Errors render in the error card.
+        BlocListener<ScanExportCubit, ScanExportState>(
+          listenWhen: (prev, next) => prev.status != next.status,
+          listener: (context, state) {
+            if (state.status == ScanExportStatus.success &&
+                state.pdfPath != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'PDF created: ${state.pdfPath!.split('/').last}',
+                  ),
+                ),
+              );
+            }
+          },
+        ),
+      ],
+      child: const _ScanBody(),
+    );
+  }
+}
+
+class _ScanBody extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) {
+    final session = context.watch<ScanSessionCubit>().state;
+    final scan = context.watch<ScanCubit>().state;
+    final export = context.watch<ScanExportCubit>().state;
+
+    final busy = scan.isScanning;
+    final creating = export.isCreating;
+    final images = session.images;
+    final pdfPath = export.pdfPath;
+    // Scan errors and export errors share one card; scan details
+    // (ML Kit code/message/stack) drive the Copy-details button.
+    final error = scan.error ?? export.error;
+    final errorDetails = scan.errorDetails;
+    final permissionError = scan.isPermissionError;
+
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: scheme.surface,
@@ -327,8 +291,12 @@ class _ScanScreenState extends State<ScanScreen> {
                     const SizedBox(height: 12),
                     FilledButton.icon(
                       key: const ValueKey('scan_button'),
-                      onPressed: _busy ? null : _scan,
-                      icon: _busy
+                      onPressed: busy
+                          ? null
+                          : () async {
+                              await scanPressed(context);
+                            },
+                      icon: busy
                           ? const SizedBox(
                               width: 18,
                               height: 18,
@@ -336,111 +304,39 @@ class _ScanScreenState extends State<ScanScreen> {
                             )
                           : const Icon(Symbols.document_scanner),
                       label: Text(
-                        _busy
+                        busy
                             ? 'Scanning…'
-                            : (_images.isEmpty
+                            : (images.isEmpty
                                   ? 'Scan document'
                                   : 'Add more pages'),
                       ),
                     ),
-                    if (_error != null) ...[
+                    if (error != null) ...[
                       const SizedBox(height: 12),
-                      Card(
-                        color: scheme.errorContainer,
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.error_outline_rounded,
-                                    color: scheme.error,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      _error!,
-                                      style: TextStyle(
-                                        color: scheme.onErrorContainer,
-                                        height: 1.35,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  if (_permissionError)
-                                    FilledButton.tonalIcon(
-                                      onPressed: openAppSettings,
-                                      icon: const Icon(
-                                        Icons.settings_rounded,
-                                        size: 18,
-                                      ),
-                                      label: const Text('Open Settings'),
-                                    ),
-                                  if (_errorDetails != null)
-                                    OutlinedButton.icon(
-                                      onPressed: () {
-                                        unawaited(
-                                          Clipboard.setData(
-                                            ClipboardData(text: _errorDetails!),
-                                          ),
-                                        );
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Error details copied — paste them in chat',
-                                                ),
-                                              ),
-                                            );
-                                      },
-                                      icon: const Icon(
-                                        Icons.copy_rounded,
-                                        size: 18,
-                                      ),
-                                      label: const Text('Copy details'),
-                                    ),
-                                  OutlinedButton.icon(
-                                    onPressed: _busy ? null : _scan,
-                                    icon: const Icon(
-                                      Icons.refresh_rounded,
-                                      size: 18,
-                                    ),
-                                    label: const Text('Try again'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                      _ErrorCard(
+                        error: error,
+                        errorDetails: errorDetails,
+                        permissionError: permissionError,
+                        busy: busy,
                       ),
                     ],
-                    if (_images.isNotEmpty) ...[
+                    if (images.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
                             child: Text(
-                              'Review pages (${_images.length})',
+                              'Review pages (${images.length})',
                               style: Theme.of(context).textTheme.titleSmall
                                   ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                           ),
                           TextButton.icon(
-                            onPressed: _busy || _creating
+                            onPressed: busy || creating
                                 ? null
-                                : () {
-                                    setState(() => _images = []);
-                                    unawaited(_persistImages());
-                                  },
+                                : () => context
+                                      .read<ScanSessionCubit>()
+                                      .clear(),
                             icon: const Icon(Icons.clear_all_rounded, size: 18),
                             label: const Text('Clear all'),
                           ),
@@ -457,19 +353,11 @@ class _ScanScreenState extends State<ScanScreen> {
                               mainAxisSpacing: 8,
                               childAspectRatio: 0.72,
                             ),
-                        itemCount: _images.length,
+                        itemCount: images.length,
                         itemBuilder: (context, i) => RepaintBoundary(
                           child: Stack(
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.file(
-                                  File(_images[i]),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
-                              ),
+                              ScanPageThumbnail(path: images[i]),
                               Positioned(
                                 top: 4,
                                 left: 4,
@@ -499,9 +387,11 @@ class _ScanScreenState extends State<ScanScreen> {
                                   label: 'Remove page ${i + 1}',
                                   button: true,
                                   child: InkWell(
-                                    onTap: _creating
+                                    onTap: creating
                                         ? null
-                                        : () => _removeImage(i),
+                                        : () => context
+                                              .read<ScanSessionCubit>()
+                                              .removeAt(i),
                                     borderRadius: BorderRadius.circular(999),
                                     child: Container(
                                       padding: const EdgeInsets.all(6),
@@ -524,8 +414,12 @@ class _ScanScreenState extends State<ScanScreen> {
                       ),
                       const SizedBox(height: 12),
                       FilledButton.icon(
-                        onPressed: _creating ? null : _createPdf,
-                        icon: _creating
+                        onPressed: creating
+                            ? null
+                            : () async {
+                                await createPdfPressed(context, images);
+                              },
+                        icon: creating
                             ? const SizedBox(
                                 width: 18,
                                 height: 18,
@@ -535,80 +429,17 @@ class _ScanScreenState extends State<ScanScreen> {
                               )
                             : const Icon(Icons.picture_as_pdf_rounded),
                         label: Text(
-                          _creating ? 'Creating…' : 'Name & create PDF',
+                          creating ? 'Creating…' : 'Name & create PDF',
                         ),
                       ),
                     ],
-                    if (_pdf != null) ...[
+                    if (pdfPath != null) ...[
                       const SizedBox(height: 12),
-                      Card(
-                        color: scheme.primaryContainer,
-                        child: ListTile(
-                          leading: Icon(
-                            Icons.picture_as_pdf_rounded,
-                            color: scheme.onPrimaryContainer,
-                          ),
-                          title: Text(
-                            _pdf!.path.split('/').last,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          subtitle: Text(
-                            _pdf!.path,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.open_in_new_rounded),
-                                tooltip: 'Open PDF',
-                                onPressed: () => openDoc(context, _pdf!.path),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.send_outlined),
-                                tooltip: 'Send to tool',
-                                onPressed: () =>
-                                    SendToToolSheet.show(context, _pdf!),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.share_rounded),
-                                tooltip: 'Share',
-                                onPressed: () => SharePlus.instance.share(
-                                  ShareParams(files: [XFile(_pdf!.path)]),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      _PdfResultCard(pdfPath: pdfPath),
                     ],
-                    if (_pdf != null) ...[
+                    if (pdfPath != null) ...[
                       const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: () => openDoc(context, _pdf!.path),
-                            icon: const Icon(Icons.open_in_new_rounded),
-                            label: const Text('Open'),
-                          ),
-                          OutlinedButton.icon(
-                            onPressed: () => SharePlus.instance.share(
-                              ShareParams(files: [XFile(_pdf!.path)]),
-                            ),
-                            icon: const Icon(Icons.share_rounded),
-                            label: const Text('Share'),
-                          ),
-                          OutlinedButton.icon(
-                            onPressed: () =>
-                                SendToToolSheet.show(context, _pdf!),
-                            icon: const Icon(Icons.send_outlined),
-                            label: const Text('Send to tool'),
-                          ),
-                        ],
-                      ),
+                      _PdfActions(pdfPath: pdfPath),
                     ],
                   ],
                 ),
@@ -617,6 +448,180 @@ class _ScanScreenState extends State<ScanScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ErrorCard extends StatelessWidget {
+  const new({
+    required this.error,
+    required this.permissionError,
+    required this.busy,
+    this.errorDetails,
+  });
+
+  final String error;
+  final String? errorDetails;
+  final bool permissionError;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      color: scheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.error_outline_rounded, color: scheme.error),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    error,
+                    style: TextStyle(
+                      color: scheme.onErrorContainer,
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (permissionError)
+                  FilledButton.tonalIcon(
+                    // Permission Settings lives in ScanCubit so UI never
+                    // imports permission_handler.
+                    onPressed: () async {
+                      await context.read<ScanCubit>().openSystemSettings();
+                    },
+                    icon: const Icon(Icons.settings_rounded, size: 18),
+                    label: const Text('Open Settings'),
+                  ),
+                if (errorDetails != null)
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      await Clipboard.setData(
+                        ClipboardData(text: errorDetails!),
+                      );
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Error details copied — paste them in chat',
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    label: const Text('Copy details'),
+                  ),
+                OutlinedButton.icon(
+                  onPressed: busy
+                      ? null
+                      : () async {
+                          await scanPressed(context);
+                        },
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text('Try again'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PdfResultCard extends StatelessWidget {
+  const new({required this.pdfPath});
+
+  final String pdfPath;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      color: scheme.primaryContainer,
+      child: ListTile(
+        leading: Icon(
+          Icons.picture_as_pdf_rounded,
+          color: scheme.onPrimaryContainer,
+        ),
+        title: Text(
+          pdfPath.split('/').last,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text(
+          pdfPath,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.open_in_new_rounded),
+              tooltip: 'Open PDF',
+              onPressed: () => openDoc(context, pdfPath),
+            ),
+            IconButton(
+              icon: const Icon(Icons.send_outlined),
+              tooltip: 'Send to tool',
+              onPressed: () => SendToToolSheet.show(context, pdfPath),
+            ),
+            IconButton(
+              icon: const Icon(Icons.share_rounded),
+              tooltip: 'Share',
+              onPressed: () => SharePlus.instance.share(
+                ShareParams(files: [XFile(pdfPath)]),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PdfActions extends StatelessWidget {
+  const new({required this.pdfPath});
+
+  final String pdfPath;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        OutlinedButton.icon(
+          onPressed: () => openDoc(context, pdfPath),
+          icon: const Icon(Icons.open_in_new_rounded),
+          label: const Text('Open'),
+        ),
+        OutlinedButton.icon(
+          onPressed: () => SharePlus.instance.share(
+            ShareParams(files: [XFile(pdfPath)]),
+          ),
+          icon: const Icon(Icons.share_rounded),
+          label: const Text('Share'),
+        ),
+        OutlinedButton.icon(
+          onPressed: () => SendToToolSheet.show(context, pdfPath),
+          icon: const Icon(Icons.send_outlined),
+          label: const Text('Send to tool'),
+        ),
+      ],
     );
   }
 }

@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/files/datasources/files_local_data_source.dart';
+import '../../data/files/repositories/files_repository.dart';
 import '../../data/files/repositories/files_repository_impl.dart';
 import '../../data/tools/datasources/pdf_engine_data_source.dart';
+import '../../data/tools/repositories/tools_repository.dart';
 import '../../data/tools/repositories/tools_repository_impl.dart';
 import '../../presentation/files/bloc/mutation/files_mutation_bloc.dart';
 import '../../presentation/files/bloc/query/files_query_bloc.dart';
@@ -37,6 +39,10 @@ import 'route_paths.dart';
 
 /// Strict universal arch router — go_router single table, named routes, Bloc per route.
 /// See flutter_architecture_universal.md Routing Rules.
+///
+/// Route-level DI lives here (the only place allowed to construct concrete
+/// Repository/DataSource impls). Blocs depend on abstract repositories
+/// ([FilesRepository]/[ToolsRepository]); pages never import repositories.
 final appRouter = GoRouter(
   initialLocation: RoutePaths.home,
   debugLogDiagnostics: true,
@@ -50,18 +56,18 @@ final appRouter = GoRouter(
             GoRoute(
               name: RouteNames.home,
               path: RoutePaths.home,
-              builder: (context, state) => RepositoryProvider(
+              builder: (context, state) => RepositoryProvider<FilesRepository>(
                 create: (_) => FilesRepositoryImpl(FilesLocalDataSourceImpl()),
                 child: MultiBlocProvider(
                   providers: [
                     BlocProvider(
                       create: (c) =>
-                          FilesQueryBloc(c.read<FilesRepositoryImpl>())
+                          FilesQueryBloc(c.read<FilesRepository>())
                             ..add(const FilesQueryEvent.fetch()),
                     ),
                     BlocProvider(
                       create: (c) =>
-                          HomeMutationBloc(c.read<FilesRepositoryImpl>()),
+                          HomeMutationBloc(c.read<FilesRepository>()),
                     ),
                   ],
                   child: const HomePage(),
@@ -75,18 +81,18 @@ final appRouter = GoRouter(
             GoRoute(
               name: RouteNames.files,
               path: RoutePaths.files,
-              builder: (context, state) => RepositoryProvider(
+              builder: (context, state) => RepositoryProvider<FilesRepository>(
                 create: (_) => FilesRepositoryImpl(FilesLocalDataSourceImpl()),
                 child: MultiBlocProvider(
                   providers: [
                     BlocProvider(
                       create: (c) =>
-                          FilesQueryBloc(c.read<FilesRepositoryImpl>())
+                          FilesQueryBloc(c.read<FilesRepository>())
                             ..add(const FilesQueryEvent.fetch()),
                     ),
                     BlocProvider(
                       create: (c) =>
-                          FilesMutationBloc(c.read<FilesRepositoryImpl>()),
+                          FilesMutationBloc(c.read<FilesRepository>()),
                     ),
                   ],
                   child: const FilesPage(),
@@ -107,12 +113,12 @@ final appRouter = GoRouter(
                   path: 'merge',
                   pageBuilder: (context, state) => buildAppTransitionPage(
                     key: state.pageKey,
-                    child: RepositoryProvider(
+                    child: RepositoryProvider<ToolsRepository>(
                       create: (_) =>
                           ToolsRepositoryImpl(PdfEngineDataSourceImpl()),
                       child: BlocProvider(
                         create: (c) =>
-                            MergeMutationBloc(c.read<ToolsRepositoryImpl>()),
+                            MergeMutationBloc(c.read<ToolsRepository>()),
                         child: const MergePage(),
                       ),
                     ),
@@ -155,12 +161,12 @@ final appRouter = GoRouter(
                   path: 'image2pdf',
                   pageBuilder: (context, state) => buildAppTransitionPage(
                     key: state.pageKey,
-                    child: RepositoryProvider(
+                    child: RepositoryProvider<ToolsRepository>(
                       create: (_) =>
                           ToolsRepositoryImpl(PdfEngineDataSourceImpl()),
                       child: BlocProvider(
                         create: (c) => Image2PdfMutationBloc(
-                          c.read<ToolsRepositoryImpl>(),
+                          c.read<ToolsRepository>(),
                         ),
                         child: const Image2PdfPage(),
                       ),

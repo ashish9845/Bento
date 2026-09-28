@@ -77,6 +77,7 @@ class _UnlockScreenState extends State<UnlockScreen> {
               children: [
                 FilePickerCard(
                   files: state.files,
+                  fileSizes: state.fileSizes,
                   allowedExtensions: const ['pdf'],
                   label: 'Protected PDF',
                   onPick: () =>
@@ -142,8 +143,10 @@ class _UnlockScreenState extends State<UnlockScreen> {
                     onOpen: () =>
                         openDoc(context, state.resultFiles.first.path),
                     onShare: _cubit.shareResult,
-                    onSendTo: () =>
-                        SendToToolSheet.show(context, state.resultFiles.first),
+                    onSendTo: () => SendToToolSheet.show(
+                      context,
+                      state.resultFiles.first.path,
+                    ),
                   ),
                 const SizedBox(height: 12),
                 FilledButton.icon(

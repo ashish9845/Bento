@@ -49,6 +49,7 @@ class ToolCubit extends Cubit<ToolState> {
       if (isClosed) return;
       if (existing.isNotEmpty) {
         emit(state.copyWith(files: existing.map(File.new).toList()));
+        _refreshSizes(state.files);
       } else if (existing.length != paths.length) {
         // Drop stale entries pointing at deleted files.
         await prefs.setStringList(_prefsKey, existing);
@@ -80,19 +81,24 @@ class ToolCubit extends Cubit<ToolState> {
         status: ToolStatus.idle,
         message: null,
         resultFiles: [],
+        fileSizes: _prunedSizes(files),
       ),
     );
     unawaited(_persist());
+    _refreshSizes(files);
   }
 
   void addFiles(List<File> files) {
+    final next = [...state.files, ...files];
     emit(
       state.copyWith(
-        files: [...state.files, ...files],
+        files: next,
         status: ToolStatus.idle,
+        fileSizes: _prunedSizes(next),
       ),
     );
     unawaited(_persist());
+    _refreshSizes(next);
   }
 
   void clearFiles() {
@@ -147,6 +153,36 @@ class ToolCubit extends Cubit<ToolState> {
         .where((f) => f.path != null && f.path!.isNotEmpty)
         .map((f) => File(f.path!))
         .toList();
+  }
+
+  /// Keep cached sizes only for [files]; drop stale entries.
+  Map<String, int> _prunedSizes(List<File> files) {
+    final keep = files.map((f) => f.path).toSet();
+    return {
+      for (final entry in state.fileSizes.entries)
+        if (keep.contains(entry.key)) entry.key: entry.value,
+    };
+  }
+
+  /// Resolve sizes off the widget layer: for every picked file whose size
+  /// is not yet cached, stat it and emit an updated [ToolState.fileSizes]
+  /// map. Widgets read sizes from state — they never call File.length().
+  void _refreshSizes(List<File> files) {
+    for (final f in files) {
+      if (!state.fileSizes.containsKey(f.path)) unawaited(_loadSize(f));
+    }
+  }
+
+  Future<void> _loadSize(File file) async {
+    int length;
+    try {
+      length = await file.length();
+    } on Exception catch (_) {
+      return;
+    }
+    if (isClosed) return;
+    if (!state.files.any((f) => f.path == file.path)) return;
+    emit(state.copyWith(fileSizes: {...state.fileSizes, file.path: length}));
   }
 
   /// Real page count for a picked PDF.

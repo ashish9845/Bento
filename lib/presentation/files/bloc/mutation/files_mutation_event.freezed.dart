@@ -69,8 +69,8 @@ class _$FilesMutationEventCopyWithImpl<$Res>
 /// Create a copy of FilesMutationEvent
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? path = null,}) {
-  return _then(FilesMutationEvent.deleteFile(
-null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
+  return _then(_self.copyWith(
+path: null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -92,11 +92,12 @@ extension FilesMutationEventPatterns on FilesMutationEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DeleteFile value)?  deleteFile,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DeleteFile value)?  deleteFile,TResult Function( ShareFile value)?  shareFile,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case DeleteFile() when deleteFile != null:
-return deleteFile(_that);case _:
+return deleteFile(_that);case ShareFile() when shareFile != null:
+return shareFile(_that);case _:
   return orElse();
 
 }
@@ -114,11 +115,12 @@ return deleteFile(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DeleteFile value)  deleteFile,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DeleteFile value)  deleteFile,required TResult Function( ShareFile value)  shareFile,}){
 final _that = this;
 switch (_that) {
 case DeleteFile():
-return deleteFile(_that);case _:
+return deleteFile(_that);case ShareFile():
+return shareFile(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -135,11 +137,12 @@ return deleteFile(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DeleteFile value)?  deleteFile,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DeleteFile value)?  deleteFile,TResult? Function( ShareFile value)?  shareFile,}){
 final _that = this;
 switch (_that) {
 case DeleteFile() when deleteFile != null:
-return deleteFile(_that);case _:
+return deleteFile(_that);case ShareFile() when shareFile != null:
+return shareFile(_that);case _:
   return null;
 
 }
@@ -156,10 +159,11 @@ return deleteFile(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path)?  deleteFile,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path)?  deleteFile,TResult Function( String path)?  shareFile,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case DeleteFile() when deleteFile != null:
-return deleteFile(_that.path);case _:
+return deleteFile(_that.path);case ShareFile() when shareFile != null:
+return shareFile(_that.path);case _:
   return orElse();
 
 }
@@ -177,10 +181,11 @@ return deleteFile(_that.path);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path)  deleteFile,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path)  deleteFile,required TResult Function( String path)  shareFile,}) {final _that = this;
 switch (_that) {
 case DeleteFile():
-return deleteFile(_that.path);case _:
+return deleteFile(_that.path);case ShareFile():
+return shareFile(_that.path);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +202,11 @@ return deleteFile(_that.path);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path)?  deleteFile,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path)?  deleteFile,TResult? Function( String path)?  shareFile,}) {final _that = this;
 switch (_that) {
 case DeleteFile() when deleteFile != null:
-return deleteFile(_that.path);case _:
+return deleteFile(_that.path);case ShareFile() when shareFile != null:
+return shareFile(_that.path);case _:
   return null;
 
 }
@@ -268,6 +274,74 @@ class _$DeleteFileCopyWithImpl<$Res>
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? path = null,}) {
   return _then(DeleteFile(
+null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ShareFile implements FilesMutationEvent {
+  const ShareFile(this.path);
+  
+
+@override final  String path;
+
+/// Create a copy of FilesMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ShareFileCopyWith<ShareFile> get copyWith => _$ShareFileCopyWithImpl<ShareFile>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ShareFile&&(identical(other.path, path) || other.path == path));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,path);
+}
+
+@override
+String toString() {
+    return 'FilesMutationEvent.shareFile(path: $path)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ShareFileCopyWith<$Res> implements $FilesMutationEventCopyWith<$Res> {
+  factory $ShareFileCopyWith(ShareFile value, $Res Function(ShareFile) _then) = _$ShareFileCopyWithImpl;
+@override @useResult
+$Res call({
+ String path
+});
+
+
+
+
+}
+/// @nodoc
+class _$ShareFileCopyWithImpl<$Res>
+    implements $ShareFileCopyWith<$Res> {
+  _$ShareFileCopyWithImpl(this._self, this._then);
+
+  final ShareFile _self;
+  final $Res Function(ShareFile) _then;
+
+/// Create a copy of FilesMutationEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? path = null,}) {
+  return _then(ShareFile(
 null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String,
   ));

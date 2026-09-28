@@ -107,6 +107,7 @@ class _ExtractScreenState extends State<ExtractScreen> {
               children: [
                 FilePickerCard(
                   files: state.files,
+                  fileSizes: state.fileSizes,
                   allowedExtensions: const ['pdf'],
                   label: 'PDF to extract from',
                   onPick: _pickFile,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ Future<ui.Image?> captureThemeSnapshot(BuildContext context) async {
     return await boundary.toImage(
       pixelRatio: MediaQuery.devicePixelRatioOf(ctx),
     );
-  } catch (_) {
+  } on Exception catch (_) {
     return null;
   }
 }
@@ -81,9 +82,11 @@ class _ThemeRevealOverlayState extends State<ThemeRevealOverlay>
   @override
   void initState() {
     super.initState();
-    _ctrl.forward().then((_) {
-      if (mounted) widget.onDone();
-    });
+    unawaited(
+      _ctrl.forward().then((_) {
+        if (mounted) widget.onDone();
+      }),
+    );
   }
 
   @override

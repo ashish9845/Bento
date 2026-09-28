@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scan/features/tools/providers/tool_cubit.dart';
+import 'package:scan/presentation/shared/widgets/dialogs/name_prompt_dialog.dart';
 
 /// Timestamped default file name, e.g. `Split_20250925_2130`.
 String defaultOutputName(String prefix) {
@@ -10,45 +11,18 @@ String defaultOutputName(String prefix) {
 
 /// Asks for a file name before a tool runs. Returns null when cancelled.
 /// The `.pdf` suffix is added automatically — never type it.
+/// Delegates to [NamePromptDialog] (own lifecycle for its controller).
 Future<String?> askOutputName(
   BuildContext context, {
   required String defaultName,
   String title = 'Name your PDF',
   String hint = 'MyDocument',
 }) async {
-  final controller = TextEditingController(text: defaultName);
-  // NOTE: intentionally not disposed. Disposing here (try/finally around
-  // showDialog) crashes: the dialog's TextField is still mounted while the
-  // pop transition runs, so it touches the controller after dispose
-  // ("TextEditingController was used after being disposed"). A short-lived
-  // local controller holds no native resources; GC reclaims it.
-  final name = await showDialog<String>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(title),
-      content: TextField(
-        controller: controller,
-        autofocus: true,
-        decoration: InputDecoration(
-          labelText: 'File name',
-          hintText: hint,
-          suffixText: '.pdf',
-          border: const OutlineInputBorder(),
-        ),
-        textCapitalization: TextCapitalization.words,
-        onSubmitted: (v) => Navigator.pop(context, v.trim()),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, controller.text.trim()),
-          child: const Text('Continue'),
-        ),
-      ],
-    ),
+  final name = await showNamePrompt(
+    context,
+    title: title,
+    defaultName: defaultName,
+    hintText: hint,
   );
   if (name == null || name.isEmpty) return null;
   return name;

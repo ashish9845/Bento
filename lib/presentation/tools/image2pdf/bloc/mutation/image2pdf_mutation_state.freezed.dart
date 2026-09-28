@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Image2PdfMutationState {
 
- Image2PdfMutationStatus get status; String? get errorMessage; String? get resultPath;
+ Image2PdfMutationStatus get status; String? get errorMessage; String? get resultPath; List<String> get pickedPaths;
 /// Create a copy of Image2PdfMutationState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $Image2PdfMutationStateCopyWith<Image2PdfMutationState> get copyWith => _$Image2
 @override
 bool operator ==(Object other) {
   final _this = this as Image2PdfMutationState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Image2PdfMutationState&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.errorMessage, _this.errorMessage) || other.errorMessage == _this.errorMessage)&&(identical(other.resultPath, _this.resultPath) || other.resultPath == _this.resultPath));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Image2PdfMutationState&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.errorMessage, _this.errorMessage) || other.errorMessage == _this.errorMessage)&&(identical(other.resultPath, _this.resultPath) || other.resultPath == _this.resultPath)&&const DeepCollectionEquality().equals(other.pickedPaths, _this.pickedPaths));
 }
 
 
 @override
 int get hashCode {
   final _this = this as Image2PdfMutationState;
-  return Object.hash(runtimeType,_this.status,_this.errorMessage,_this.resultPath);
+  return Object.hash(runtimeType,_this.status,_this.errorMessage,_this.resultPath,const DeepCollectionEquality().hash(_this.pickedPaths));
 }
 
 @override
 String toString() {
   final _this = this as Image2PdfMutationState;
-  return 'Image2PdfMutationState(status: ${_this.status}, errorMessage: ${_this.errorMessage}, resultPath: ${_this.resultPath})';
+  return 'Image2PdfMutationState(status: ${_this.status}, errorMessage: ${_this.errorMessage}, resultPath: ${_this.resultPath}, pickedPaths: ${_this.pickedPaths})';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $Image2PdfMutationStateCopyWith<$Res>  {
   factory $Image2PdfMutationStateCopyWith(Image2PdfMutationState value, $Res Function(Image2PdfMutationState) _then) = _$Image2PdfMutationStateCopyWithImpl;
 @useResult
 $Res call({
- Image2PdfMutationStatus status, String? errorMessage, String? resultPath
+ Image2PdfMutationStatus status, String? errorMessage, String? resultPath, List<String> pickedPaths
 });
 
 
@@ -68,12 +68,13 @@ class _$Image2PdfMutationStateCopyWithImpl<$Res>
 
 /// Create a copy of Image2PdfMutationState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,Object? pickedPaths = null,}) {
   return _then(Image2PdfMutationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as Image2PdfMutationStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,resultPath: freezed == resultPath ? _self.resultPath : resultPath // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,pickedPaths: null == pickedPaths ? _self.pickedPaths : pickedPaths // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -158,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Image2PdfMutationStatus status,  String? errorMessage,  String? resultPath)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Image2PdfMutationStatus status,  String? errorMessage,  String? resultPath,  List<String> pickedPaths)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Image2PdfMutationState() when $default != null:
-return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
+return $default(_that.status,_that.errorMessage,_that.resultPath,_that.pickedPaths);case _:
   return orElse();
 
 }
@@ -179,10 +180,10 @@ return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Image2PdfMutationStatus status,  String? errorMessage,  String? resultPath)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Image2PdfMutationStatus status,  String? errorMessage,  String? resultPath,  List<String> pickedPaths)  $default,) {final _that = this;
 switch (_that) {
 case _Image2PdfMutationState():
-return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
+return $default(_that.status,_that.errorMessage,_that.resultPath,_that.pickedPaths);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +200,10 @@ return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Image2PdfMutationStatus status,  String? errorMessage,  String? resultPath)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Image2PdfMutationStatus status,  String? errorMessage,  String? resultPath,  List<String> pickedPaths)?  $default,) {final _that = this;
 switch (_that) {
 case _Image2PdfMutationState() when $default != null:
-return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
+return $default(_that.status,_that.errorMessage,_that.resultPath,_that.pickedPaths);case _:
   return null;
 
 }
@@ -214,12 +215,19 @@ return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
 
 
 class _Image2PdfMutationState implements Image2PdfMutationState {
-  const _Image2PdfMutationState({this.status = Image2PdfMutationStatus.idle, this.errorMessage, this.resultPath});
+  const _Image2PdfMutationState({this.status = Image2PdfMutationStatus.idle, this.errorMessage, this.resultPath,  List<String> pickedPaths = const []}): _pickedPaths = pickedPaths;
   
 
 @override@JsonKey() final  Image2PdfMutationStatus status;
 @override final  String? errorMessage;
 @override final  String? resultPath;
+ final  List<String> _pickedPaths;
+@override@JsonKey() List<String> get pickedPaths {
+  if (_pickedPaths is EqualUnmodifiableListView) return _pickedPaths;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pickedPaths);
+}
+
 
 /// Create a copy of Image2PdfMutationState
 /// with the given fields replaced by the non-null parameter values.
@@ -231,18 +239,18 @@ _$Image2PdfMutationStateCopyWith<_Image2PdfMutationState> get copyWith => __$Ima
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Image2PdfMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.resultPath, resultPath) || other.resultPath == resultPath));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Image2PdfMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.resultPath, resultPath) || other.resultPath == resultPath)&&const DeepCollectionEquality().equals(other.pickedPaths, _pickedPaths));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,status,errorMessage,resultPath);
+    return Object.hash(runtimeType,status,errorMessage,resultPath,const DeepCollectionEquality().hash(_pickedPaths));
 }
 
 @override
 String toString() {
-    return 'Image2PdfMutationState(status: $status, errorMessage: $errorMessage, resultPath: $resultPath)';
+    return 'Image2PdfMutationState(status: $status, errorMessage: $errorMessage, resultPath: $resultPath, pickedPaths: $pickedPaths)';
 }
 
 
@@ -253,7 +261,7 @@ abstract mixin class _$Image2PdfMutationStateCopyWith<$Res> implements $Image2Pd
   factory _$Image2PdfMutationStateCopyWith(_Image2PdfMutationState value, $Res Function(_Image2PdfMutationState) _then) = __$Image2PdfMutationStateCopyWithImpl;
 @override @useResult
 $Res call({
- Image2PdfMutationStatus status, String? errorMessage, String? resultPath
+ Image2PdfMutationStatus status, String? errorMessage, String? resultPath, List<String> pickedPaths
 });
 
 
@@ -270,12 +278,13 @@ class __$Image2PdfMutationStateCopyWithImpl<$Res>
 
 /// Create a copy of Image2PdfMutationState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,Object? pickedPaths = null,}) {
   return _then(_Image2PdfMutationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as Image2PdfMutationStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,resultPath: freezed == resultPath ? _self.resultPath : resultPath // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,pickedPaths: null == pickedPaths ? _self._pickedPaths : pickedPaths // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 

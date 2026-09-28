@@ -1,4 +1,3 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scan/core/storage/storage_location.dart';
@@ -109,99 +108,70 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _SectionHeader(icon: Icons.storage_rounded, title: 'Storage'),
                 RepaintBoundary(
-                  child: Card(
-                    child: ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: scheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.folder_rounded,
-                          size: 20,
-                          color: scheme.onSecondaryContainer,
-                        ),
-                      ),
-                      title: const Text('Save location'),
-                      subtitle: BlocBuilder<StorageLocationCubit, String?>(
-                        builder: (context, custom) {
-                          if (custom != null) {
-                            return Text(
-                              custom,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            );
+                  child:
+                      BlocConsumer<StorageLocationCubit, StorageLocationState>(
+                        listener: (context, state) {
+                          final msg = state.message;
+                          if (msg != null) {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(content: Text(msg)));
+                            context
+                                .read<StorageLocationCubit>()
+                                .consumeMessage();
                           }
-                          return FutureBuilder(
-                            future: getDefaultSaveDirectory(),
-                            builder: (context, snap) => Text(
-                              snap.data?.path ?? 'Documents/Bento',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall,
+                        },
+                        builder: (context, state) {
+                          return Card(
+                            child: ListTile(
+                              leading: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: scheme.secondaryContainer,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.folder_rounded,
+                                  size: 20,
+                                  color: scheme.onSecondaryContainer,
+                                ),
+                              ),
+                              title: const Text('Save location'),
+                              subtitle: Text(
+                                state.displayPath,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (state.hasCustom)
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.restart_alt_rounded,
+                                        size: 20,
+                                      ),
+                                      tooltip: 'Reset to default',
+                                      // Cubit emits the resolved default + message;
+                                      // the Listener above shows the snackbar.
+                                      onPressed: () => context
+                                          .read<StorageLocationCubit>()
+                                          .clear(),
+                                    ),
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
+                              // Cubit owns permission + picker + persist.
+                              onTap: () => context
+                                  .read<StorageLocationCubit>()
+                                  .pickAndSet(),
                             ),
                           );
                         },
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          BlocBuilder<StorageLocationCubit, String?>(
-                            builder: (context, custom) {
-                              if (custom == null) {
-                                return const SizedBox.shrink();
-                              }
-                              return IconButton(
-                                icon: const Icon(
-                                  Icons.restart_alt_rounded,
-                                  size: 20,
-                                ),
-                                tooltip: 'Reset to default',
-                                onPressed: () async {
-                                  await context
-                                      .read<StorageLocationCubit>()
-                                      .clear();
-                                  final def = await getDefaultSaveDirectory();
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Reset to ${def.path}'),
-                                      ),
-                                    );
-                                  }
-                                },
-                              );
-                            },
-                          ),
-                          const Icon(Icons.chevron_right_rounded, size: 20),
-                        ],
-                      ),
-                      onTap: () async {
-                        final storage = context.read<StorageLocationCubit>();
-                        // Best-effort: allow writes to shared storage before picking.
-                        await ensureStoragePermission();
-                        final dir = await FilePicker.getDirectoryPath(
-                          dialogTitle: 'Pick storage location',
-                        );
-                        if (dir != null) {
-                          await storage.setLocation(dir);
-                        }
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                dir == null
-                                    ? 'No selection'
-                                    : 'Storage set to $dir — new PDFs will save there',
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 16),
                 _SectionHeader(icon: Icons.info_rounded, title: 'About'),

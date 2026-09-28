@@ -84,6 +84,7 @@ class _SplitScreenState extends State<SplitScreen> {
               children: [
                 FilePickerCard(
                   files: state.files,
+                  fileSizes: state.fileSizes,
                   allowedExtensions: const ['pdf'],
                   label: 'PDF to split',
                   onPick: () =>

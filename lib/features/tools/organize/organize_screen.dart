@@ -121,6 +121,7 @@ class _OrganizeScreenState extends State<OrganizeScreen> {
               children: [
                 FilePickerCard(
                   files: state.files,
+                  fileSizes: state.fileSizes,
                   allowedExtensions: const ['pdf'],
                   label: 'PDF to organize',
                   onPick: _pickFile,

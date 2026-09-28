@@ -10,5 +10,6 @@ abstract class MergeMutationState with _$MergeMutationState {
     @Default(MergeMutationStatus.idle) MergeMutationStatus status,
     String? errorMessage,
     String? resultPath,
+    @Default([]) List<String> pickedPaths,
   }) = _MergeMutationState;
 }

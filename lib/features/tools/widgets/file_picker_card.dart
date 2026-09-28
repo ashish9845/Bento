@@ -11,6 +11,7 @@ class FilePickerCard extends StatelessWidget {
     this.allowMultiple = false,
     this.allowedExtensions,
     this.label = 'PDF files',
+    this.fileSizes = const {},
   });
 
   final List<File> files;
@@ -19,6 +20,10 @@ class FilePickerCard extends StatelessWidget {
   final bool allowMultiple;
   final List<String>? allowedExtensions;
   final String label;
+
+  /// File sizes in bytes keyed by path, supplied from ToolCubit state.
+  /// Pure display input — this widget never stats files itself.
+  final Map<String, int> fileSizes;
 
   @override
   Widget build(BuildContext context) {
@@ -193,15 +198,15 @@ class FilePickerCard extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
-                            subtitle: FutureBuilder<int>(
-                              future: f.length().catchError((_) => 0),
-                              builder: (context, snap) {
-                                if (!snap.hasData) {
+                            subtitle: Builder(
+                              builder: (context) {
+                                // Pure display: size comes from cubit state.
+                                // Absent = not yet resolved; show nothing.
+                                final size = fileSizes[f.path];
+                                if (size == null) {
                                   return const SizedBox.shrink();
                                 }
-                                final kb = (snap.data! / 1024).toStringAsFixed(
-                                  1,
-                                );
+                                final kb = (size / 1024).toStringAsFixed(1);
                                 return Text(
                                   '$kb KB',
                                   style: Theme.of(context).textTheme.bodySmall,

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MergeMutationState {
 
- MergeMutationStatus get status; String? get errorMessage; String? get resultPath;
+ MergeMutationStatus get status; String? get errorMessage; String? get resultPath; List<String> get pickedPaths;
 /// Create a copy of MergeMutationState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $MergeMutationStateCopyWith<MergeMutationState> get copyWith => _$MergeMutationS
 @override
 bool operator ==(Object other) {
   final _this = this as MergeMutationState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationState&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.errorMessage, _this.errorMessage) || other.errorMessage == _this.errorMessage)&&(identical(other.resultPath, _this.resultPath) || other.resultPath == _this.resultPath));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MergeMutationState&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.errorMessage, _this.errorMessage) || other.errorMessage == _this.errorMessage)&&(identical(other.resultPath, _this.resultPath) || other.resultPath == _this.resultPath)&&const DeepCollectionEquality().equals(other.pickedPaths, _this.pickedPaths));
 }
 
 
 @override
 int get hashCode {
   final _this = this as MergeMutationState;
-  return Object.hash(runtimeType,_this.status,_this.errorMessage,_this.resultPath);
+  return Object.hash(runtimeType,_this.status,_this.errorMessage,_this.resultPath,const DeepCollectionEquality().hash(_this.pickedPaths));
 }
 
 @override
 String toString() {
   final _this = this as MergeMutationState;
-  return 'MergeMutationState(status: ${_this.status}, errorMessage: ${_this.errorMessage}, resultPath: ${_this.resultPath})';
+  return 'MergeMutationState(status: ${_this.status}, errorMessage: ${_this.errorMessage}, resultPath: ${_this.resultPath}, pickedPaths: ${_this.pickedPaths})';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $MergeMutationStateCopyWith<$Res>  {
   factory $MergeMutationStateCopyWith(MergeMutationState value, $Res Function(MergeMutationState) _then) = _$MergeMutationStateCopyWithImpl;
 @useResult
 $Res call({
- MergeMutationStatus status, String? errorMessage, String? resultPath
+ MergeMutationStatus status, String? errorMessage, String? resultPath, List<String> pickedPaths
 });
 
 
@@ -68,12 +68,13 @@ class _$MergeMutationStateCopyWithImpl<$Res>
 
 /// Create a copy of MergeMutationState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,Object? pickedPaths = null,}) {
   return _then(MergeMutationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as MergeMutationStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,resultPath: freezed == resultPath ? _self.resultPath : resultPath // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,pickedPaths: null == pickedPaths ? _self.pickedPaths : pickedPaths // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -158,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( MergeMutationStatus status,  String? errorMessage,  String? resultPath)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( MergeMutationStatus status,  String? errorMessage,  String? resultPath,  List<String> pickedPaths)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MergeMutationState() when $default != null:
-return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
+return $default(_that.status,_that.errorMessage,_that.resultPath,_that.pickedPaths);case _:
   return orElse();
 
 }
@@ -179,10 +180,10 @@ return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( MergeMutationStatus status,  String? errorMessage,  String? resultPath)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( MergeMutationStatus status,  String? errorMessage,  String? resultPath,  List<String> pickedPaths)  $default,) {final _that = this;
 switch (_that) {
 case _MergeMutationState():
-return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
+return $default(_that.status,_that.errorMessage,_that.resultPath,_that.pickedPaths);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +200,10 @@ return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( MergeMutationStatus status,  String? errorMessage,  String? resultPath)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( MergeMutationStatus status,  String? errorMessage,  String? resultPath,  List<String> pickedPaths)?  $default,) {final _that = this;
 switch (_that) {
 case _MergeMutationState() when $default != null:
-return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
+return $default(_that.status,_that.errorMessage,_that.resultPath,_that.pickedPaths);case _:
   return null;
 
 }
@@ -214,12 +215,19 @@ return $default(_that.status,_that.errorMessage,_that.resultPath);case _:
 
 
 class _MergeMutationState implements MergeMutationState {
-  const _MergeMutationState({this.status = MergeMutationStatus.idle, this.errorMessage, this.resultPath});
+  const _MergeMutationState({this.status = MergeMutationStatus.idle, this.errorMessage, this.resultPath,  List<String> pickedPaths = const []}): _pickedPaths = pickedPaths;
   
 
 @override@JsonKey() final  MergeMutationStatus status;
 @override final  String? errorMessage;
 @override final  String? resultPath;
+ final  List<String> _pickedPaths;
+@override@JsonKey() List<String> get pickedPaths {
+  if (_pickedPaths is EqualUnmodifiableListView) return _pickedPaths;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pickedPaths);
+}
+
 
 /// Create a copy of MergeMutationState
 /// with the given fields replaced by the non-null parameter values.
@@ -231,18 +239,18 @@ _$MergeMutationStateCopyWith<_MergeMutationState> get copyWith => __$MergeMutati
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MergeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.resultPath, resultPath) || other.resultPath == resultPath));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _MergeMutationState&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.resultPath, resultPath) || other.resultPath == resultPath)&&const DeepCollectionEquality().equals(other.pickedPaths, _pickedPaths));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,status,errorMessage,resultPath);
+    return Object.hash(runtimeType,status,errorMessage,resultPath,const DeepCollectionEquality().hash(_pickedPaths));
 }
 
 @override
 String toString() {
-    return 'MergeMutationState(status: $status, errorMessage: $errorMessage, resultPath: $resultPath)';
+    return 'MergeMutationState(status: $status, errorMessage: $errorMessage, resultPath: $resultPath, pickedPaths: $pickedPaths)';
 }
 
 
@@ -253,7 +261,7 @@ abstract mixin class _$MergeMutationStateCopyWith<$Res> implements $MergeMutatio
   factory _$MergeMutationStateCopyWith(_MergeMutationState value, $Res Function(_MergeMutationState) _then) = __$MergeMutationStateCopyWithImpl;
 @override @useResult
 $Res call({
- MergeMutationStatus status, String? errorMessage, String? resultPath
+ MergeMutationStatus status, String? errorMessage, String? resultPath, List<String> pickedPaths
 });
 
 
@@ -270,12 +278,13 @@ class __$MergeMutationStateCopyWithImpl<$Res>
 
 /// Create a copy of MergeMutationState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? errorMessage = freezed,Object? resultPath = freezed,Object? pickedPaths = null,}) {
   return _then(_MergeMutationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as MergeMutationStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,resultPath: freezed == resultPath ? _self.resultPath : resultPath // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,pickedPaths: null == pickedPaths ? _self._pickedPaths : pickedPaths // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 

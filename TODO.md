@@ -92,9 +92,16 @@ custom native Flutter UI (no BentoPDF web UI) · Riverpod for state management.
       Fix: `shrink=false` in `android/gradle.properties` (verified via dexdump that the
       release dex keeps the constructor; FULL scanner mode restored and working).
       Do NOT re-enable shrinking without proguard keep rules for `com.google.mlkit.**`.
+- [x] Scan survives Android killing Bento mid-scan (2026-09-28): `ScanGuardService`
+      (`shortService` FGS started just before the scanner takes over) raises the process to
+      `oom_score_adj 50` so MIUI/ColorOS no longer treat Bento as a cached app and kill it;
+      kill safety net: `MainActivity.onActivityResult` stashes the ML Kit result paths natively
+      (`scan_recovery` prefs file) before the plugin can drop them, and `ScanCubit.recoverInterruptedScan`
+      restores them when the Scan screen opens after a restart. Normal scans clear the stash and
+      stop the guard immediately.
 
 ## Phase 5 — Shell & File Management
-- [x] Recent files list and local file browser (`path_provider`) — `lib/features/files/files_screen.dart` `recentFilesProvider` scanning docs+temp, pull-to-refresh, share
+- [x] Recent files list and local file browser (`path_provider`) — `lib/presentation/files/pages/files_page.dart` (sole source of truth, strict REPO/DATA <-> BLOC <-> UI via `FilesQueryBloc`/`FilesMutationBloc`; legacy `lib/features/files/files_screen.dart` with direct IO deleted 2026-09-28), pull-to-refresh, share
 - [x] Settings: theme, default storage location, about/licensing screen (AGPL notice + credits) — `lib/features/settings/settings_screen.dart` with AGPL, privacy, storage, engine cards
 - [x] Empty states, loading states, error handling across all tool screens — `ToolEmptyState`, `ToolProgress`, `ToolError`, `ToolSuccess` + empty `Files` and `Scan` states
 

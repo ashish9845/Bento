@@ -148,6 +148,7 @@ class _SignScreenState extends State<SignScreen> {
               children: [
                 FilePickerCard(
                   files: state.files,
+                  fileSizes: state.fileSizes,
                   allowedExtensions: const ['pdf'],
                   label: 'PDF to sign',
                   onPick: _pickFile,

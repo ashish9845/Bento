@@ -1,17 +1,13 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scan/core/storage/open_file.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../shared/widgets/buttons/app_button.dart';
 import '../../shared/widgets/feedback/app_error_view.dart';
 import '../../shared/widgets/feedback/app_loading_indicator.dart';
-import '../../../data/files/datasources/files_local_data_source.dart';
 import '../../../data/files/models/bento_file.dart';
-import '../../../data/files/repositories/files_repository_impl.dart';
 import '../bloc/mutation/files_mutation_bloc.dart';
 import '../bloc/mutation/files_mutation_event.dart';
 import '../bloc/mutation/files_mutation_state.dart';
@@ -20,13 +16,20 @@ import '../bloc/query/files_query_event.dart';
 import '../bloc/query/files_query_state.dart';
 import '../../../features/tools/widgets/send_to_tool.dart';
 
-/// FilesPage — strict Repository -> QueryBloc/MutationBloc -> UI per universal arch.
-/// UI never imports Repository directly except via BlocProvider setup in router.
-/// QueryBloc handles fetch/refresh, MutationBloc handles delete.
+/// FilesPage — strict REPO/DATA <-> BLOC <-> UI.
+/// UI never imports Repository, DataSource, FilePicker, SharedPreferences,
+/// path_provider, dart:io for data, or SharePlus directly. QueryBloc handles
+/// fetch/refresh, MutationBloc handles delete + share (via injectable
+/// ShareGateway). UI only dispatches events, renders via
+/// BlocBuilder/Listener, shows dialog shells, and navigates.
+/// Route-level Repository + Bloc providers live in app_router (DI), not here.
+/// `openDoc` is a context-bound UI helper (snackbars), not a data import.
 class FilesPage extends StatelessWidget {
   const new({super.key});
 
   /// Long-press menu: Open, Share, Send to…, Details, Delete.
+  /// Pure view shell returning the chosen action string; side-effects are
+  /// dispatched to Blocs (share/delete) or UI helpers (open/details/send).
   Future<void> _showFileActions(BuildContext context, BentoFile f) async {
     final action = await showModalBottomSheet<String>(
       context: context,
@@ -84,11 +87,11 @@ class FilesPage extends StatelessWidget {
       case 'open':
         unawaited(openDoc(context, f.path));
       case 'share':
-        unawaited(
-          SharePlus.instance.share(ShareParams(files: [XFile(f.path)])),
+        context.read<FilesMutationBloc>().add(
+          FilesMutationEvent.shareFile(f.path),
         );
       case 'send':
-        unawaited(SendToToolSheet.show(context, File(f.path)));
+        unawaited(SendToToolSheet.show(context, f.path));
       case 'details':
         unawaited(_showFileDetails(context, f));
       case 'delete':
@@ -170,14 +173,33 @@ class FilesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<FilesMutationBloc, FilesMutationState>(
       listener: (context, state) {
-        if (state.status == FilesMutationStatus.success) {
-          context.read<FilesQueryBloc>().add(const FilesQueryEvent.refresh());
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Deleted')));
-        } else if (state.status == FilesMutationStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'Failed')),
-          );
+        switch (state.status) {
+          case FilesMutationStatus.success:
+            context.read<FilesQueryBloc>().add(const FilesQueryEvent.refresh());
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text('Deleted')));
+          case FilesMutationStatus.failure:
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage ?? 'Failed')),
+            );
+          case FilesMutationStatus.shareSuccess:
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Shared: ${(state.sharedPath ?? '').split('/').last}',
+                ),
+              ),
+            );
+          case FilesMutationStatus.shareFailure:
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage ?? 'Could not share file'),
+              ),
+            );
+          case FilesMutationStatus.idle:
+          case FilesMutationStatus.inProgress:
+          case FilesMutationStatus.shareInProgress:
+            break;
         }
       },
       child: Scaffold(
@@ -365,9 +387,11 @@ class FilesPage extends StatelessWidget {
                                       Icons.share_rounded,
                                       size: 18,
                                     ),
-                                    onPressed: () => SharePlus.instance.share(
-                                      ShareParams(files: [XFile(f.path)]),
-                                    ),
+                                    onPressed: () => context
+                                        .read<FilesMutationBloc>()
+                                        .add(
+                                          FilesMutationEvent.shareFile(f.path),
+                                        ),
                                     style: IconButton.styleFrom(
                                       backgroundColor: Theme.of(context)
                                           .colorScheme
@@ -424,32 +448,6 @@ class _DetailRow extends StatelessWidget {
         const SizedBox(height: 2),
         SelectableText(value, style: text.bodyMedium),
       ],
-    );
-  }
-}
-
-/// Helper to provide Repository + Blocs at route level per universal arch.
-/// Call this from app_router's builder for /files.
-class FilesRouteProviders extends StatelessWidget {
-  final Widget child;
-  const new({required this.child, super.key});
-  @override
-  Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => FilesRepositoryImpl(FilesLocalDataSourceImpl()),
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (c) =>
-                FilesQueryBloc(c.read<FilesRepositoryImpl>())
-                  ..add(const FilesQueryEvent.fetch()),
-          ),
-          BlocProvider(
-            create: (c) => FilesMutationBloc(c.read<FilesRepositoryImpl>()),
-          ),
-        ],
-        child: child,
-      ),
     );
   }
 }

@@ -1,16 +1,17 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Bottom sheet listing target tools for a file.
+///
+/// Takes a plain path string (no dart:io in UI data flow); navigation only.
 class SendToToolSheet extends StatelessWidget {
-  const new({required this.file, super.key});
-  final File file;
+  const new({required this.filePath, super.key});
+  final String filePath;
 
-  static Future<void> show(BuildContext context, File file) =>
+  static Future<void> show(BuildContext context, String filePath) =>
       showModalBottomSheet<void>(
         context: context,
-        builder: (context) => SendToToolSheet(file: file),
+        builder: (context) => SendToToolSheet(filePath: filePath),
       );
 
   @override
@@ -38,7 +39,7 @@ class SendToToolSheet extends StatelessWidget {
           Text('Send to tool', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Text(
-            file.path.split('/').last,
+            filePath.split('/').last,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const Divider(),
@@ -53,7 +54,7 @@ class SendToToolSheet extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Send ${file.path.split('/').last} → ${t.$1} (pick file again in target tool for v1)',
+                      'Send ${filePath.split('/').last} → ${t.$1} (pick file again in target tool for v1)',
                     ),
                   ),
                 );
