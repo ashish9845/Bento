@@ -49,6 +49,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required to scan documents.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is required to pick images for Image to PDF.</string>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

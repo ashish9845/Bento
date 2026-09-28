@@ -1,11 +1,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- CAMERA is not needed on Android: the ML Kit scanner runs in Play
+         Services' process under Google's camera permission (our app never
+         held the runtime grant during device testing and scanning worked).
+         Stripped here for ours + the camera plugin's copy. iOS keeps its
+         own camera usage description (OpenScan uses our camera there). -->
+    <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
     <!-- Save PDFs to shared Documents/Bento: legacy flags for older Android, -->
     <!-- all-files access for Android 11+ scoped storage (on-device only). -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" tools:replace="android:maxSdkVersion" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <!-- Strip permissions merged in from plugins that Bento never uses.
+         Offline PDF app: no network calls, no audio recording, no
+         media-library reads. Declared here so the merger drops the
+         plugin-contributed copies (camera_camerax, open_filex,
+         media3, datatransport). -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
      <application
         android:label="Bento"
         android:name="${applicationName}"

@@ -221,9 +221,15 @@ class _WorkingGrid extends StatelessWidget {
     final thumbs = thumbPaths.isEmpty ? null : thumbPaths;
 
     void reorder(int from, int to) {
+      // `to` is the cell dropped onto (0..n-1, pre-removal coordinates).
+      // Unlike ReorderableListView.onReorder — where newIndex can point past
+      // the end and needs a -1 correction — a cell index stays valid after
+      // removal, so insert directly at `to`: the dragged page takes that
+      // cell's slot. (The old `to - 1` adjustment made every adjacent move
+      // a silent no-op: page 1 dropped on page 2 landed back where it was.)
       final next = [...current];
       final item = next.removeAt(from);
-      next.insert(to > from ? to - 1 : to, item);
+      next.insert(to, item);
       onOrderChanged(next);
     }
 
@@ -315,7 +321,7 @@ class _WorkingGrid extends StatelessWidget {
                   decoration: candidate.isNotEmpty
                       ? BoxDecoration(
                           border: Border.all(color: scheme.primary, width: 2),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(8),
                         )
                       : null,
                   child: LongPressDraggable<int>(
@@ -361,7 +367,7 @@ class _OrganizeTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
@@ -372,7 +378,7 @@ class _OrganizeTile extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

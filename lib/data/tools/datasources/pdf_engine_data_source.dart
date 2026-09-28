@@ -98,6 +98,42 @@ abstract class PdfEngineDataSource {
   Future<void> saveToCustomLocation(File file);
 }
 
+/// A4 aspect (595×842pt) and the max long edge kept for padded images.
+const double a4Aspect = 595 / 842;
+const int maxPaddedLongEdge = 3000;
+
+/// Letterbox-pads [src] to the A4 aspect on a white canvas so a full-page
+/// paint can't stretch it. Wider images gain white bands top/bottom,
+/// taller ones left/right; near-A4 images pass through untouched.
+img.Image letterboxToA4(img.Image src) {
+  var w = src.width;
+  var h = src.height;
+  img.Image working = src;
+  final longEdge = w > h ? w : h;
+  if (longEdge > maxPaddedLongEdge) {
+    final scale = maxPaddedLongEdge / longEdge;
+    w = (w * scale).round();
+    h = (h * scale).round();
+    working = img.copyResize(src, width: w, height: h);
+  }
+  final aspect = w / h;
+  if ((aspect - a4Aspect).abs() < 0.005) return working;
+  if (aspect > a4Aspect) {
+    // Wider than A4: pad top/bottom.
+    final targetH = (w / a4Aspect).round();
+    final canvas = img.Image(width: w, height: targetH);
+    img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
+    img.compositeImage(canvas, working, dstY: (targetH - h) ~/ 2);
+    return canvas;
+  }
+  // Taller than A4: pad left/right.
+  final targetW = (h * a4Aspect).round();
+  final canvas = img.Image(width: targetW, height: h);
+  img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
+  img.compositeImage(canvas, working, dstX: (targetW - w) ~/ 2);
+  return canvas;
+}
+
 class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   /// Shared engine instance reused everywhere (per package guidance).
   static final Pdf _pdf = Pdf();
@@ -374,16 +410,53 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   @override
   Future<File> imagesToPdf(List<File> images, {String? outputName}) async {
     if (images.isEmpty) throw Exception('Pick at least one image');
+    // The engine paints each image stretched over a full A4 page. Pad every
+    // image to the A4 aspect first (white letterbox) so photos keep their
+    // ratio instead of stretching. Undecodable files pass through untouched.
+    final tempDir = Directory(
+      '${(await getTemporaryDirectory()).path}/bento_fit_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    final fitted = await _fitImagesToA4(images, tempDir);
     final out = await _outputFile('images', name: outputName);
     final sink = await FileSink.create(out);
     try {
-      await _pdf.imagesToPdf(images.map(FileSource.new).toList(), sink);
-    } on Exception catch (e) {
+      await _pdf.imagesToPdf(fitted.map(FileSource.new).toList(), sink);
+    } catch (e) {
       _wrap(e);
     } finally {
       await sink.close();
+      // Best-effort cleanup of the padded copies (originals untouched).
+      try {
+        if (await tempDir.exists()) await tempDir.delete(recursive: true);
+      } on Exception catch (_) {}
     }
     await _verifyPdf(out, expectedPages: images.length);
+    return out;
+  }
+
+  /// Decodes [images], letterboxes each to A4 via [letterboxToA4], and
+  /// writes JPEG copies into [tempDir]. Undecodable files pass through as
+  /// the original so the engine reports them as before.
+  Future<List<File>> _fitImagesToA4(List<File> images, Directory tempDir) async {
+    final out = <File>[];
+    for (var i = 0; i < images.length; i++) {
+      final src = images[i];
+      img.Image? decoded;
+      try {
+        decoded = img.decodeImage(await src.readAsBytes());
+      } on Exception catch (_) {}
+      if (decoded == null) {
+        out.add(src);
+        continue;
+      }
+      if (!await tempDir.exists()) await tempDir.create(recursive: true);
+      final padded = File('${tempDir.path}/fit_$i.jpg');
+      await padded.writeAsBytes(
+        img.encodeJpg(letterboxToA4(decoded), quality: 92),
+        flush: true,
+      );
+      out.add(padded);
+    }
     return out;
   }
 

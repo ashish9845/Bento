@@ -17,6 +17,11 @@ Future<String?> askOutputName(
   String hint = 'MyDocument',
 }) async {
   final controller = TextEditingController(text: defaultName);
+  // NOTE: intentionally not disposed. Disposing here (try/finally around
+  // showDialog) crashes: the dialog's TextField is still mounted while the
+  // pop transition runs, so it touches the controller after dispose
+  // ("TextEditingController was used after being disposed"). A short-lived
+  // local controller holds no native resources; GC reclaims it.
   final name = await showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
