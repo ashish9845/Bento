@@ -20,39 +20,39 @@ class BenoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => ThemeModeCubit()),
-        BlocProvider(create: (_) => AppPaletteCubit()),
-        BlocProvider(create: (_) => StorageLocationCubit()),
-      ],
-      child: BlocBuilder<ThemeModeCubit, ThemeMode>(
-        builder: (context, themeMode) =>
-            BlocBuilder<AppPaletteCubit, AppPalette>(
-              builder: (context, palette) {
-                // DynamicColorBuilder supplies the OS Material You schemes
-                // (null where unsupported); only AppPalette.dynamic consumes
-                // them, everything else ignores them and uses its static scheme.
-                return DynamicColorBuilder(
-                  builder: (lightDynamic, darkDynamic) => MaterialApp.router(
-                    title: 'Bento',
-                    theme: AppTheme.lightFor(
-                      palette,
-                      dynamicScheme: lightDynamic == null
-                          ? null
-                          : toMaterialScheme(lightDynamic),
+        providers: [
+          BlocProvider(create: (_) => ThemeModeCubit()),
+          BlocProvider(create: (_) => AppPaletteCubit()),
+          BlocProvider(create: (_) => StorageLocationCubit()),
+        ],
+        child: BlocBuilder<ThemeModeCubit, ThemeMode>(
+          builder: (context, themeMode) =>
+              BlocBuilder<AppPaletteCubit, AppPalette>(
+                builder: (context, palette) {
+                  // DynamicColorBuilder supplies the OS Material You schemes
+                  // (null where unsupported); only AppPalette.dynamic consumes
+                  // them, everything else ignores them and uses its static scheme.
+                  return DynamicColorBuilder(
+                    builder: (lightDynamic, darkDynamic) => MaterialApp.router(
+                      title: 'Bento',
+                      theme: AppTheme.lightFor(
+                        palette,
+                        dynamicScheme: lightDynamic == null
+                            ? null
+                            : toMaterialScheme(lightDynamic),
+                      ),
+                      darkTheme: AppTheme.darkFor(
+                        palette,
+                        dynamicScheme: darkDynamic == null
+                            ? null
+                            : toMaterialScheme(darkDynamic),
+                      ),
+                      themeMode: themeMode,
+                      routerConfig: appRouter,
                     ),
-                    darkTheme: AppTheme.darkFor(
-                      palette,
-                      dynamicScheme: darkDynamic == null
-                          ? null
-                          : toMaterialScheme(darkDynamic),
-                    ),
-                    themeMode: themeMode,
-                    routerConfig: appRouter,
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
       ),
     );
   }

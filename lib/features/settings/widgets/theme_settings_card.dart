@@ -130,19 +130,24 @@ class _ThemeSettingsCardState extends State<ThemeSettingsCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           for (final p in AppPalette.values)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 12),
-                              child: AppThemePreview(
-                                palette: p,
-                                scheme: p.resolve(
+                            Builder(
+                              builder: (previewContext) {
+                                final previewScheme = p.resolve(
                                   isLight ? Brightness.light : Brightness.dark,
                                   dynamicScheme: dynamicScheme,
-                                ),
+                                );
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 12),
+                              child: AppThemePreview(
+                                palette: p,
+                                scheme: previewScheme,
                                 selected: p == palette,
                                 onTap: () => context
                                     .read<AppPaletteCubit>()
                                     .setPalette(p),
                               ),
+                                );
+                              },
                             ),
                         ],
                       ),

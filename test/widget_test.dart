@@ -29,6 +29,37 @@ void main() {
     }
   });
 
+  testWidgets('theme switches keep exactly one bottom bar', (tester) async {
+    GoogleFonts.config.allowRuntimeFetching = false;
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(const BenoApp());
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    await tester.tap(find.text('Me'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(NavigationBar), findsOneWidget);
+
+    // Mode switch + palette switch: still exactly one bar, no stuck overlay.
+    await tester.tap(find.text('Dark'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(NavigationBar), findsOneWidget);
+
+    final mocha = find.byKey(const ValueKey('palette_mocha'));
+    await tester.ensureVisible(mocha);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(mocha);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.textContaining('Mocha'), findsWidgets);
+    expect(find.byType(NavigationBar), findsOneWidget);
+
+    // Leave the shared router on Home so later tests start clean.
+    await tester.tap(find.text('Home'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byKey(const ValueKey('home_search_field')), findsOneWidget);
+  });
+
   testWidgets('bottom bar shows on tabs only, not on tool pages', (
     tester,
   ) async {
