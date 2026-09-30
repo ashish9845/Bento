@@ -3,8 +3,8 @@
     <!-- CAMERA is not needed on Android: the ML Kit scanner runs in Play
          Services' process under Google's camera permission (our app never
          held the runtime grant during device testing and scanning worked).
-         Stripped here for ours + the camera plugin's copy. iOS keeps its
-         own camera usage description (OpenScan uses our camera there). -->
+         Stripped here for ours + any plugin-contributed copy. iOS has no
+         scanner (Android-only feature) and needs no camera key. -->
     <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
     <!-- Save PDFs to shared Documents/Bento: legacy flags for older Android, -->
     <!-- all-files access for Android 11+ scoped storage (on-device only). -->

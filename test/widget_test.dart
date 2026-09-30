@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:scan/core/routing/glass_nav_bar.dart';
 import 'package:scan/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,7 +22,7 @@ void main() {
     for (final label in ['Home', 'Files', 'Tools', 'Me']) {
       expect(
         find.descendant(
-          of: find.byType(NavigationBar),
+          of: find.byType(GlassNavBar),
           matching: find.text(label),
         ),
         findsOneWidget,
@@ -38,12 +39,12 @@ void main() {
 
     await tester.tap(find.text('Me'));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(GlassNavBar), findsOneWidget);
 
     // Mode switch + palette switch: still exactly one bar, no stuck overlay.
     await tester.tap(find.text('Dark'));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(GlassNavBar), findsOneWidget);
 
     final mocha = find.byKey(const ValueKey('palette_mocha'));
     await tester.ensureVisible(mocha);
@@ -52,7 +53,7 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
     expect(find.textContaining('Mocha'), findsWidgets);
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(GlassNavBar), findsOneWidget);
 
     // Leave the shared router on Home so later tests start clean.
     await tester.tap(find.text('Home'));
@@ -70,7 +71,7 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
 
     // Tab root: bar visible.
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(GlassNavBar), findsOneWidget);
 
     // Open a tool sub-page: bar hides (fullscreen).
     await tester.tap(find.text('Tools'));
@@ -79,12 +80,12 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('Merge PDFs'), findsWidgets);
-    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byType(GlassNavBar), findsNothing);
 
     // Back to the tab root: bar returns.
     await tester.pageBack();
     await tester.pump(const Duration(seconds: 1));
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(GlassNavBar), findsOneWidget);
 
     // Leave the shared appRouter on Home so later tests start clean.
     await tester.tap(find.text('Home'));

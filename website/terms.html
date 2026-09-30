@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms &amp; Conditions — Bento</title>
+  <meta name="description" content="Terms and conditions for using the Bento offline PDF tools and document scanner app." />
+  <meta name="theme-color" content="#3b5bfe" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/favicon.png" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("bento-theme");
+        if (t !== "dark" && t !== "light") {
+          t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+  <svg hidden xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2" />
+      <path d="M12 20v2" />
+      <path d="M4.9 4.9l1.4 1.4" />
+      <path d="M17.7 17.7l1.4 1.4" />
+      <path d="M2 12h2" />
+      <path d="M20 12h2" />
+      <path d="M4.9 19.1l1.4-1.4" />
+      <path d="M17.7 6.3l1.4-1.4" />
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24">
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+    </symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 13h6" />
+      <path d="M9 17h6" />
+    </symbol>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="site-header">
+    <div class="wrap header-inner">
+      <a class="logo" href="index.html">
+        <img src="assets/favicon.png" alt="" />
+        <span>Bento<span class="dot">.</span></span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Main navigation">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#tools">Tools</a>
+        <a href="index.html#scanner">Scanner</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-sun" /></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-moon" /></svg>
+        </button>
+        <button class="icon-btn nav-toggle" id="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-menu" /></svg>
+        </button>
+        <a class="btn btn-primary btn-sm" href="mailto:ashishdahal27@gmail.com?subject=Bento%20app%20enquiry">Get in touch</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="wrap">
+        <span class="eyebrow">Terms of service · plain language</span>
+        <h1>Terms &amp; Conditions</h1>
+        <p class="updated">Applies to Bento 1.0.0+1 · Last updated: September 30, 2026</p>
+      </div>
+    </section>
+
+    <section class="legal">
+      <div class="wrap">
+        <div class="legal-hero gradient">
+          <div class="lede-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-doc" /></svg>
+          </div>
+          <div>
+            <h2>The deal, in one paragraph</h2>
+            <p>Bento is free, open-source and offline. Use it on files you have the right to touch, keep your own backups and passwords, and review important results before you rely on them. The app comes with no warranty — the full terms are in the cards below.</p>
+          </div>
+        </div>
+
+        <div class="term-meta" aria-label="Applies to">
+          <span>Bento 1.0.0+1</span>
+          <span>com.benopdf.scan</span>
+          <span>Android 7.0+ · iOS 13+</span>
+          <span>AGPL-3.0</span>
+        </div>
+
+        <nav class="toc" aria-label="Table of contents">
+          <h2>In these terms</h2>
+          <ol>
+            <li><a href="#what">What Bento is</a></li>
+            <li><a href="#license">Your free-software license</a></li>
+            <li><a href="#scope">What the app does</a></li>
+            <li><a href="#responsible">Using Bento responsibly</a></li>
+            <li><a href="#signatures">Signatures carry legal weight</a></li>
+            <li><a href="#backups">Backups are on you</a></li>
+            <li><a href="#passwords-terms">Passwords</a></li>
+            <li><a href="#warranty">No warranty</a></li>
+            <li><a href="#liability">Liability limit</a></li>
+            <li><a href="#changes-terms">Changes to the app and these terms</a></li>
+            <li><a href="#contact-terms">Contact</a></li>
+          </ol>
+        </nav>
+
+        <div class="term-card" id="what">
+          <h2><span class="sec-num">1</span>What Bento is</h2>
+          <p>Bento is a free (no price, no ads, no in-app purchases) offline PDF toolkit and document scanner for Android and iOS. It processes your documents entirely on your device — there is no account, no cloud and no sync. These terms cover the app and this website. Installing or using Bento means you accept them; if you don’t, please don’t use the app.</p>
+        </div>
+
+        <div class="term-card" id="license">
+          <h2><span class="sec-num">2</span>Your free-software license</h2>
+          <p>Bento is distributed under the <a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="noopener" target="_blank">GNU Affero General Public License v3.0</a> (AGPL-3.0-or-later). You are free to use, study, modify and share the software under that license, and the complete corresponding source — including the UI — is published alongside every store build.</p>
+          <p>These terms don’t take away any right the AGPL-3.0 gives you; where they conflict about the software itself, the license wins. The Bento name and logo identify this project — please don’t use them to mislead people about modified copies.</p>
+        </div>
+
+        <div class="term-card" id="scope">
+          <h2><span class="sec-num">3</span>What the app does</h2>
+          <p>Version 1.0 ships nine tools — Merge PDFs, Organize Pages, Extract Pages, Compress PDF, Image → PDF, PDF → Image, Protect PDF, Unlock PDF and native Sign PDF — plus the document scanner (auto edge detection, crop, Original / Grayscale / B&amp;W filters, multi-page review, rename and PDF export) and a local Files browser. The app says “More tools coming soon” in the Tools tab, and features may be added, changed or removed in updates.</p>
+          <p>Outputs are sanity-checked before they reach you (page counts and a render check), but PDF processing is complex — always review a result before you print it, sign it or send it somewhere important.</p>
+        </div>
+
+        <div class="term-card" id="responsible">
+          <h2><span class="sec-num">4</span>Using Bento responsibly</h2>
+          <ul>
+            <li>Process only files you own or are authorized to modify.</li>
+            <li>Use Unlock only on password-protected files you have the right to open — not to defeat someone else’s protection.</li>
+            <li>Don’t use the app for unlawful material or to infringe anyone’s rights.</li>
+            <li>Respect other people’s privacy when scanning, sharing or publishing documents.</li>
+          </ul>
+        </div>
+
+        <div class="term-card" id="signatures">
+          <h2><span class="sec-num">5</span>Signatures carry legal weight</h2>
+          <div class="callout">
+            <p><strong>Please read this one carefully:</strong> stamping your drawn signature onto a PDF can create a legally binding document in your jurisdiction. Check the placement and the document’s contents before you sign, keep your device and files secure, and get independent advice if the document matters — Bento can’t verify your identity or the document’s validity.</p>
+          </div>
+        </div>
+
+        <div class="term-card" id="backups">
+          <h2><span class="sec-num">6</span>Backups are on you</h2>
+          <p>Tools like Organize, Extract, Compress and Unlock transform your files, and results land in <code>Documents/Bento</code> (or the folder you chose). Keep copies of important originals before processing them. Because nothing is uploaded, there is no cloud copy to restore — if you delete a file or lose the device, it’s gone. Deleting a file in Bento deletes the local copy.</p>
+        </div>
+
+        <div class="term-card" id="passwords-terms">
+          <h2><span class="sec-num">7</span>Passwords</h2>
+          <p>Protect PDF secures files with AES-256 encryption. Your password is never stored and can’t be recovered by us if you forget it — store it somewhere safe, and don’t share protected files’ passwords over insecure channels.</p>
+        </div>
+
+        <div class="term-card" id="warranty">
+          <h2><span class="sec-num">8</span>No warranty</h2>
+          <p>Bento is provided “as is”, without warranties of any kind — express or implied — including merchantability, fitness for a particular purpose, accuracy and non-infringement (this mirrors the AGPL-3.0’s own disclaimer). We don’t promise error-free operation, any particular processing result, or that every document will remain readable after processing.</p>
+        </div>
+
+        <div class="term-card" id="liability">
+          <h2><span class="sec-num">9</span>Liability limit</h2>
+          <p>To the maximum extent permitted by applicable law, the project owner and contributors aren’t liable for indirect, incidental, special, consequential or punitive damages — including loss of data, files, documents or profits — arising from your use of, or inability to use, Bento, even if advised such damages were possible.</p>
+        </div>
+
+        <div class="term-card" id="changes-terms">
+          <h2><span class="sec-num">10</span>Changes to the app and these terms</h2>
+          <p>Bento is actively developed: tools and screens may evolve between updates. We may revise these terms too; the current version always lives on this page with its update date, and material changes will be flagged in the release notes. Continuing to use the app after a change means you accept the revised terms.</p>
+        </div>
+
+        <div class="term-card" id="contact-terms">
+          <h2><span class="sec-num">11</span>Contact</h2>
+          <p>Questions about these terms? Email <a href="mailto:ashishdahal27@gmail.com?subject=Bento%20terms%20question">ashishdahal27@gmail.com</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="index.html">
+            <img src="assets/favicon.png" alt="" />
+            <span>Bento<span class="dot">.</span></span>
+          </a>
+          <p>An offline-first PDF toolkit and document scanner. Your files never leave your device.</p>
+        </div>
+
+        <div class="footer-col">
+          <h3>Product</h3>
+          <ul>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#tools">Tools</a></li>
+            <li><a href="index.html#scanner">Scanner</a></li>
+            <li><a href="index.html#faq">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h3>Legal &amp; contact</h3>
+          <ul>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="noopener" target="_blank">License (AGPL-3.0)</a></li>
+            <li><a href="mailto:ashishdahal27@gmail.com?subject=Bento%20app%20enquiry">ashishdahal27@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span id="year">2026</span> Bento. Built with Flutter, offline by design.</span>
+        <span>Made for Android &amp; iOS · AGPL-3.0</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

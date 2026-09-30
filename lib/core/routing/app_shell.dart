@@ -3,11 +3,15 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../router/route_names.dart';
+import 'glass_nav_bar.dart';
 
 /// Bottom-nav shell with animated branch transitions.
 ///
 /// Tab switches cross-slide with a fade (direction-aware). There is no swipe
 /// gesture — tabs change by tapping the navigation bar only.
+///
+/// The bar is a floating frosted-glass pill ([GlassNavBar]) shared by all
+/// platforms; only the chrome hides on pushed sub-pages.
 class AppShell extends StatefulWidget {
   const new({required this.navigationShell, super.key});
 
@@ -63,37 +67,23 @@ class _AppShellState extends State<AppShell> {
             )
           : null,
       bottomNavigationBar: isTabRoot
-          ? NavigationBar(
-              selectedIndex: shell.currentIndex,
-              onDestinationSelected: (i) => shell.goBranch(
+          ? GlassNavBar(
+              currentIndex: shell.currentIndex,
+              onTap: (i) => shell.goBranch(
                 i,
                 initialLocation: i == shell.currentIndex,
               ),
-              animationDuration: const Duration(milliseconds: 320),
-              backgroundColor: Theme.of(
-                context,
-              ).navigationBarTheme.backgroundColor,
-              indicatorColor: scheme.primaryContainer,
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Symbols.home_app_logo),
-                  selectedIcon: Icon(Symbols.home_app_logo),
+              items: const [
+                GlassNavItem(
                   label: 'Home',
+                  icon: Symbols.home_app_logo,
                 ),
-                NavigationDestination(
-                  icon: Icon(Symbols.files),
-                  selectedIcon: Icon(Symbols.files),
-                  label: 'Files',
-                ),
-                NavigationDestination(
-                  icon: Icon(Symbols.browse),
-                  selectedIcon: Icon(Symbols.browse),
-                  label: 'Tools',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.person_outlined),
-                  selectedIcon: Icon(Icons.person_rounded),
+                GlassNavItem(label: 'Files', icon: Symbols.files),
+                GlassNavItem(label: 'Tools', icon: Symbols.browse),
+                GlassNavItem(
                   label: 'Me',
+                  icon: Icons.person_outlined,
+                  selectedIcon: Icons.person_rounded,
                 ),
               ],
             )

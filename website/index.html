@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bento — Offline PDF Tools &amp; Document Scanner</title>
+  <meta name="description" content="Bento is a private, offline-first PDF toolkit and document scanner. Merge, split, organize, compress, convert, protect, unlock and sign PDFs — 100% on-device. No uploads, no accounts, no tracking." />
+  <meta name="theme-color" content="#3b5bfe" />
+  <meta property="og:title" content="Bento — Offline PDF Tools &amp; Document Scanner" />
+  <meta property="og:description" content="Every PDF tool you need, nothing leaves your phone. 100% on-device processing, no uploads, no accounts." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/favicon.png" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("bento-theme");
+        if (t !== "dark" && t !== "light") {
+          t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+  <svg hidden xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-merge" viewBox="0 0 24 24">
+      <path d="M6 3v5a5 5 0 0 0 5 5h7" />
+      <path d="m14 9 4 4-4 4" />
+      <path d="M18 3v4" />
+    </symbol>
+    <symbol id="i-organize" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </symbol>
+    <symbol id="i-extract" viewBox="0 0 24 24">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 14h6" />
+      <path d="m12 11 3 3-3 3" />
+    </symbol>
+    <symbol id="i-compress" viewBox="0 0 24 24">
+      <path d="M4 9V5a1 1 0 0 1 1-1h4" />
+      <path d="M20 9V5a1 1 0 0 0-1-1h-4" />
+      <path d="M4 15v4a1 1 0 0 0 1 1h4" />
+      <path d="M20 15v4a1 1 0 0 1-1 1h-4" />
+      <path d="m4 9 5 5" />
+      <path d="m20 9-5 5" />
+      <path d="m4 15 5-5" />
+      <path d="m20 15-5-5" />
+    </symbol>
+    <symbol id="i-img2pdf" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="1.6" />
+      <path d="m21 15-5-5L5 20" />
+    </symbol>
+    <symbol id="i-pdf2img" viewBox="0 0 24 24">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" />
+      <path d="M14 3v5h5" />
+      <circle cx="11" cy="13" r="1.4" />
+      <path d="m8 18 3-3 2 2 3-3 2 2" />
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24">
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2" />
+      <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5" />
+      <path d="M12 14.5v2.5" />
+    </symbol>
+    <symbol id="i-unlock" viewBox="0 0 24 24">
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2" />
+      <path d="M8 10.5V7a4 4 0 0 1 7.7-1.5" />
+      <path d="M12 14.5v2.5" />
+    </symbol>
+    <symbol id="i-sign" viewBox="0 0 24 24">
+      <path d="m17 3 4 4L8 20l-5 1 1-5Z" />
+      <path d="m14 6 4 4" />
+    </symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24">
+      <path d="M3 8V5a2 2 0 0 1 2-2h3" />
+      <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+      <path d="M21 16v3a2 2 0 0 1-2 2h-3" />
+      <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+      <path d="M3 12h18" />
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24">
+      <path d="m12 3 7 3v6c0 4.6-3.1 7.7-7 9-3.9-1.3-7-4.4-7-9V6Z" />
+      <path d="m9 12 2 2 4-4" />
+    </symbol>
+    <symbol id="i-offline" viewBox="0 0 24 24">
+      <path d="M13 2 3 14h7l-1 8 10-12h-7Z" />
+    </symbol>
+    <symbol id="i-theme" viewBox="0 0 24 24">
+      <path d="M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 0-4H13a2 2 0 0 1 2-2h2.5a3.5 3.5 0 0 0 3.5-3.5C21 6.8 17 3 12 3Z" />
+      <circle cx="7.5" cy="10.5" r=".8" />
+      <circle cx="12" cy="7.5" r=".8" />
+      <circle cx="16.5" cy="10" r=".8" />
+    </symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24">
+      <path d="M4 6a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" />
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24">
+      <path d="M12 3v4" />
+      <path d="M12 17v4" />
+      <path d="M3 12h4" />
+      <path d="M17 12h4" />
+      <path d="m5.6 5.6 2.8 2.8" />
+      <path d="m15.6 15.6 2.8 2.8" />
+      <path d="m18.4 5.6-2.8 2.8" />
+      <path d="m8.4 15.6-2.8 2.8" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="m5 12 5 5L19 7" />
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24">
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2" />
+      <path d="M12 20v2" />
+      <path d="M4.9 4.9l1.4 1.4" />
+      <path d="M17.7 17.7l1.4 1.4" />
+      <path d="M2 12h2" />
+      <path d="M20 12h2" />
+      <path d="M4.9 19.1l1.4-1.4" />
+      <path d="M17.7 6.3l1.4-1.4" />
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24">
+      <path d="M12 3v12" />
+      <path d="m7 11 5 5 5-5" />
+      <path d="M4 20h16" />
+    </symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m4 7 8 6 8-6" />
+    </symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24">
+      <rect x="9" y="9" width="12" height="12" rx="2" />
+      <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24">
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </symbol>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="site-header">
+    <div class="wrap header-inner">
+      <a class="logo" href="index.html">
+        <img src="assets/favicon.png" alt="" />
+        <span>Bento<span class="dot">.</span></span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Main navigation">
+        <a href="#features">Features</a>
+        <a href="#tools">Tools</a>
+        <a href="#scanner">Scanner</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-sun" /></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-moon" /></svg>
+        </button>
+        <button class="icon-btn nav-toggle" id="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-menu" /></svg>
+        </button>
+        <a class="btn btn-primary btn-sm" href="mailto:ashishdahal27@gmail.com?subject=Bento%20app%20enquiry">Get in touch</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="hero">
+      <div class="wrap hero-inner">
+        <div>
+          <span class="badge"><span class="pulse"></span>100% offline · no uploads</span>
+          <h1>Every PDF tool you need. <span class="grad">Nothing leaves your phone.</span></h1>
+          <p class="lead">Bento is a private, offline-first PDF toolkit and document scanner. Merge, split, organize, compress, convert, protect, unlock and sign — all processed on your device by a native engine. No accounts, no cloud, no tracking.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#contact">
+              Get the app
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-arrow" /></svg>
+            </a>
+            <a class="btn btn-ghost" href="#tools">See all 9 tools</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat"><strong>9</strong><span>PDF tools</span></div>
+            <div class="stat"><strong>32</strong><span>app themes</span></div>
+            <div class="stat"><strong>0</strong><span>network calls</span></div>
+            <div class="stat"><strong>100%</strong><span>on-device</span></div>
+          </div>
+        </div>
+
+        <div class="phone" aria-hidden="true">
+          <div class="phone-screen">
+            <div class="phone-top">
+              <div class="greeting">Good morning</div>
+              <div class="title">Bento</div>
+              <div class="searchbar">Search tools…</div>
+            </div>
+            <div class="tool-grid-mini">
+              <div class="tool-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-merge" /></svg>
+                <span>Merge</span>
+              </div>
+              <div class="tool-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-organize" /></svg>
+                <span>Organize</span>
+              </div>
+              <div class="tool-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-extract" /></svg>
+                <span>Extract</span>
+              </div>
+              <div class="tool-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-compress" /></svg>
+                <span>Compress</span>
+              </div>
+              <div class="tool-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-img2pdf" /></svg>
+                <span>Image → PDF</span>
+              </div>
+              <div class="tool-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-pdf2img" /></svg>
+                <span>PDF → Image</span>
+              </div>
+              <div class="tool-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock" /></svg>
+                <span>Protect</span>
+              </div>
+              <div class="tool-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-unlock" /></svg>
+                <span>Unlock</span>
+              </div>
+              <div class="tool-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sign" /></svg>
+                <span>Sign</span>
+              </div>
+            </div>
+            <div class="phone-nav">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-organize" /></svg>
+              <svg class="active" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-scan" /></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-folder" /></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sun" /></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="features">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Why Bento</span>
+          <h2>Built for people who care where their documents go</h2>
+          <p class="section-sub">A native Flutter app with a native PDF engine. No browser tricks, no servers, no fine print.</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="card reveal">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-offline" /></svg>
+            </div>
+            <h3>Works in airplane mode</h3>
+            <p>Every engine module, font and asset is bundled at install time. Nothing is downloaded on first use — turn off Wi-Fi and everything still works.</p>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-shield" /></svg>
+            </div>
+            <h3>Your files stay yours</h3>
+            <p>No accounts, no sign-in, no analytics, no ads. Your PDFs never touch a server, because there is no server to touch.</p>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-scan" /></svg>
+            </div>
+            <h3>Native document scanner</h3>
+            <p>Scan paper with automatic edge detection, crop and filters, review multi-page results, then save as PDF or send straight into another tool.</p>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-theme" /></svg>
+            </div>
+            <h3>32 themes, light and dark</h3>
+            <p>Material You dynamic colour, Catppuccin, Dracula, Nord, Gruvbox and more — with live previews and a system-following mode.</p>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-spark" /></svg>
+            </div>
+            <h3>Fast native engine</h3>
+            <p>PDF processing runs on a MIT-licensed Rust core over FFI, off the main thread — so the interface stays smooth even on big files.</p>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-folder" /></svg>
+            </div>
+            <h3>Files where you expect them</h3>
+            <p>Results go straight to Documents/Bento by default — or any folder you choose — with previews before you save or share.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tools">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">The toolkit</span>
+          <h2>Nine tools. One private app.</h2>
+          <p class="section-sub">Everything runs locally, from a single file to a hundred-page batch.</p>
+        </div>
+
+        <div class="tools-grid">
+          <article class="tool-card reveal">
+            <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-merge" /></svg></div>
+            <div>
+              <h3>Merge PDFs</h3>
+              <p>Combine multiple PDFs into one document, in the order you choose.</p>
+            </div>
+          </article>
+
+          <article class="tool-card reveal">
+            <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-organize" /></svg></div>
+            <div>
+              <h3>Organize Pages</h3>
+              <p>Rotate, delete and reorder pages with a live thumbnail grid.</p>
+            </div>
+          </article>
+
+          <article class="tool-card reveal">
+            <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-extract" /></svg></div>
+            <div>
+              <h3>Extract Pages</h3>
+              <p>Pull selected pages out into a brand-new PDF.</p>
+            </div>
+          </article>
+
+          <article class="tool-card reveal">
+            <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-compress" /></svg></div>
+            <div>
+              <h3>Compress PDF</h3>
+              <p>Shrink file size with low, medium or high quality presets.</p>
+            </div>
+          </article>
+
+          <article class="tool-card reveal">
+            <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-img2pdf" /></svg></div>
+            <div>
+              <h3>Image → PDF</h3>
+              <p>Turn photos and scanned images into a clean PDF.</p>
+            </div>
+          </article>
+
+          <article class="tool-card reveal">
+            <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-pdf2img" /></svg></div>
+            <div>
+              <h3>PDF → Image</h3>
+              <p>Export any page as a high-quality PNG.</p>
+            </div>
+          </article>
+
+          <article class="tool-card reveal">
+            <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-lock" /></svg></div>
+            <div>
+              <h3>Protect PDF</h3>
+              <p>Password-protect documents with AES-256 encryption.</p>
+            </div>
+          </article>
+
+          <article class="tool-card reveal">
+            <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-unlock" /></svg></div>
+            <div>
+              <h3>Unlock PDF</h3>
+              <p>Remove password protection from files you own.</p>
+            </div>
+          </article>
+
+          <article class="tool-card reveal">
+            <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-sign" /></svg></div>
+            <div>
+              <h3>Sign PDF</h3>
+              <p>Draw a signature and stamp it on the page — fully native.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="scanner">
+      <div class="wrap split">
+        <div class="reveal">
+          <span class="eyebrow">Smart Scan</span>
+          <h2>Turn paper into PDFs, right in the app</h2>
+          <p class="section-sub">Point, shoot, review. Bento detects the page edges, straightens the crop and cleans up the image — all on-device.</p>
+
+          <ul class="checklist">
+            <li>
+              <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg></span>
+              Automatic edge detection and perspective correction
+            </li>
+            <li>
+              <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg></span>
+              Multi-page capture with reorder and rename before saving
+            </li>
+            <li>
+              <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg></span>
+              Colour, grayscale and black &amp; white filters
+            </li>
+            <li>
+              <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg></span>
+              Export to PDF or send straight to Compress, Sign and other tools
+            </li>
+          </ul>
+        </div>
+
+        <div class="scan-visual reveal">
+          <div class="doc-frame">
+            <div class="corners"><span></span><span></span><span></span><span></span></div>
+            <div class="doc-lines"><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="scan-caption">
+            <span class="pill">Edges detected</span>
+            <span>Page 1 of 3 · On-device</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="privacy">
+      <div class="wrap">
+        <div class="privacy-band reveal">
+          <div>
+            <h2>Privacy isn’t a setting. It’s the architecture.</h2>
+            <p>Bento has no network permission for its tooling, no telemetry and no hidden upload step. Read the full policy for the details.</p>
+          </div>
+          <ul class="privacy-list">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg>
+              No uploads — processing is on-device
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg>
+              No analytics, tracking or ads
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg>
+              Camera only when you tap Scan
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Make it yours</span>
+          <h2>32 themes. Swipe, preview, done.</h2>
+          <p class="section-sub">From Material You dynamic colour to the classic palettes people love. Dark, light or follow the system.</p>
+        </div>
+        <ul class="chips reveal">
+          <li>Default</li>
+          <li>Dynamic / Material You</li>
+          <li>Catppuccin</li>
+          <li>Lavender</li>
+          <li>Mocha</li>
+          <li>Dracula</li>
+          <li>Nord</li>
+          <li>Gruvbox</li>
+          <li>Dark</li>
+          <li>Light</li>
+          <li>System</li>
+          <li>+ 21 more</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">FAQ</span>
+          <h2>Questions, answered</h2>
+        </div>
+
+        <div class="faq reveal">
+          <details>
+            <summary>Do my documents get uploaded anywhere?</summary>
+            <p>No. Every tool processes files locally on your device. Bento doesn’t upload, sync or transmit your documents — there is no backend at all.</p>
+          </details>
+          <details>
+            <summary>Do I need an account or an internet connection?</summary>
+            <p>Neither. Install it, open it, use it. The app works fully offline, including the scanner and every PDF tool.</p>
+          </details>
+          <details>
+            <summary>Which platforms are supported?</summary>
+            <p>Android 7.0 (API 24) and newer, and iOS 13 and newer.</p>
+          </details>
+          <details>
+            <summary>Is Bento free? Is it open source?</summary>
+            <p>Yes. Bento is free and open source under AGPL-3.0. The complete source is published, and the app is built on open components such as the MIT-licensed pdf_manipulator engine.</p>
+          </details>
+          <details>
+            <summary>Which permissions does the app need?</summary>
+            <p>Storage access to open and save your files, and camera access for the scanner — requested only when you tap Scan. No background access.</p>
+          </details>
+          <details>
+            <summary>How do I report a bug or request a feature?</summary>
+            <p>Email <a href="mailto:ashishdahal27@gmail.com?subject=Bento%20feedback">ashishdahal27@gmail.com</a> with as much detail as you can — screenshots and the PDF that caused the issue help a lot.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="wrap contact">
+        <div class="contact-card reveal">
+          <span class="eyebrow">Contact</span>
+          <h2>Questions, feedback or a build for your device?</h2>
+          <p class="section-sub">Reach out directly — bug reports, feature requests and store enquiries are all welcome.</p>
+
+          <div class="contact-mail">
+            <a class="email-link" id="email-link" href="mailto:ashishdahal27@gmail.com?subject=Bento%20app%20enquiry">ashishdahal27@gmail.com</a>
+            <button class="btn btn-ghost btn-sm" id="copy-email" type="button" data-email="ashishdahal27@gmail.com">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy" /></svg>
+              Copy email
+            </button>
+          </div>
+          <span class="copy-status" id="copy-status" role="status" aria-live="polite"></span>
+
+          <p class="contact-note">Typical reply time: within a couple of days. Please include your device model and OS version for app issues.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="index.html">
+            <img src="assets/favicon.png" alt="" />
+            <span>Bento<span class="dot">.</span></span>
+          </a>
+          <p>An offline-first PDF toolkit and document scanner. Your files never leave your device.</p>
+        </div>
+
+        <div class="footer-col">
+          <h3>Product</h3>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#tools">Tools</a></li>
+            <li><a href="#scanner">Scanner</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h3>Legal &amp; contact</h3>
+          <ul>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="noopener" target="_blank">License (AGPL-3.0)</a></li>
+            <li><a href="mailto:ashishdahal27@gmail.com?subject=Bento%20app%20enquiry">ashishdahal27@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span id="year">2026</span> Bento. Built with Flutter, offline by design.</span>
+        <span>Made for Android &amp; iOS · AGPL-3.0</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

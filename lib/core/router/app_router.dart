@@ -18,7 +18,6 @@ import '../../presentation/tools/image2pdf/bloc/mutation/image2pdf_mutation_bloc
 import '../../presentation/tools/image2pdf/pages/image2pdf_page.dart';
 import '../../presentation/tools/merge/bloc/mutation/merge_mutation_bloc.dart';
 import '../../presentation/tools/merge/pages/merge_page.dart';
-import '../../features/scan/openscan/openscan_capture_screen.dart';
 import '../../features/scan/scan_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/tools/compress/compress_screen.dart';
@@ -220,17 +219,6 @@ final appRouter = GoRouter(
         style: ScreenTransitionStyle.slideUp,
         child: const ScanScreen(),
       ),
-      routes: [
-        // iOS-only OpenScan capture flow.
-        GoRoute(
-          name: RouteNames.openscan,
-          path: 'openscan',
-          pageBuilder: (context, state) => buildAppTransitionPage(
-            key: state.pageKey,
-            child: const OpenScanCaptureScreen(),
-          ),
-        ),
-      ],
     ),
   ],
   errorBuilder: (context, state) =>

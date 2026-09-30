@@ -20,10 +20,10 @@ custom native Flutter UI (no BentoPDF web UI) · Riverpod for state management.
       - No other languages unless demonstrated user demand; no Tesseract WASM in v1 bundle
 - [x] WebView package for the headless engine host: `flutter_inappwebview` — confirmed 2026-09-23
       (RETIRED 2026-09-24: whole WebView/JS engine removed in favor of native FFI — no WebView remains)
-- [x] Scanner approach: Google ML Kit document scanner (`google_mlkit_document_scanner`) on Android; OpenScan pipeline (custom camera + pure-Dart edge detection) on iOS — switched 2026-09-25
-      - Vendored CV core + filters from https://github.com/ethereal-developers/OpenScan (BSD-3-Clause, `third_party/openscan/`)
+- [x] Scanner approach: Google ML Kit document scanner (`google_mlkit_document_scanner`), Android-only — switched 2026-09-25, iOS path removed 2026-09-30
       - Replaces the earlier ML Kit GMS / VisionKit plan (and its `cunning_document_scanner` plugin + platform-channel fallback, both removed)
-      - Package name: `com.benopdf.scan` · Targets: iOS 13+ (VisionKit), Android minSdk 24 (7.0)
+      - RETIRED 2026-09-30: OpenScan iOS pipeline (custom camera + vendored CV core/filters, `lib/features/scan/openscan/`, `third_party/openscan/`) — scanner is Android-only now; iOS shows an unsupported notice
+      - Package name: `com.benopdf.scan` · Targets: Android minSdk 24 (7.0), iOS 15
       - Routing/theming: `go_router` + Material 3 base for v1; custom design system deferred
 - [x] WASM strategy: tree-shake engine entry to only the 7 engine-backed v1 tools, no Tesseract until v1.1
       (RETIRED 2026-09-24 with the WebView engine — native FFI binary ~21 MB ships with the package)
@@ -70,16 +70,16 @@ custom native Flutter UI (no BentoPDF web UI) · Riverpod for state management.
       (the two Import shortcuts removed). Batch decrypt deferred (single-file MVP,
       consistent with other tools).
 
-## Phase 4 — Native Document Scanner (OpenScan pipeline, promoted 2026-09-25)
-- [x] Evaluated native-scanner plugins (`cunning_document_scanner` et al.) then replaced them
-      with the OpenScan approach after a device-tested beta — `lib/features/scan/openscan/`
-      (vendored CV core + filters, BSD-3-Clause) + `OpenScanCaptureScreen` (camera, flash,
-      Auto/Original/Gray/B&W) feeding the existing review flow
-- [x] Camera capture with boundary detection (pure-Dart edge/contour pipeline in isolates)
-- [x] Perspective correction / auto-crop per captured page (falls back to uncropped photo when no boundary found)
+## Phase 4 — Document Scanner (ML Kit, Android-only since 2026-09-30)
+- [x] Android capture via `google_mlkit_document_scanner` feeding the review flow
+      (thumbnail grid in `ScanScreen`, rename, PDF export, Send to tool)
+- [x] RETIRED OpenScan iOS pipeline (2026-09-30): `lib/features/scan/openscan/`
+      (vendored CV core + filters, `OpenScanCaptureScreen`), `third_party/openscan/`,
+      openscan route, `camera`/`camera_android_camerax` deps, iOS camera usage key.
+      iOS shows an unsupported notice; `ScanAction.unsupported` in [ScanCubit]
+- [x] Camera capture with boundary detection (ML Kit, Android)
+- [x] Perspective correction / auto-crop per captured page (ML Kit)
 - [x] Multi-page capture flow: add page, reorder, delete, retake — thumbnail grid in `ScanScreen` for returned images
-- [ ] Per-page filters: color, grayscale, black & white, auto-enhance (via `image` package if
-      plugin returns images rather than a composed PDF) — placeholder via `image` package, filter UI pending
 - [x] Compose pages into a single PDF using `pdf` + `image` packages (native, no engine needed)
       — only needed if plugin returns images; skip if it returns a PDF directly — `ScannerService.imagesToPdf` via `pdf`+`image`
 - [x] Save scanned PDF to device storage; option to share — `SharePlus.instance.share` in `ScanScreen`
@@ -125,8 +125,8 @@ custom native Flutter UI (no BentoPDF web UI) · Riverpod for state management.
 - [x] Process for pulling upstream engine updates — `flutter pub upgrade pdf_manipulator` (native binary comes from the package build hook); API map in `docs/ffi-engine.md`
 - [ ] Track which tools remain un-ported and prioritize next
 
-## Beta — OpenScan scanner variant (PROMOTED to release 2026-09-25)
-- [x] Device-tested beta (`com.benopdf.scan.beta`) confirmed working — OpenScan is now the release scanner
+## Beta — OpenScan scanner variant (RETIRED 2026-09-30, scanner is Android-only)
+- [x] Device-tested beta (`com.benopdf.scan.beta`) confirmed working — OpenScan was the release scanner on iOS until removal
 - [x] Beta scaffolding removed: `beta` flavor, `OPENSCAN` gate, badge icons, `docs/beta-openscan.md`;
       release builds are back to flavor-less (`flutter build apk/appbundle --release`)
 - [x] Old scanner stack removed: `cunning_document_scanner` dep, platform-channel fallback (Kotlin/Swift), VisionKit/ML Kit references

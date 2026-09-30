@@ -9,7 +9,7 @@ Bento is an offline-first PDF toolkit plus document scanner. All processing is o
 
 **Tools (v1):** Merge PDFs, Split, Organize/Rotate/Delete, Extract Pages, Compress PDF (balanced/high quality), Image→PDF, PDF→Image, Sign PDF (draw signature, native).
 
-**Scanner:** On-device document scanner with auto edge detection, auto-crop, multi-page review, color/gray/B&W filters, rename-before-save, compose to PDF, Send to tool. Google ML Kit on Android; OpenScan pipeline (BSD-3-Clause) on iOS.
+**Scanner (Android-only):** On-device document scanner with auto edge detection, auto-crop, multi-page review, color/gray/B&W filters, rename-before-save, compose to PDF, Send to tool. Google ML Kit.
 
 **Offline:** Native engine bundled with the app; no CDN, no downloads. OCR (eng only) in v1.1.
 

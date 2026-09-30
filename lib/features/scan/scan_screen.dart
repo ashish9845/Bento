@@ -3,9 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:scan/core/router/route_names.dart';
 import 'package:scan/core/storage/open_file.dart';
 import 'package:scan/features/tools/widgets/send_to_tool.dart';
 import 'package:scan/presentation/shared/widgets/dialogs/name_prompt_dialog.dart';
@@ -18,9 +16,9 @@ import 'widgets/scan_page_thumbnail.dart';
 
 /// Scan review flow — strict REPO/DATA <-> BLOC <-> UI.
 ///
-/// UI owns only: navigation (`pushNamed` openscan), SnackBars, Clipboard,
+/// UI owns only: SnackBars, Clipboard,
 /// open/share/send affordances, and the rename-dialog shell. All capture
-/// (permission + ML Kit), session hydrate/persist, and PDF export live in
+/// (ML Kit), session hydrate/persist, and PDF export live in
 /// [ScanCubit]/[ScanSessionCubit]/[ScanExportCubit]. This file imports no
 /// SharedPreferences, Permission, DocumentScanner, ScannerService, or
 /// dart:io — thumbnail File rendering is encapsulated in
@@ -41,10 +39,10 @@ class ScanScreen extends StatelessWidget {
   }
 }
 
-/// Capture entry: permission/platform routing lives in [ScanCubit].
-/// ML Kit results arrive via the success listener; OpenScan pages return
-/// from the pushed route and are dispatched to [ScanSessionCubit].
-/// UI never touches permission, scanner, or platform APIs directly.
+/// Capture entry: platform routing lives in [ScanCubit] (Android-only).
+/// ML Kit results arrive via the success listener; the session flag guards
+/// the interruption notice. UI never touches scanner or platform APIs
+/// directly.
 Future<void> scanPressed(BuildContext context) async {
   final scanCubit = context.read<ScanCubit>();
   final action = await scanCubit.prepareScan();
@@ -62,23 +60,10 @@ Future<void> scanPressed(BuildContext context) async {
       } finally {
         await session.clearScanFlag();
       }
-    case ScanAction.openScan:
-      final result = await context.pushNamed<List<String>?>(
-        RouteNames.openscan,
-      );
-      if (!context.mounted) return;
-      if (result == null || result.isEmpty) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Scan cancelled')));
-        return;
-      }
-      context.read<ScanSessionCubit>().appendPages(result);
+    case ScanAction.unsupported:
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${result.length} page(s) added — review below, then create PDF',
-          ),
+        const SnackBar(
+          content: Text('Document scanning is only available on Android.'),
         ),
       );
     case ScanAction.blocked:
@@ -187,7 +172,6 @@ class _ScanViewState extends State<_ScanView> {
               case ScanStatus.idle:
               case ScanStatus.scanning:
               case ScanStatus.error:
-              case ScanStatus.permissionDenied:
                 break;
             }
           },
@@ -231,7 +215,6 @@ class _ScanBody extends StatelessWidget {
     // (ML Kit code/message/stack) drive the Copy-details button.
     final error = scan.error ?? export.error;
     final errorDetails = scan.errorDetails;
-    final permissionError = scan.isPermissionError;
 
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
@@ -316,7 +299,6 @@ class _ScanBody extends StatelessWidget {
                       _ErrorCard(
                         error: error,
                         errorDetails: errorDetails,
-                        permissionError: permissionError,
                         busy: busy,
                       ),
                     ],
@@ -455,14 +437,12 @@ class _ScanBody extends StatelessWidget {
 class _ErrorCard extends StatelessWidget {
   const new({
     required this.error,
-    required this.permissionError,
     required this.busy,
     this.errorDetails,
   });
 
   final String error;
   final String? errorDetails;
-  final bool permissionError;
   final bool busy;
 
   @override
@@ -496,16 +476,6 @@ class _ErrorCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                if (permissionError)
-                  FilledButton.tonalIcon(
-                    // Permission Settings lives in ScanCubit so UI never
-                    // imports permission_handler.
-                    onPressed: () async {
-                      await context.read<ScanCubit>().openSystemSettings();
-                    },
-                    icon: const Icon(Icons.settings_rounded, size: 18),
-                    label: const Text('Open Settings'),
-                  ),
                 if (errorDetails != null)
                   OutlinedButton.icon(
                     onPressed: () async {

@@ -6,22 +6,21 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
-import 'package:permission_handler/permission_handler.dart';
 
-/// Next step after [ScanCubit.prepareScan] resolves permissions/platform.
+/// Next step after [ScanCubit.prepareScan] resolves the platform.
 ///
 /// UI switches on this — it never imports `dart:io` Platform or
-/// permission/ML Kit types directly.
-enum ScanAction { mlKit, openScan, blocked }
+/// ML Kit types directly. Scanning is Android-only (ML Kit); other
+/// platforms get [ScanAction.unsupported].
+enum ScanAction { mlKit, unsupported, blocked }
 
-enum ScanStatus { idle, scanning, success, cancelled, error, permissionDenied }
+enum ScanStatus { idle, scanning, success, cancelled, error }
 
-/// Capture state for the Scan flow (ML Kit on Android, OpenScan on iOS).
+/// Capture state for the Scan flow (ML Kit on Android).
 ///
-/// BLOC-layer owner of `Permission.camera` + `DocumentScanner.scanDocument`
-/// + `close` + error mapping. UI dispatches `prepareScan`/`scanWithMlKit`/
-/// `openSystemSettings` and renders `ScanState` — it never touches permission,
-/// scanner, or platform APIs directly.
+/// BLOC-layer owner of `DocumentScanner.scanDocument` + `close` + error
+/// mapping. UI dispatches `prepareScan`/`scanWithMlKit` and renders
+/// `ScanState` — it never touches scanner or platform APIs directly.
 class ScanState {
   const new({
     this.status = ScanStatus.idle,
@@ -38,7 +37,6 @@ class ScanState {
   final List<String> pages;
 
   bool get isScanning => status == ScanStatus.scanning;
-  bool get isPermissionError => status == ScanStatus.permissionDenied;
 
   ScanState copyWith({
     ScanStatus? status,
@@ -51,28 +49,6 @@ class ScanState {
     errorDetails: errorDetails,
     pages: pages ?? this.pages,
   );
-}
-
-/// Camera-permission gateway (iOS OpenScan path). Injected for tests.
-abstract class CameraPermissionGateway {
-  Future<CameraPermissionResult> ensureCamera();
-}
-
-enum CameraPermissionResult { granted, denied, permanentlyDenied }
-
-class PermissionHandlerCameraPermission implements CameraPermissionGateway {
-  @override
-  Future<CameraPermissionResult> ensureCamera() async {
-    var status = await Permission.camera.status;
-    if (!status.isGranted) {
-      status = await Permission.camera.request();
-    }
-    if (status.isPermanentlyDenied) {
-      return CameraPermissionResult.permanentlyDenied;
-    }
-    if (!status.isGranted) return CameraPermissionResult.denied;
-    return CameraPermissionResult.granted;
-  }
 }
 
 /// ML Kit scanner gateway (Android path). Injected for tests so UI/cubit
@@ -213,66 +189,26 @@ class MlKitScannerGatewayImpl implements MlKitScannerGateway {
 }
 
 class ScanCubit extends Cubit<ScanState> {
-  new({
-    CameraPermissionGateway? permission,
-    MlKitScannerGateway? mlKitScanner,
-  }) : _permission =
-           permission ?? PermissionHandlerCameraPermission(),
-       _mlKitScanner = mlKitScanner ?? MlKitScannerGatewayImpl(),
-       super(const ScanState());
+  new({MlKitScannerGateway? mlKitScanner})
+    : _mlKitScanner = mlKitScanner ?? MlKitScannerGatewayImpl(),
+      super(const ScanState());
 
-  final CameraPermissionGateway _permission;
   final MlKitScannerGateway _mlKitScanner;
 
-  /// Platform + permission routing. Android skips the app-level camera
-  /// prompt (ML Kit uses Play Services' camera permission); iOS asks
-  /// up-front since OpenScan uses our own camera.
+  /// Platform routing. Scanning is Android-only (ML Kit document scanner);
+  /// other platforms get [ScanAction.unsupported] with an error state for
+  /// the UI error card.
   Future<ScanAction> prepareScan() async {
     if (Platform.isAndroid) return ScanAction.mlKit;
-    final result = await ensureCameraPermission();
-    return result ? ScanAction.openScan : ScanAction.blocked;
-  }
-
-  /// iOS OpenScan path: returns true when camera is granted. Emits
-  /// permission/error states for the UI error card; UI navigates to
-  /// openscan itself on true.
-  Future<bool> ensureCameraPermission() async {
-    try {
-      final result = await _permission.ensureCamera();
-      if (isClosed) return false;
-      switch (result) {
-        case CameraPermissionResult.granted:
-          emit(state.copyWith(status: ScanStatus.idle));
-          return true;
-        case CameraPermissionResult.permanentlyDenied:
-          emit(
-            state.copyWith(
-              status: ScanStatus.permissionDenied,
-              error:
-                  'Camera access is blocked. Allow it in system Settings to scan.',
-            ),
-          );
-          return false;
-        case CameraPermissionResult.denied:
-          emit(
-            state.copyWith(
-              status: ScanStatus.error,
-              error: 'Camera permission is required to scan documents.',
-            ),
-          );
-          return false;
-      }
-    } on Exception catch (e) {
-      if (!isClosed) {
-        emit(
-          state.copyWith(
-            status: ScanStatus.error,
-            error: e.toString().replaceFirst('Exception: ', ''),
-          ),
-        );
-      }
-      return false;
+    if (!isClosed) {
+      emit(
+        state.copyWith(
+          status: ScanStatus.error,
+          error: 'Document scanning is only available on Android.',
+        ),
+      );
     }
+    return ScanAction.unsupported;
   }
 
   /// Android ML Kit path: emits scanning → success(pages)/cancelled/error.
@@ -318,14 +254,6 @@ class ScanCubit extends Cubit<ScanState> {
   Future<List<String>> recoverInterruptedScan() async {
     final pages = await _mlKitScanner.consumeRecoveredScan();
     return pages.where((p) => p.isNotEmpty && File(p).existsSync()).toList();
-  }
-
-  /// Opens system Settings for blocked camera permission. Lives here so
-  /// UI never imports permission_handler.
-  Future<void> openSystemSettings() async {
-    try {
-      await openAppSettings();
-    } on Exception catch (_) {}
   }
 
   void clearError() {

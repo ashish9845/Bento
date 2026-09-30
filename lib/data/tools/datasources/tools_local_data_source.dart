@@ -27,9 +27,11 @@ class ToolsLocalDataSourceImpl implements ToolsLocalDataSource {
 
   @override
   Future<File> imageToPdf(List<File> images, {String? outputName}) async {
+    // Hoisted: File handles can't cross the isolate boundary, only paths can.
+    final paths = images.map((f) => f.path).toList();
     final outBytes = await Isolate.run(() async {
       final pdf = pw.Document();
-      for (final p in images.map((f) => f.path).toList()) {
+      for (final p in paths) {
         final bytes = await File(p).readAsBytes();
         final image = pw.MemoryImage(bytes);
         pdf.addPage(

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Bento</title>
+  <meta name="description" content="Bento privacy policy: on-device only, no uploads, no analytics, no tracking. Your documents never leave your device." />
+  <meta name="theme-color" content="#3b5bfe" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/favicon.png" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("bento-theme");
+        if (t !== "dark" && t !== "light") {
+          t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+  <svg hidden xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2" />
+      <path d="M12 20v2" />
+      <path d="M4.9 4.9l1.4 1.4" />
+      <path d="M17.7 17.7l1.4 1.4" />
+      <path d="M2 12h2" />
+      <path d="M20 12h2" />
+      <path d="M4.9 19.1l1.4-1.4" />
+      <path d="M17.7 6.3l1.4-1.4" />
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24">
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="m5 12 5 5L19 7" />
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24">
+      <path d="m12 3 7 3v6c0 4.6-3.1 7.7-7 9-3.9-1.3-7-4.4-7-9V6Z" />
+      <path d="m9 12 2 2 4-4" />
+    </symbol>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="site-header">
+    <div class="wrap header-inner">
+      <a class="logo" href="index.html">
+        <img src="assets/favicon.png" alt="" />
+        <span>Bento<span class="dot">.</span></span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Main navigation">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#tools">Tools</a>
+        <a href="index.html#scanner">Scanner</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-sun" /></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-moon" /></svg>
+        </button>
+        <button class="icon-btn nav-toggle" id="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-menu" /></svg>
+        </button>
+        <a class="btn btn-primary btn-sm" href="mailto:ashishdahal27@gmail.com?subject=Bento%20app%20enquiry">Get in touch</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="wrap">
+        <span class="eyebrow">Privacy · on-device by design</span>
+        <h1>Privacy Policy</h1>
+        <p class="updated">Bento 1.0.0+1 (com.benopdf.scan) · Last updated: September 30, 2026</p>
+      </div>
+    </section>
+
+    <section class="legal">
+      <div class="wrap">
+        <div class="legal-hero">
+          <div class="lede-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-shield" /></svg>
+          </div>
+          <div>
+            <h2>On-device only. No network.</h2>
+            <p>As the in-app Privacy notice says: all PDF processing and scanning happens on-device — no file is ever uploaded. The release build declares no internet permission, so Bento physically cannot transmit your data.</p>
+            <ul class="guarantees">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg>No uploads</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg>No accounts</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg>No analytics</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg>No ads or tracking</li>
+            </ul>
+          </div>
+        </div>
+
+        <nav class="toc" aria-label="Table of contents">
+          <h2>Contents</h2>
+          <ol>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#processing">How your documents are processed</a></li>
+            <li><a href="#collection">What we collect — and what we don’t</a></li>
+            <li><a href="#permissions">Permissions the app requests</a></li>
+            <li><a href="#storage">Where your files live</a></li>
+            <li><a href="#leaves">What can leave your device (only by your hand)</a></li>
+            <li><a href="#passwords">Passwords and encryption</a></li>
+            <li><a href="#third-party">Third-party components</a></li>
+            <li><a href="#children">Children’s privacy</a></li>
+            <li><a href="#changes">Changes to this policy</a></li>
+            <li><a href="#contact-policy">Contact</a></li>
+          </ol>
+        </nav>
+
+        <h2 id="overview">1. Overview</h2>
+        <p>This policy describes how Bento — the offline-first PDF toolkit and document scanner (package <code>com.benopdf.scan</code>, version 1.0.0+1, Android 7.0+ and iOS 13+) — handles your information. In short: it doesn’t handle it at all. Your documents are processed locally on your phone or tablet, and Bento has no servers, no accounts and no analytics to send anything to.</p>
+
+        <h2 id="processing">2. How your documents are processed</h2>
+        <p>All nine tools — Merge PDFs, Organize Pages, Extract Pages, Compress PDF, Image → PDF, PDF → Image, Protect PDF, Unlock PDF and Sign PDF — run locally through a native Rust engine (<code>pdf_manipulator</code>, MIT) over FFI, off the main thread. There is no WebView and no browser-based processing step.</p>
+        <p>Scanning uses Google ML Kit on Android and the in-app camera with native edge detection (Apple Vision on iOS, OpenCV on Android) with perspective correction and the Original / Grayscale / B&amp;W filters. Multi-page review, reorder, rename and PDF export all happen on-device. Audio capture is disabled in the capture screen, and the camera never runs in the background.</p>
+
+        <h2 id="collection">3. What we collect — and what we don’t</h2>
+        <p>Bento collects nothing. There is no sign-in, no analytics SDK, no crash-reporting SDK, no advertising SDK and no usage telemetry of any kind. The app does not read your contacts, messages, location or call history.</p>
+        <p>Your preferences — theme choice and save-folder choice — are stored in the app’s private on-device settings and are never synced anywhere. If you email us, we receive only what you choose to include in that message, and we use it solely to reply.</p>
+
+        <h2 id="permissions">4. Permissions the app requests</h2>
+        <div class="data-table">
+          <table>
+            <tr>
+              <th scope="col">Permission</th>
+              <th scope="col">When it’s asked for</th>
+              <th scope="col">Why</th>
+            </tr>
+            <tr>
+              <td>Camera (Android &amp; iOS)</td>
+              <td>Only when you open the Scan tab</td>
+              <td>Capturing pages. iOS prompt: “Camera access is required to scan documents.” Never used in the background; audio capture is off.</td>
+            </tr>
+            <tr>
+              <td>Photos / media library (iOS)</td>
+              <td>When you pick images for Image → PDF</td>
+              <td>Reading only the images you choose. iOS prompt: “Photo library access is required to pick images for Image to PDF.”</td>
+            </tr>
+            <tr>
+              <td>Files &amp; storage (Android)</td>
+              <td>When you pick files or save results</td>
+              <td>Opening documents you select and writing results to Documents/Bento (or your chosen folder). Android 11+ uses all-files access for this; photo, video, audio and music library permissions are stripped from the release build.</td>
+            </tr>
+            <tr>
+              <td>Network</td>
+              <td>Never, in release builds</td>
+              <td>Release builds declare no INTERNET and no network-state permission, and remove audio-recording permission too — so the app cannot upload, phone home or record. (INTERNET exists only in developer debug builds.)</td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 id="storage">5. Where your files live</h2>
+        <p>Results are written to <code>Documents/Bento</code> by default, or to any folder you pick in Settings. The Files tab is a local browser over those folders: opening, sharing, sending to another tool, viewing details or deleting a file all act on the copy stored on your device. Deleting a file in Bento deletes that local copy.</p>
+
+        <h2 id="leaves">6. What can leave your device (only by your hand)</h2>
+        <p>The only way a document leaves your device is through an action you explicitly take: the system Share sheet, “Open with…” another app, or handing a scanned PDF to another on-device tool such as Compress or Sign. These are operating-system handoffs you trigger — Bento itself initiates no transfer.</p>
+
+        <h2 id="passwords">7. Passwords and encryption</h2>
+        <p>Protect PDF secures documents with AES-256 encryption. A password you type for Protect or Unlock exists only in the app’s memory for the duration of that operation: it is never saved by the app and, with no network permission, has nowhere to go. Because there is no server and no backdoor, a forgotten password cannot be recovered by us — keep it somewhere safe.</p>
+
+        <h2 id="third-party">8. Third-party components</h2>
+        <p>Bento is built from open-source components, each running entirely on-device under its own license. Bento as a whole ships under AGPL-3.0, with full source — including the UI — published alongside every store build.</p>
+        <div class="data-table">
+          <table>
+            <tr>
+              <th scope="col">Component</th>
+              <th scope="col">License</th>
+              <th scope="col">Role in the app</th>
+            </tr>
+            <tr>
+              <td>pdf_manipulator</td>
+              <td>MIT</td>
+              <td>Native Rust PDF engine (merge, split, organize, compress, encrypt, render)</td>
+            </tr>
+            <tr>
+              <td>google_mlkit_document_scanner</td>
+              <td>MIT</td>
+              <td>Native document scanner (Android)</td>
+            </tr>
+            <tr>
+              <td>OpenScan pipeline</td>
+              <td>BSD-3-Clause (Vijay T S, Vikram H)</td>
+              <td>Scan capture, perspective crop and Original / Grayscale / B&amp;W filters</td>
+            </tr>
+            <tr>
+              <td>Material Symbols</td>
+              <td>Apache 2.0</td>
+              <td>Icons</td>
+            </tr>
+            <tr>
+              <td>Pixelify Sans</td>
+              <td>SIL OFL 1.1</td>
+              <td>Display font in the Tools tab</td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 id="children">9. Children’s privacy</h2>
+        <p>Bento collects no personal information from anyone, including children. The app contains no ads, no purchases, no chat and no social features.</p>
+
+        <h2 id="changes">10. Changes to this policy</h2>
+        <p>When features change — for example, new tools or permission needs — this page will be updated with a new date, and material changes will be noted in the app’s release notes.</p>
+
+        <h2 id="contact-policy">11. Contact</h2>
+        <p>Questions about this policy or about privacy in Bento? Email <a href="mailto:ashishdahal27@gmail.com?subject=Bento%20privacy%20question">ashishdahal27@gmail.com</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="index.html">
+            <img src="assets/favicon.png" alt="" />
+            <span>Bento<span class="dot">.</span></span>
+          </a>
+          <p>An offline-first PDF toolkit and document scanner. Your files never leave your device.</p>
+        </div>
+
+        <div class="footer-col">
+          <h3>Product</h3>
+          <ul>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#tools">Tools</a></li>
+            <li><a href="index.html#scanner">Scanner</a></li>
+            <li><a href="index.html#faq">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h3>Legal &amp; contact</h3>
+          <ul>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="noopener" target="_blank">License (AGPL-3.0)</a></li>
+            <li><a href="mailto:ashishdahal27@gmail.com?subject=Bento%20app%20enquiry">ashishdahal27@gmail.com</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span id="year">2026</span> Bento. Built with Flutter, offline by design.</span>
+        <span>Made for Android &amp; iOS · AGPL-3.0</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

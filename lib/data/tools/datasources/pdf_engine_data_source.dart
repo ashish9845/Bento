@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
@@ -132,6 +133,37 @@ img.Image letterboxToA4(img.Image src) {
   img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
   img.compositeImage(canvas, working, dstX: (targetW - w) ~/ 2);
   return canvas;
+}
+
+/// Background-isolate entry for the engine `imagesToPdf` pre-pass:
+/// decodes each image in `paths`, letterboxes it to A4, and writes a JPEG
+/// copy into `dirPath`. Returns the fitted paths in order, with undecodable
+/// files passed through as the original.
+///
+/// Top-level so it runs via `Isolate.run`. Pure Dart file IO + image math —
+/// no platform channels in here.
+Future<List<String>> _fitImagesToA4Entry((List<String>, String) args) async {
+  final (paths, dirPath) = args;
+  final out = <String>[];
+  for (var i = 0; i < paths.length; i++) {
+    img.Image? decoded;
+    try {
+      decoded = img.decodeImage(await File(paths[i]).readAsBytes());
+    } on Exception catch (_) {}
+    if (decoded == null) {
+      out.add(paths[i]);
+      continue;
+    }
+    final dir = Directory(dirPath);
+    if (!await dir.exists()) await dir.create(recursive: true);
+    final padded = File('$dirPath/fit_$i.jpg');
+    await padded.writeAsBytes(
+      img.encodeJpg(letterboxToA4(decoded), quality: 92),
+      flush: true,
+    );
+    out.add(padded.path);
+  }
+  return out;
 }
 
 class PdfEngineDataSourceImpl implements PdfEngineDataSource {
@@ -437,27 +469,15 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   /// Decodes [images], letterboxes each to A4 via [letterboxToA4], and
   /// writes JPEG copies into [tempDir]. Undecodable files pass through as
   /// the original so the engine reports them as before.
+  ///
+  /// Decode + letterbox + re-encode of full-res photos takes seconds, so
+  /// the whole loop runs in a background isolate — never on the UI thread.
   Future<List<File>> _fitImagesToA4(List<File> images, Directory tempDir) async {
-    final out = <File>[];
-    for (var i = 0; i < images.length; i++) {
-      final src = images[i];
-      img.Image? decoded;
-      try {
-        decoded = img.decodeImage(await src.readAsBytes());
-      } on Exception catch (_) {}
-      if (decoded == null) {
-        out.add(src);
-        continue;
-      }
-      if (!await tempDir.exists()) await tempDir.create(recursive: true);
-      final padded = File('${tempDir.path}/fit_$i.jpg');
-      await padded.writeAsBytes(
-        img.encodeJpg(letterboxToA4(decoded), quality: 92),
-        flush: true,
-      );
-      out.add(padded);
-    }
-    return out;
+    final srcPaths = images.map((f) => f.path).toList();
+    final fittedPaths = await Isolate.run(
+      () => _fitImagesToA4Entry((srcPaths, tempDir.path)),
+    );
+    return fittedPaths.map(File.new).toList();
   }
 
   @override

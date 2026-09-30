@@ -299,7 +299,7 @@ class _AboutCard extends StatelessWidget {
               context: context,
               applicationName: 'Bento',
               applicationVersion: '1.0.0+1',
-              applicationLegalese: 'AGPL-3.0. Engine: pdf_manipulator (MIT). Scanner: ML Kit (Android) / OpenScan (iOS, BSD-3-Clause).',
+              applicationLegalese: 'AGPL-3.0. Engine: pdf_manipulator (MIT). Scanner: ML Kit (Android-only).',
               children: [
                 const SizedBox(height: 12),
                 Text(
@@ -307,7 +307,7 @@ class _AboutCard extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Text(
-                  'Document scanner: Google ML Kit on Android; OpenScan pipeline by Vijay T S and Vikram H (BSD-3-Clause, see third_party/openscan/LICENSE) on iOS.',
+                  'Document scanner: Google ML Kit document scanner (Android only).',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],

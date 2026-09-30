@@ -8,7 +8,7 @@ import 'package:scan/core/storage/storage_location.dart';
 
 /// Composes scanned page images into a PDF via `pdf` + `image`
 /// (native, no engine) — off main thread for 60fps.
-/// Page capture itself is handled by the OpenScan capture screen, which
+/// Page capture itself is handled by the ML Kit document scanner, which
 /// returns ready JPEG paths consumed by the Scan review flow.
 class ScannerService {
   /// Compose image paths to PDF via `pdf` + `image` (native, no engine) — off main thread for 60fps.
@@ -17,43 +17,10 @@ class ScannerService {
     List<String> imagePaths, {
     String? outputName,
   }) async {
-    // Run heavy work in isolate when many/large images to avoid jank
-    Future<Uint8List> buildPdf() async {
-      if (imagePaths.length > 2) {
-        return await Isolate.run(() async {
-          final pdf = pw.Document();
-          for (final path in imagePaths) {
-            final b = await File(path).readAsBytes();
-            final decoded = img.decodeImage(b);
-            if (decoded == null) continue;
-            final image = pw.MemoryImage(b);
-            pdf.addPage(
-              pw.Page(
-                build: (ctx) =>
-                    pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
-              ),
-            );
-          }
-          return await pdf.save();
-        });
-      }
-      final pdf = pw.Document();
-      for (final path in imagePaths) {
-        final bytes = await File(path).readAsBytes();
-        final decoded = img.decodeImage(bytes);
-        if (decoded == null) continue;
-        final image = pw.MemoryImage(bytes);
-        pdf.addPage(
-          pw.Page(
-            build: (ctx) =>
-                pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
-          ),
-        );
-      }
-      return await pdf.save();
-    }
-
-    final outBytes = await buildPdf();
+    // JPEG decode + PDF embedding of full-res camera photos takes seconds:
+    // always build in a background isolate so the UI never hangs, even for
+    // a single page.
+    final outBytes = await Isolate.run(() => _buildPdf(imagePaths));
     final saveDir = (await getSaveDirectory()).path;
     var baseName =
         outputName?.trim() ?? 'scan_${DateTime.now().millisecondsSinceEpoch}';
@@ -72,4 +39,32 @@ class ScannerService {
     await outFile.writeAsBytes(outBytes);
     return outFile;
   }
+}
+
+/// Builds the PDF bytes from image [paths] — top-level so it runs in a
+/// background isolate via [Isolate.run]. Pure Dart file IO + embed; no
+/// platform channels in here.
+///
+/// Speed matters here: camera JPEGs are embedded untouched (`/DCTDecode`,
+/// no decode/re-encode — same as `PdfImage.file`), so validity is a
+/// microsecond header check, not a full decode. A full multi-MP decode
+/// per photo is what made this step take 6x longer than the old inline
+/// version; only non-JPEG files pay for `decodeImage`.
+Future<Uint8List> _buildPdf(List<String> paths) async {
+  final pdf = pw.Document();
+  for (final path in paths) {
+    final bytes = await File(path).readAsBytes();
+    if (!img.JpegDecoder().isValidFile(bytes) &&
+        img.decodeImage(bytes) == null) {
+      continue; // Undecodable — skip instead of failing the whole export.
+    }
+    final image = pw.MemoryImage(bytes);
+    pdf.addPage(
+      pw.Page(
+        build: (ctx) =>
+            pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
+      ),
+    );
+  }
+  return await pdf.save();
 }

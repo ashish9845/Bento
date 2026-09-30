@@ -11,7 +11,6 @@ abstract class RouteNames {
   static const toolsUnlock = 'toolsUnlock';
   static const toolsSign = 'toolsSign';
   static const scan = 'scan';
-  static const openscan = 'openscan';
   static const files = 'files';
   static const settings = 'settings';
 }

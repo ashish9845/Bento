@@ -26,9 +26,8 @@ uploads, no network calls. Airplane mode works.
 
 Plus:
 
-- **Smart Scan** — Google ML Kit document scanner on Android (edge detection,
-  crop, filters built in); OpenScan pipeline (custom camera + pure-Dart edge
-  detection) on iOS. Review, reorder, rename, export to PDF, or send straight
+- **Smart Scan** — Google ML Kit document scanner (Android-only; edge detection,
+  crop, filters built in). Review, reorder, rename, export to PDF, or send straight
   into another tool (e.g. Compress, Sign).
 - **Files tab** — local file browser with tap-to-open, share, delete, and a
   long-press menu (Open / Share / Send to… / Details / Delete).
@@ -75,7 +74,7 @@ lib/
   presentation/    # Repository → Bloc → UI screens (files, merge, image2pdf)
   features/
     tools/         # native per-tool screens (file picker → options → progress → result)
-    scan/          # scanner UI + review flow; openscan/ (iOS pipeline)
+    scan/          # scanner review flow (capture via ML Kit, Android-only)
     files/         # file browser UI
     settings/      # theme picker, storage location, about/licensing
 ```
@@ -86,9 +85,8 @@ lib/
   5.0.0 (MIT-licensed Rust core over FFI). Single shared instance in
   `lib/data/tools/datasources/pdf_engine_data_source.dart`; outputs are
   verified (page count + render check) before reaching the user.
-- **Scanner:** [`google_mlkit_document_scanner`](https://pub.dev/packages/google_mlkit_document_scanner)
-  on Android; vendored OpenScan CV core on iOS
-  (`lib/features/scan/openscan/`, BSD-3-Clause, see `third_party/openscan/`).
+- **Scanner:** [`google_mlkit_document_scanner`](https://pub.dev/packages/google_mlkit_document_scanner),
+  Android-only.
 
 Tests: `flutter test` (unit + widget + real-engine smoke tests).
 CI runs analyze + tests on PRs (`.github/workflows/ci.yaml`).
@@ -105,10 +103,7 @@ Bento stands on the shoulders of these projects — thank you:
 - [pdf_manipulator](https://pub.dev/packages/pdf_manipulator) — MIT-licensed
   Rust PDF engine (merge, split, organize, compress, encrypt, render).
 - [google_mlkit_document_scanner](https://pub.dev/packages/google_mlkit_document_scanner)
-  — Google ML Kit document scanner (Android).
-- [OpenScan](https://github.com/ethereal-developers/OpenScan) (ethereal-developers,
-  BSD-3-Clause) — camera document-scanning pipeline vendored for iOS
-  (`third_party/openscan/`).
+  — Google ML Kit document scanner (Android-only).
 - mpvRx theme system (AGPL-3.0) — the 32-theme table
   and scheme-derivation rules ported in `lib/core/theme/app_palettes.dart`.
 - [Material Symbols](https://fonts.google.com/icons) (Apache 2.0) and
