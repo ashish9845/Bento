@@ -29,7 +29,6 @@ import '../../features/tools/pdf2image/pdf2image_screen.dart';
 import '../../features/tools/protect/protect_screen.dart';
 import '../../features/tools/sign/sign_screen.dart';
 import '../../features/tools/unlock/unlock_screen.dart';
-import '../../features/tools/split/split_screen.dart';
 import '../routing/app_shell.dart';
 
 import 'package:scan/core/routing/route_transitions.dart';
@@ -122,14 +121,6 @@ final appRouter = GoRouter(
                         child: const MergePage(),
                       ),
                     ),
-                  ),
-                ),
-                GoRoute(
-                  name: RouteNames.toolsSplit,
-                  path: 'split',
-                  pageBuilder: (context, state) => buildAppTransitionPage(
-                    key: state.pageKey,
-                    child: const SplitScreen(),
                   ),
                 ),
                 GoRoute(

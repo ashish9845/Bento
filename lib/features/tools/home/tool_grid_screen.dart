@@ -30,12 +30,6 @@ const _categories = [
       'Combine multiple PDFs',
     ),
     _Tool(
-      'Split PDF',
-      Icons.content_cut_rounded,
-      RouteNames.toolsSplit,
-      'Split by ranges',
-    ),
-    _Tool(
       'Organize Pages',
       Icons.view_carousel_rounded,
       RouteNames.toolsOrganize,
@@ -292,7 +286,7 @@ class _ToolGridScreenState extends State<ToolGridScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '10 tools',
+                            '9 tools',
                             style: Theme.of(context).textTheme.labelSmall
                                 ?.copyWith(
                                   fontWeight: FontWeight.w700,

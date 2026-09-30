@@ -10,12 +10,11 @@ uploads, no network calls. Airplane mode works.
 
 ## Features
 
-**10 PDF tools** (Tools tab, 4-per-row launcher grid with search):
+**9 PDF tools** (Tools tab, 4-per-row launcher grid with search):
 
 | Tool | What it does |
 |---|---|
 | Merge PDFs | Combine multiple PDFs into one |
-| Split PDF | Split by page ranges (`1-2, 3, 4-end`) |
 | Organize Pages | Rotate / delete / reorder with thumbnails |
 | Extract Pages | Pull selected pages into a new PDF |
 | Compress PDF | Shrink file size (Low / Medium / High) |

@@ -87,7 +87,7 @@ class SettingsScreen extends StatelessWidget {
                                 SizedBox(width: 6),
                                 _MiniBadge(
                                   icon: Icons.picture_as_pdf_rounded,
-                                  label: '10 tools',
+                                  label: '9 tools',
                                 ),
                               ],
                             ),

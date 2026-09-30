@@ -30,7 +30,7 @@ class ToolCubit extends Cubit<ToolState> {
   final Future<List<File>> Function(List<File> inputs, ToolCubit ctrl)?
   processFn;
 
-  /// Stable id per tool ('merge', 'split', …). Null disables persistence.
+  /// Stable id per tool ('merge', 'extract', …). Null disables persistence.
   final String? persistenceKey;
 
   /// Max restored paths — guards against unbounded growth.

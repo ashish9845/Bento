@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:scan/features/tools/home/tool_grid_screen.dart';
 
-/// Tools grid at phone widths: 4 compact cards per row, all 10 tools
+/// Tools grid at phone widths: 4 compact cards per row, all 9 tools
 /// present, zero layout overflow (fails loudly on RenderFlex overflow).
 void main() {
-  testWidgets('tool grid renders 10 compact cards without overflow', (
+  testWidgets('tool grid renders 9 compact cards without overflow', (
     tester,
   ) async {
     for (final size in [const Size(360, 640), const Size(320, 568)]) {
@@ -24,7 +24,7 @@ void main() {
       expect(find.text('Most popular'), findsOneWidget);
       expect(find.text('Protect PDF'), findsOneWidget);
       expect(find.text('Unlock PDF'), findsOneWidget);
-      expect(find.text('10 tools'), findsOneWidget);
+      expect(find.text('9 tools'), findsOneWidget);
       expect(find.text('More tools Coming soon'), findsOneWidget);
 
       // Search filters the grid (label + subtitle)…

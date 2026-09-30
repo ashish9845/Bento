@@ -46,13 +46,6 @@ class _HomePageState extends State<HomePage> {
       keywords: ['scan', 'camera', 'document', 'smart', 'capture'],
     ),
     HomeShortcut(
-      id: 'tools',
-      label: 'PDF Tools',
-      icon: Icons.grid_view_rounded,
-      routeName: RouteNames.tools,
-      keywords: ['tools', 'pdf', 'all', 'toolbox'],
-    ),
-    HomeShortcut(
       id: 'sign',
       label: 'Sign PDF',
       icon: Symbols.stylus_note,
@@ -92,7 +85,7 @@ class _HomePageState extends State<HomePage> {
       label: 'All',
       icon: Icons.apps_rounded,
       routeName: RouteNames.tools,
-      keywords: ['all', 'list', 'browse', 'more'],
+      keywords: ['all', 'list', 'browse', 'more', 'tools', 'toolbox'],
     ),
   ];
 

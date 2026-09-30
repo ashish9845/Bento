@@ -2,7 +2,6 @@ abstract class RouteNames {
   static const home = 'home';
   static const tools = 'tools';
   static const toolsMerge = 'toolsMerge';
-  static const toolsSplit = 'toolsSplit';
   static const toolsOrganize = 'toolsOrganize';
   static const toolsExtract = 'toolsExtract';
   static const toolsCompress = 'toolsCompress';

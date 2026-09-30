@@ -66,7 +66,6 @@ void main() {
       expect(find.byKey(const ValueKey('home_search_field')), findsOneWidget);
       for (final id in [
         'scan',
-        'tools',
         'sign',
         'compress',
         'merge',
@@ -154,7 +153,7 @@ void main() {
     testWidgets('shortcut grid navigates to tools', (tester) async {
       await pumpApp(tester);
 
-      await tester.tap(find.byKey(const ValueKey('home_shortcut_tools')));
+      await tester.tap(find.byKey(const ValueKey('home_shortcut_all')));
       await tester.pumpAndSettle();
       expect(toolCard(RouteNames.toolsMerge), findsWidgets);
       // Branch switch — return via the Home tab, there is no back stack.
@@ -169,14 +168,13 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('Tools tab lists all 10 tools', (tester) async {
+    testWidgets('Tools tab lists all 9 tools', (tester) async {
       await pumpApp(tester);
 
       await tester.tap(navItem('Tools'));
       await tester.pumpAndSettle();
       for (final route in [
         RouteNames.toolsMerge,
-        RouteNames.toolsSplit,
         RouteNames.toolsOrganize,
         RouteNames.toolsExtract,
         RouteNames.toolsCompress,
@@ -200,18 +198,6 @@ void main() {
       expect(find.text('Merge PDFs'), findsWidgets);
       expect(find.text('Pick PDFs'), findsOneWidget);
       expect(find.text('No files picked'), findsOneWidget);
-      await goBack(tester);
-    });
-
-    testWidgets('Split tool renders picker shell', (tester) async {
-      await pumpApp(tester);
-
-      await openTool(tester, RouteNames.toolsSplit);
-      expect(find.text('Split PDF'), findsWidgets);
-      // Ranges field appears after a file is picked (native dialog — covered
-      // in widget test with preset files instead).
-      expect(find.text('PDF to split'), findsOneWidget);
-      expect(find.text('Split'), findsOneWidget);
       await goBack(tester);
     });
 

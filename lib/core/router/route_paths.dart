@@ -2,7 +2,6 @@ abstract class RoutePaths {
   static const home = '/';
   static const tools = '/tools';
   static const toolsMerge = '/tools/merge';
-  static const toolsSplit = '/tools/split';
   static const toolsOrganize = '/tools/organize';
   static const toolsExtract = '/tools/extract';
   static const toolsCompress = '/tools/compress';
