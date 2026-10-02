@@ -66,7 +66,6 @@
         <a href="index.html#features">Features</a>
         <a href="index.html#tools">Tools</a>
         <a href="index.html#scanner">Scanner</a>
-        <a href="privacy.html">Privacy</a>
         <a href="index.html#faq">FAQ</a>
         <a href="index.html#contact">Contact</a>
       </nav>
@@ -132,7 +131,7 @@
         <p>This policy describes how Bento — the offline-first PDF toolkit and document scanner (package <code>com.benopdf.scan</code>, version 1.0.0+1, Android 7.0+ and iOS 13+) — handles your information. In short: it doesn’t handle it at all. Your documents are processed locally on your phone or tablet, and Bento has no servers, no accounts and no analytics to send anything to.</p>
 
         <h2 id="processing">2. How your documents are processed</h2>
-        <p>All nine tools — Merge PDFs, Organize Pages, Extract Pages, Compress PDF, Image → PDF, PDF → Image, Protect PDF, Unlock PDF and Sign PDF — run locally through a native Rust engine (<code>pdf_manipulator</code>, MIT) over FFI, off the main thread. There is no WebView and no browser-based processing step.</p>
+        <p>All nine tools — Merge PDFs, Organize Pages, Extract Pages, Compress PDF, Image → PDF, PDF → Image, Protect PDF, Unlock PDF and Sign PDF — run locally through a native Rust engine over FFI, off the main thread. There is no WebView and no browser-based processing step.</p>
         <p>Scanning uses Google ML Kit on Android and the in-app camera with native edge detection (Apple Vision on iOS, OpenCV on Android) with perspective correction and the Original / Grayscale / B&amp;W filters. Multi-page review, reorder, rename and PDF export all happen on-device. Audio capture is disabled in the capture screen, and the camera never runs in the background.</p>
 
         <h2 id="collection">3. What we collect — and what we don’t</h2>
@@ -180,38 +179,24 @@
         <p>Protect PDF secures documents with AES-256 encryption. A password you type for Protect or Unlock exists only in the app’s memory for the duration of that operation: it is never saved by the app and never sent anywhere (crash reports contain no document data). Because there is no server and no backdoor, a forgotten password cannot be recovered by us — keep it somewhere safe.</p>
 
         <h2 id="third-party">8. Third-party components</h2>
-        <p>Bento is built from open-source components, each running entirely on-device under its own license. Bento as a whole ships under AGPL-3.0, with full source — including the UI — published alongside every store build.</p>
+        <p>Bento runs entirely on-device using trusted built-in components. No document data is shared with third parties.</p>
         <div class="data-table">
           <table>
             <tr>
               <th scope="col">Component</th>
-              <th scope="col">License</th>
               <th scope="col">Role in the app</th>
             </tr>
             <tr>
-              <td>pdf_manipulator</td>
-              <td>MIT</td>
+              <td>PDF engine</td>
               <td>Native Rust PDF engine (merge, split, organize, compress, encrypt, render)</td>
             </tr>
             <tr>
-              <td>google_mlkit_document_scanner</td>
-              <td>MIT</td>
+              <td>Document scanner</td>
               <td>Native document scanner (Android)</td>
             </tr>
             <tr>
-              <td>OpenScan pipeline</td>
-              <td>BSD-3-Clause (Vijay T S, Vikram H)</td>
+              <td>Scan pipeline</td>
               <td>Scan capture, perspective crop and Original / Grayscale / B&amp;W filters</td>
-            </tr>
-            <tr>
-              <td>Material Symbols</td>
-              <td>Apache 2.0</td>
-              <td>Icons</td>
-            </tr>
-            <tr>
-              <td>Pixelify Sans</td>
-              <td>SIL OFL 1.1</td>
-              <td>Display font in the Tools tab</td>
             </tr>
           </table>
         </div>
@@ -254,7 +239,6 @@
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
             <li><a href="terms.html">Terms &amp; Conditions</a></li>
-            <li><a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="noopener" target="_blank">License (AGPL-3.0)</a></li>
             <li><a href="mailto:ashishdahal27@gmail.com?subject=Bento%20app%20enquiry">ashishdahal27@gmail.com</a></li>
           </ul>
         </div>
@@ -262,7 +246,7 @@
 
       <div class="footer-bottom">
         <span>© <span id="year">2026</span> Bento. Built with Flutter, offline by design.</span>
-        <span>Made for Android &amp; iOS · AGPL-3.0</span>
+        <span>Made for Android &amp; iOS</span>
       </div>
     </div>
   </footer>

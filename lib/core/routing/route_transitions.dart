@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
-//
 // Screen-transition system inspired by mpvRx's animation framework
 // (ControlsAnimationStyle / NavigationAnimStyle): a small set of named
 // styles with expressive easing, one shared builder so every screen opens

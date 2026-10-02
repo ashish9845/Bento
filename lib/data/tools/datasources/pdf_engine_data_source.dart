@@ -49,8 +49,8 @@ int _parsePageNumber(String token, int pageCount, String rawPart) {
   return n;
 }
 
-/// Native PDF engine backed by `pdf_manipulator` (MIT-licensed Rust core
-/// over FFI — no WebView, no JS, no WASM). One shared [Pdf] instance, every
+/// Native PDF engine backed by a Rust core
+/// over FFI — no WebView, no JS, no WASM. One shared [Pdf] instance, every
 /// operation already runs off the main thread inside the engine.
 abstract class PdfEngineDataSource {
   Future<int> pageCount(File input, {String? password});

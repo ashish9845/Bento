@@ -2,12 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scan/core/config/app_config.dart';
 import 'package:scan/core/storage/storage_location.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'cubit/crash_reporting_cubit.dart';
 import 'widgets/theme_settings_card.dart';
 
 class SettingsScreen extends StatelessWidget {
   const new({super.key});
+
+  static final Uri _privacyUrl = Uri.parse(
+    'https://ashish9845.github.io/Bento/privacy.html',
+  );
+  static final Uri _termsUrl = Uri.parse(
+    'https://ashish9845.github.io/Bento/terms.html',
+  );
+
+  static Future<void> _openLegalPage(BuildContext context, Uri url) async {
+    try {
+      final opened = await launchUrl(url, mode: LaunchMode.inAppWebView);
+      if (!opened && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open page — check your connection'),
+          ),
+        );
+      }
+    } on Exception catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open page — check your connection'),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +99,7 @@ class SettingsScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'v1.0.0 • AGPL-3.0',
+                              'v1.0.0',
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: scheme.onPrimaryContainer.withValues(
@@ -259,28 +288,20 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 _InfoTile(
                   icon: Icons.privacy_tip_rounded,
-                  title: 'Privacy',
-                  subtitle: 'On-device processing, optional crash reports',
-                  onTap: () => showDialog<void>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Privacy'),
-                      content: const Text(
-                        'All PDF processing and scanning happens on-device. No file is ever uploaded. The only thing that can leave the device is an anonymous crash report — and only if you turn on “Send crash reports” above. Reports hold the error, app version and device model; never your documents.',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  ),
+                  title: 'Privacy Policy',
+                  subtitle: 'How Bento handles your data',
+                  onTap: () => _openLegalPage(context, _privacyUrl),
+                ),
+                _InfoTile(
+                  icon: Icons.description_rounded,
+                  title: 'Terms & Conditions',
+                  subtitle: 'The rules for using Bento',
+                  onTap: () => _openLegalPage(context, _termsUrl),
                 ),
                 _InfoTile(
                   icon: Icons.code_rounded,
                   title: 'Engine',
-                  subtitle: 'Native FFI engine (pdf_manipulator, MIT)',
+                  subtitle: 'Native FFI engine',
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -294,7 +315,7 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 Center(
                   child: Text(
-                    'Bento • AGPL-3.0 • v1.0.0+1',
+                    'Bento • v1.0.0+1',
                     style: Theme.of(context).textTheme.bodySmall
                         ?.copyWith(color: scheme.onSurfaceVariant),
                   ),
@@ -379,11 +400,11 @@ class _AboutCard extends StatelessWidget {
               context: context,
               applicationName: 'Bento',
               applicationVersion: '1.0.0+1',
-              applicationLegalese: 'AGPL-3.0. Engine: pdf_manipulator (MIT). Scanner: ML Kit (Android-only).',
+              applicationLegalese: 'Offline PDF toolkit. All processing stays on-device.',
               children: [
                 const SizedBox(height: 12),
                 Text(
-                  'This app ships AGPL-3.0. Full source including UI is published with every build. Offline-only: no CDN, no download-on-first-use.',
+                  'Offline-only: all processing stays on-device.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Text(
@@ -415,12 +436,12 @@ class _AboutCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'About & Licenses',
+                        'About',
                         style: Theme.of(context).textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                       Text(
-                        'AGPL-3.0 — full source published',
+                        'Offline-first PDF toolkit',
                         style: Theme.of(context).textTheme.bodySmall
                             ?.copyWith(color: scheme.onSurfaceVariant),
                       ),

@@ -1,9 +1,6 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
-//
-// Theme system ported from mpvRx (app.gyrolet.mpvrx, AGPL-3.0-or-later):
-// the same 32-theme table and the same scheme-derivation rules (alpha
+// Theme system with a 32-theme table and scheme-derivation rules (alpha
 // composites over tinted backgrounds, 4.5:1 minimum-contrast enforcement).
-// Only the mechanics are ported — no mpvRx code is copied verbatim.
+// Only the mechanics are ported — no third-party code is copied verbatim.
 
 import 'package:flutter/material.dart';
 
