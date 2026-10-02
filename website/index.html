@@ -9,11 +9,13 @@
   <meta property="og:title" content="Bento — Offline PDF Tools &amp; Document Scanner" />
   <meta property="og:description" content="Every PDF tool you need, nothing leaves your phone. 100% on-device processing, no uploads, no accounts." />
   <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/hero-tools.png" />
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="apple-touch-icon" href="assets/favicon.png" />
   <link rel="stylesheet" href="assets/styles.css" />
   <script>
     (function () {
+      document.documentElement.classList.add("js");
       try {
         var t = localStorage.getItem("bento-theme");
         if (t !== "dark" && t !== "light") {
@@ -207,59 +209,10 @@
           </div>
         </div>
 
-        <div class="phone" aria-hidden="true">
-          <div class="phone-screen">
-            <div class="phone-top">
-              <div class="greeting">Good morning</div>
-              <div class="title">Bento</div>
-              <div class="searchbar">Search tools…</div>
-            </div>
-            <div class="tool-grid-mini">
-              <div class="tool-mini">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-merge" /></svg>
-                <span>Merge</span>
-              </div>
-              <div class="tool-mini">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-organize" /></svg>
-                <span>Organize</span>
-              </div>
-              <div class="tool-mini">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-extract" /></svg>
-                <span>Extract</span>
-              </div>
-              <div class="tool-mini">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-compress" /></svg>
-                <span>Compress</span>
-              </div>
-              <div class="tool-mini">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-img2pdf" /></svg>
-                <span>Image → PDF</span>
-              </div>
-              <div class="tool-mini">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-pdf2img" /></svg>
-                <span>PDF → Image</span>
-              </div>
-              <div class="tool-mini">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock" /></svg>
-                <span>Protect</span>
-              </div>
-              <div class="tool-mini">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-unlock" /></svg>
-                <span>Unlock</span>
-              </div>
-              <div class="tool-mini">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sign" /></svg>
-                <span>Sign</span>
-              </div>
-            </div>
-            <div class="phone-nav">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-organize" /></svg>
-              <svg class="active" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-scan" /></svg>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-folder" /></svg>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sun" /></svg>
-            </div>
-          </div>
-        </div>
+        <figure class="phone-shot reveal">
+          <img src="assets/img/hero-tools.png" alt="Bento app Tools tab showing all nine PDF tools in a dark theme grid" width="1080" height="2218" fetchpriority="high" />
+          <figcaption>The real Tools tab · dark theme</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -404,6 +357,22 @@
             </div>
           </article>
         </div>
+
+        <div class="shot-row">
+          <figure class="shot reveal">
+            <img src="assets/img/merge-list.png" alt="Merge PDFs screen with three files queued in a drag-to-reorder list" width="1080" height="2218" loading="lazy" />
+            <figcaption>Merge — drag to reorder</figcaption>
+          </figure>
+          <figure class="shot reveal">
+            <img src="assets/img/compress.png" alt="Compress PDF screen with Low, Medium and High quality options" width="1080" height="2218" loading="lazy" />
+            <figcaption>Compress — pick your quality</figcaption>
+          </figure>
+          <figure class="shot reveal">
+            <img src="assets/img/sign-pad.png" alt="Sign PDF screen with a freshly drawn signature ready to save" width="1080" height="2218" loading="lazy" />
+            <figcaption>Sign — draw and stamp</figcaption>
+          </figure>
+        </div>
+        <p class="gallery-note reveal">Real screenshots from Bento 1.0 · shown in dark theme</p>
       </div>
     </section>
 
@@ -434,16 +403,10 @@
           </ul>
         </div>
 
-        <div class="scan-visual reveal">
-          <div class="doc-frame">
-            <div class="corners"><span></span><span></span><span></span><span></span></div>
-            <div class="doc-lines"><i></i><i></i><i></i><i></i><i></i></div>
-          </div>
-          <div class="scan-caption">
-            <span class="pill">Edges detected</span>
-            <span>Page 1 of 3 · On-device</span>
-          </div>
-        </div>
+        <figure class="phone-shot reveal">
+          <img src="assets/img/scan-capture.png" alt="Bento document scanner capturing a textbook page with automatic edge detection overlay" width="1080" height="2340" loading="lazy" />
+          <figcaption>Live edge detection · Manual &amp; Auto capture</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -473,26 +436,32 @@
     </section>
 
     <section class="section section-alt">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">Make it yours</span>
-          <h2>32 themes. Swipe, preview, done.</h2>
-          <p class="section-sub">From Material You dynamic colour to the classic palettes people love. Dark, light or follow the system.</p>
+      <div class="wrap split">
+        <div>
+          <div class="section-head reveal">
+            <span class="eyebrow">Make it yours</span>
+            <h2>32 themes. Swipe, preview, done.</h2>
+            <p class="section-sub">From Material You dynamic colour to the classic palettes people love. Dark, light or follow the system.</p>
+          </div>
+          <ul class="chips reveal">
+            <li>Default</li>
+            <li>Dynamic / Material You</li>
+            <li>Catppuccin</li>
+            <li>Lavender</li>
+            <li>Mocha</li>
+            <li>Dracula</li>
+            <li>Nord</li>
+            <li>Gruvbox</li>
+            <li>Dark</li>
+            <li>Light</li>
+            <li>System</li>
+            <li>+ 21 more</li>
+          </ul>
         </div>
-        <ul class="chips reveal">
-          <li>Default</li>
-          <li>Dynamic / Material You</li>
-          <li>Catppuccin</li>
-          <li>Lavender</li>
-          <li>Mocha</li>
-          <li>Dracula</li>
-          <li>Nord</li>
-          <li>Gruvbox</li>
-          <li>Dark</li>
-          <li>Light</li>
-          <li>System</li>
-          <li>+ 21 more</li>
-        </ul>
+        <figure class="phone-shot reveal">
+          <img src="assets/img/themes.png" alt="Bento Settings screen with theme previews, save location and app version info" width="1080" height="2218" loading="lazy" />
+          <figcaption>Settings — themes &amp; save location</figcaption>
+        </figure>
       </div>
     </section>
 

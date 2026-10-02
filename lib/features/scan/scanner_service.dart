@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:scan/core/storage/storage_location.dart';
@@ -20,7 +20,12 @@ class ScannerService {
     // JPEG decode + PDF embedding of full-res camera photos takes seconds:
     // always build in a background isolate so the UI never hangs, even for
     // a single page.
+    final sw = Stopwatch()..start();
     final outBytes = await Isolate.run(() => _buildPdf(imagePaths));
+    debugPrint(
+      '[Scan] imagesToPdf: built ${imagePaths.length} page(s) in '
+      '${sw.elapsedMilliseconds}ms (isolate)',
+    );
     final saveDir = (await getSaveDirectory()).path;
     var baseName =
         outputName?.trim() ?? 'scan_${DateTime.now().millisecondsSinceEpoch}';

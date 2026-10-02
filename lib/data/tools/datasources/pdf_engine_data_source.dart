@@ -101,7 +101,7 @@ abstract class PdfEngineDataSource {
 
 /// A4 aspect (595×842pt) and the max long edge kept for padded images.
 const double a4Aspect = 595 / 842;
-const int maxPaddedLongEdge = 3000;
+const int maxPaddedLongEdge = 2000;
 
 /// Letterbox-pads [src] to the A4 aspect on a white canvas so a full-page
 /// paint can't stretch it. Wider images gain white bands top/bottom,
@@ -135,35 +135,47 @@ img.Image letterboxToA4(img.Image src) {
   return canvas;
 }
 
-/// Background-isolate entry for the engine `imagesToPdf` pre-pass:
-/// decodes each image in `paths`, letterboxes it to A4, and writes a JPEG
-/// copy into `dirPath`. Returns the fitted paths in order, with undecodable
-/// files passed through as the original.
+/// Background-isolate entry fitting a single image for the engine
+/// `imagesToPdf` pre-pass: decodes the file at `path`, letterboxes it to
+/// A4, and writes a JPEG copy into `dirPath` as `fit_$index.jpg`.
+/// Returns `(index, fittedPath)`, with undecodable files passed through as
+/// the original.
 ///
-/// Top-level so it runs via `Isolate.run`. Pure Dart file IO + image math —
-/// no platform channels in here.
-Future<List<String>> _fitImagesToA4Entry((List<String>, String) args) async {
-  final (paths, dirPath) = args;
-  final out = <String>[];
-  for (var i = 0; i < paths.length; i++) {
-    img.Image? decoded;
-    try {
-      decoded = img.decodeImage(await File(paths[i]).readAsBytes());
-    } on Exception catch (_) {}
-    if (decoded == null) {
-      out.add(paths[i]);
-      continue;
-    }
-    final dir = Directory(dirPath);
-    if (!await dir.exists()) await dir.create(recursive: true);
-    final padded = File('$dirPath/fit_$i.jpg');
-    await padded.writeAsBytes(
-      img.encodeJpg(letterboxToA4(decoded), quality: 92),
-      flush: true,
-    );
-    out.add(padded.path);
-  }
-  return out;
+/// Top-level so it runs via `Isolate.run` (one per image, batched by the
+/// caller). Pure Dart file IO + image math — no platform channels in here.
+Future<(int, String)> _fitSingleImageEntry(
+  (String, String, int) args,
+) async {
+  final (path, dirPath, index) = args;
+  var sw = Stopwatch()..start();
+  img.Image? decoded;
+  try {
+    decoded = img.decodeImage(await File(path).readAsBytes());
+  } on Exception catch (_) {}
+  // ignore: avoid_print
+  print('PERF-STAGE fit#$index decode=${sw.elapsedMilliseconds}ms');
+  if (decoded == null) return (index, path);
+  final dir = Directory(dirPath);
+  if (!await dir.exists()) await dir.create(recursive: true);
+  sw
+    ..reset()
+    ..start();
+  final letterboxed = letterboxToA4(decoded);
+  final sizedMs = sw.elapsedMilliseconds;
+  sw
+    ..reset()
+    ..start();
+  final padded = File('$dirPath/fit_$index.jpg');
+  await padded.writeAsBytes(
+    img.encodeJpg(letterboxed, quality: 85),
+    flush: true,
+  );
+  // ignore: avoid_print
+  print(
+    'PERF-STAGE fit#$index letterbox=${sizedMs}ms '
+    'encode=${sw.elapsedMilliseconds}ms out=${await padded.length()}',
+  );
+  return (index, padded.path);
 }
 
 class PdfEngineDataSourceImpl implements PdfEngineDataSource {
@@ -448,11 +460,23 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
     final tempDir = Directory(
       '${(await getTemporaryDirectory()).path}/bento_fit_${DateTime.now().millisecondsSinceEpoch}',
     );
+    final sw = Stopwatch()..start();
     final fitted = await _fitImagesToA4(images, tempDir);
+    debugPrint(
+      '[Engine] imagesToPdf: fitted ${images.length} image(s) in '
+      '${sw.elapsedMilliseconds}ms (isolate)',
+    );
     final out = await _outputFile('images', name: outputName);
     final sink = await FileSink.create(out);
     try {
+      sw
+        ..reset()
+        ..start();
       await _pdf.imagesToPdf(fitted.map(FileSource.new).toList(), sink);
+      debugPrint(
+        '[Engine] imagesToPdf: native embed took '
+        '${sw.elapsedMilliseconds}ms',
+      );
     } catch (e) {
       _wrap(e);
     } finally {
@@ -470,14 +494,32 @@ class PdfEngineDataSourceImpl implements PdfEngineDataSource {
   /// writes JPEG copies into [tempDir]. Undecodable files pass through as
   /// the original so the engine reports them as before.
   ///
-  /// Decode + letterbox + re-encode of full-res photos takes seconds, so
-  /// the whole loop runs in a background isolate — never on the UI thread.
+  /// Decode + letterbox + re-encode of full-res photos is seconds per
+  /// image in pure Dart, so images are fitted in parallel background
+  /// isolates (batched to bound peak memory) — never on the UI thread.
   Future<List<File>> _fitImagesToA4(List<File> images, Directory tempDir) async {
     final srcPaths = images.map((f) => f.path).toList();
-    final fittedPaths = await Isolate.run(
-      () => _fitImagesToA4Entry((srcPaths, tempDir.path)),
-    );
-    return fittedPaths.map(File.new).toList();
+    // One RGBA working copy is ~4 bytes/px transient per image; cap
+    // concurrency so a 30-page batch can't OOM a 4 GB phone.
+    const maxParallel = 3;
+    final fittedByIndex = <int, String>{};
+    for (var start = 0; start < srcPaths.length; start += maxParallel) {
+      final batch = <Future<(int, String)>>[];
+      for (
+        var i = start;
+        i < start + maxParallel && i < srcPaths.length;
+        i++
+      ) {
+        batch.add(Isolate.run(() => _fitSingleImageEntry((srcPaths[i], tempDir.path, i))));
+      }
+      for (final entry in await Future.wait(batch)) {
+        fittedByIndex[entry.$1] = entry.$2;
+      }
+    }
+    return [
+      for (var i = 0; i < srcPaths.length; i++)
+        File(fittedByIndex[i] ?? srcPaths[i]),
+    ];
   }
 
   @override
