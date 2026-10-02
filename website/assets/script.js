@@ -26,6 +26,20 @@
     if (meta) {
       meta.setAttribute("content", theme === "dark" ? "#0a0c16" : "#3b5bfe");
     }
+    var shots = document.querySelectorAll("img[data-src-dark]");
+    for (var i = 0; i < shots.length; i++) {
+      var next =
+        theme === "dark"
+          ? shots[i].getAttribute("data-src-dark")
+          : shots[i].getAttribute("data-src-light");
+      if (next && shots[i].getAttribute("src") !== next) {
+        shots[i].setAttribute("src", next);
+      }
+    }
+    var words = document.querySelectorAll(".theme-word");
+    for (var j = 0; j < words.length; j++) {
+      words[j].textContent = theme === "dark" ? "dark theme" : "light theme";
+    }
   }
 
   if (themeToggle) {

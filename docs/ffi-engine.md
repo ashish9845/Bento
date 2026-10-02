@@ -19,7 +19,7 @@ instance (per package guidance), every operation already runs off the main threa
 | Organize/Rotate/Delete | single `edit()` session: `selectPages` (delete/reorder) + `rotatePage`, then `save` |
 | Extract Pages | `extractPages(source, sink, pages: [...])` |
 | Compress PDF | `compress(source, sink, images: PdfImagePolicy.screen/ebook/lossless)` |
-| Image → PDF | `imagesToPdf([FileSource…], sink)` |
+| Image → PDF | Dart-side A4 build (`buildImagesToA4Pdf`, contain-fit, isolate) + `_verifyPdf` page-count check |
 | PDF → Image | `open` + `render(pages: all, size: 1440px)` → PNG files |
 
 Sign PDF stays native (`pdf` package overlay) — the engine `sign()` needs PKCS#12
