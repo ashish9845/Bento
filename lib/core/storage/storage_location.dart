@@ -7,6 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../error/error_reporting.dart';
+
 const _key = 'storage_location';
 
 /// Central save-location logic.
@@ -32,7 +34,8 @@ Future<Directory> getDefaultSaveDirectory() async {
           return docs;
         }
       }
-    } on Exception catch (_) {
+    } on Exception catch (e, s) {
+      ErrorReporting.log(e, s, context: 'storage');
       // Fall through to app documents.
     }
   }
@@ -48,7 +51,9 @@ Future<Directory> getSaveDirectory() async {
       final dir = Directory(custom);
       if (await dir.exists()) return dir;
     }
-  } on Exception catch (_) {}
+  } on Exception catch (e, s) {
+    ErrorReporting.log(e, s, context: 'storage');
+  }
   return await getDefaultSaveDirectory();
 }
 
@@ -60,7 +65,8 @@ Future<bool> ensureStoragePermission() async {
     if (await Permission.manageExternalStorage.isGranted) return true;
     if (await Permission.storage.request().isGranted) return true;
     return await Permission.manageExternalStorage.request().isGranted;
-  } on Exception catch (_) {
+  } on Exception catch (e, s) {
+    ErrorReporting.log(e, s, context: 'storage');
     return false;
   }
 }
@@ -120,12 +126,16 @@ class StorageLocationCubit extends Cubit<StorageLocationState> {
     String? def;
     try {
       def = (await getDefaultSaveDirectory()).path;
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
     if (isClosed) return;
     String? custom;
     try {
       custom = (await SharedPreferences.getInstance()).getString(_key);
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
     if (isClosed) return;
     emit(state.copyWith(customPath: custom, defaultPath: def));
   }
@@ -138,7 +148,9 @@ class StorageLocationCubit extends Cubit<StorageLocationState> {
       } else {
         await prefs.setString(_key, path);
       }
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
     if (isClosed) return;
     if (path == null) {
       emit(

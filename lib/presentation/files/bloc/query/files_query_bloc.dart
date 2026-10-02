@@ -19,7 +19,8 @@ class FilesQueryBloc extends Bloc<FilesQueryEvent, FilesQueryState> {
     try {
       final files = await repository.fetchRecentFiles();
       emit(state.copyWith(status: FilesQueryStatus.loaded, files: files));
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       emit(
         state.copyWith(
           status: FilesQueryStatus.error,

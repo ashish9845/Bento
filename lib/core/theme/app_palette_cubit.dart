@@ -26,7 +26,9 @@ class AppPaletteCubit extends Cubit<AppPalette> {
           ),
         );
       }
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
   }
 
   Future<void> setPalette(AppPalette palette) async {
@@ -34,6 +36,8 @@ class AppPaletteCubit extends Cubit<AppPalette> {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_paletteKey, palette.name);
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
   }
 }

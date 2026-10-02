@@ -54,7 +54,9 @@ class ToolCubit extends Cubit<ToolState> {
         // Drop stale entries pointing at deleted files.
         await prefs.setStringList(_prefsKey, existing);
       }
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
   }
 
   Future<void> _persist() async {
@@ -66,7 +68,9 @@ class ToolCubit extends Cubit<ToolState> {
         _prefsKey,
         state.files.map((f) => f.path).take(_maxPersisted).toList(),
       );
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
   }
 
   /// File name chosen in the rename dialog before running. Read by each
@@ -177,7 +181,8 @@ class ToolCubit extends Cubit<ToolState> {
     int length;
     try {
       length = await file.length();
-    } on Exception catch (_) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       return;
     }
     if (isClosed) return;
@@ -226,7 +231,8 @@ class ToolCubit extends Cubit<ToolState> {
           progress: 1,
         ),
       );
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       setError(e.toString());
     }
   }
@@ -245,7 +251,8 @@ class ToolCubit extends Cubit<ToolState> {
       final name = f.path.split('/').last;
       try {
         await f.copy('${targetDir.path}/$name');
-      } on Exception catch (_) {
+      } on Exception catch (e, s) {
+        addError(e, s);
         // Shared storage blocked (scoped storage) — fall back to app documents.
         final docs = await getApplicationDocumentsDirectory();
         await f.copy('${docs.path}/$name');

@@ -100,7 +100,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-shield" /></svg>
           </div>
           <div>
-            <h2>On-device only. No network.</h2>
+            <h2>On-device only. No analytics.</h2>
             <p>As the in-app Privacy notice says: all PDF processing and scanning happens on-device — no file is ever uploaded. The release build declares no internet permission, so Bento physically cannot transmit your data.</p>
             <ul class="guarantees">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check" /></svg>No uploads</li>
@@ -136,7 +136,7 @@
         <p>Scanning uses Google ML Kit on Android and the in-app camera with native edge detection (Apple Vision on iOS, OpenCV on Android) with perspective correction and the Original / Grayscale / B&amp;W filters. Multi-page review, reorder, rename and PDF export all happen on-device. Audio capture is disabled in the capture screen, and the camera never runs in the background.</p>
 
         <h2 id="collection">3. What we collect — and what we don’t</h2>
-        <p>Bento collects nothing. There is no sign-in, no analytics SDK, no crash-reporting SDK, no advertising SDK and no usage telemetry of any kind. The app does not read your contacts, messages, location or call history.</p>
+        <p>Bento collects nothing by default. There is no sign-in, no analytics SDK, no advertising SDK and no usage telemetry of any kind. The single exception is optional crash reporting (Sentry): it is off by default and sends fatal-error reports only if you turn on Settings → Privacy → “Send crash reports”. The app does not read your contacts, messages, location or call history.</p>
         <p>Your preferences — theme choice and save-folder choice — are stored in the app’s private on-device settings and are never synced anywhere. If you email us, we receive only what you choose to include in that message, and we use it solely to reply.</p>
 
         <h2 id="permissions">4. Permissions the app requests</h2>
@@ -164,8 +164,8 @@
             </tr>
             <tr>
               <td>Network</td>
-              <td>Never, in release builds</td>
-              <td>Release builds declare no INTERNET and no network-state permission, and remove audio-recording permission too — so the app cannot upload, phone home or record. (INTERNET exists only in developer debug builds.)</td>
+              <td>Crash reports only, and only if you opt in</td>
+              <td>Release builds declare INTERNET solely for Sentry crash reporting, which is off by default and sends only when you enable “Send crash reports” in Settings → Privacy — no documents, file names or contents are ever sent. Reports are queued offline and uploaded when connectivity returns; switching it off stops all sending. Audio-recording permission is removed.</td>
             </tr>
           </table>
         </div>
@@ -177,7 +177,7 @@
         <p>The only way a document leaves your device is through an action you explicitly take: the system Share sheet, “Open with…” another app, or handing a scanned PDF to another on-device tool such as Compress or Sign. These are operating-system handoffs you trigger — Bento itself initiates no transfer.</p>
 
         <h2 id="passwords">7. Passwords and encryption</h2>
-        <p>Protect PDF secures documents with AES-256 encryption. A password you type for Protect or Unlock exists only in the app’s memory for the duration of that operation: it is never saved by the app and, with no network permission, has nowhere to go. Because there is no server and no backdoor, a forgotten password cannot be recovered by us — keep it somewhere safe.</p>
+        <p>Protect PDF secures documents with AES-256 encryption. A password you type for Protect or Unlock exists only in the app’s memory for the duration of that operation: it is never saved by the app and never sent anywhere (crash reports contain no document data). Because there is no server and no backdoor, a forgotten password cannot be recovered by us — keep it somewhere safe.</p>
 
         <h2 id="third-party">8. Third-party components</h2>
         <p>Bento is built from open-source components, each running entirely on-device under its own license. Bento as a whole ships under AGPL-3.0, with full source — including the UI — published alongside every store build.</p>

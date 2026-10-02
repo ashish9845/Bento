@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/error/error_reporting.dart';
+
 /// Session images for the Scan review flow.
 ///
 /// DATA-layer owner of the pending-images key: hydrate/persist via
@@ -52,7 +54,9 @@ class ScanSessionCubit extends Cubit<ScanSessionState> {
       } else if (existing.length != paths.length) {
         await prefs.setStringList(pendingImagesKey, existing);
       }
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
   }
 
   Future<void> _persist() async {
@@ -62,7 +66,9 @@ class ScanSessionCubit extends Cubit<ScanSessionState> {
         pendingImagesKey,
         state.images.take(maxPages).toList(),
       );
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
   }
 
   void appendPages(List<String> pages) {
@@ -87,7 +93,9 @@ class ScanSessionCubit extends Cubit<ScanSessionState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(scanInFlightKey, value);
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
   }
 
   /// Call immediately before handing the foreground to the scanner. Awaited
@@ -109,7 +117,9 @@ class ScanSessionCubit extends Cubit<ScanSessionState> {
         await prefs.setBool(scanInFlightKey, false);
         return true;
       }
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      ErrorReporting.log(e, s, context: 'scan-session');
+    }
     return false;
   }
 }

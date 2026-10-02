@@ -32,7 +32,8 @@ class Image2PdfMutationBloc
       if (paths.isNotEmpty) {
         add(Image2PdfMutationEvent.picked(paths));
       }
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       emit(
         state.copyWith(
           status: Image2PdfMutationStatus.failure,
@@ -99,7 +100,8 @@ class Image2PdfMutationBloc
           resultPath: result.path,
         ),
       );
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       emit(
         state.copyWith(
           status: Image2PdfMutationStatus.failure,

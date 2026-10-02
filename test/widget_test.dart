@@ -19,7 +19,7 @@ void main() {
     expect(find.byKey(const ValueKey('home_search_field')), findsOneWidget);
     expect(find.byKey(const ValueKey('home_shortcut_scan')), findsOneWidget);
     expect(find.byKey(const ValueKey('home_scan_fab')), findsOneWidget);
-    for (final label in ['Home', 'Files', 'Tools', 'Me']) {
+    for (final label in ['Home', 'Files', 'Tools', 'Settings']) {
       expect(
         find.descendant(
           of: find.byType(GlassNavBar),
@@ -37,7 +37,7 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
 
-    await tester.tap(find.text('Me'));
+    await tester.tap(find.text('Settings'));
     await tester.pump(const Duration(seconds: 1));
     expect(find.byType(GlassNavBar), findsOneWidget);
 
@@ -93,8 +93,7 @@ void main() {
     expect(find.byKey(const ValueKey('home_search_field')), findsOneWidget);
   });
 
-  testWidgets('swipe does not switch tabs — nav bar taps only', (tester) async {
-    GoogleFonts.config.allowRuntimeFetching = false;
+  testWidgets('swipe does not switch tabs — nav bar taps only', (tester) async {    GoogleFonts.config.allowRuntimeFetching = false;
     await tester.pumpWidget(const BenoApp());
     await tester.pump(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
@@ -110,5 +109,31 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
     expect(find.byKey(const ValueKey('home_search_field')), findsOneWidget);
+  });
+
+  testWidgets('Sentry probe button hidden without IS_DEBUG flag', (
+    tester,
+  ) async {
+    GoogleFonts.config.allowRuntimeFetching = false;
+    await tester.pumpWidget(const BenoApp());
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    await tester.tap(find.text('Settings'));
+    await tester.pump(const Duration(seconds: 1));
+    // Slivers build lazily — drag the Privacy toggle into view first.
+    for (
+      var i = 0;
+      i < 10 && find.text('Send crash reports').evaluate().isEmpty;
+      i++
+    ) {
+      await tester.drag(
+        find.byType(CustomScrollView),
+        const Offset(0, -500),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+    }
+    expect(find.text('Send crash reports'), findsOneWidget);
+    expect(find.byKey(const ValueKey('debug_crash_button')), findsNothing);
   });
 }

@@ -28,7 +28,8 @@ class HomeMutationBloc extends Bloc<HomeMutationEvent, HomeMutationState> {
           importedCount: saved.length,
         ),
       );
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       emit(
         state.copyWith(
           status: HomeMutationStatus.failure,

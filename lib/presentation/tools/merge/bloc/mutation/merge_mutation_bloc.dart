@@ -29,7 +29,8 @@ class MergeMutationBloc extends Bloc<MergeMutationEvent, MergeMutationState> {
     try {
       final paths = await picker.pickPdfPaths();
       if (paths.isNotEmpty) add(MergeMutationEvent.picked(paths));
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       emit(
         state.copyWith(
           status: MergeMutationStatus.failure,
@@ -91,7 +92,8 @@ class MergeMutationBloc extends Bloc<MergeMutationEvent, MergeMutationState> {
           resultPath: result.path,
         ),
       );
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       emit(
         state.copyWith(
           status: MergeMutationStatus.failure,

@@ -80,7 +80,7 @@ void main() {
       expect(find.text('Recents'), findsOneWidget);
       expect(find.byKey(const ValueKey('home_scan_fab')), findsOneWidget);
       // Bottom nav: Home / Files / Tools / Me.
-      for (final label in ['Home', 'Files', 'Tools', 'Me']) {
+      for (final label in ['Home', 'Files', 'Tools', 'Settings']) {
         expect(navItem(label), findsOneWidget);
       }
     });
@@ -271,12 +271,12 @@ void main() {
       );
     });
 
-    testWidgets('Me tab shows settings with theme and palette controls', (
+    testWidgets('Settings tab shows settings with theme and palette controls', (
       tester,
     ) async {
       await pumpApp(tester);
 
-      await tester.tap(navItem('Me'));
+      await tester.tap(navItem('Settings'));
       await tester.pumpAndSettle();
       expect(find.text('Settings'), findsWidgets);
       expect(find.text('Theme'), findsWidgets);

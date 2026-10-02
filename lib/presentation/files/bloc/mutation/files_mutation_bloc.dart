@@ -24,7 +24,8 @@ class FilesMutationBloc extends Bloc<FilesMutationEvent, FilesMutationState> {
     try {
       await repository.deleteFile(event.path);
       emit(state.copyWith(status: FilesMutationStatus.success));
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       emit(
         state.copyWith(
           status: FilesMutationStatus.failure,
@@ -52,7 +53,8 @@ class FilesMutationBloc extends Bloc<FilesMutationEvent, FilesMutationState> {
           sharedPath: event.path,
         ),
       );
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       emit(
         state.copyWith(
           status: FilesMutationStatus.shareFailure,

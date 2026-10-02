@@ -18,8 +18,11 @@
          even when the user never grants it. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Crash reporting (Sentry) needs network. Declared explicitly so it
+         survives regardless of what plugins contribute. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Strip permissions merged in from plugins that Bento never uses.
-         Offline PDF app: no network calls, no audio recording, no
+         Offline PDF app otherwise: no audio recording, no
          media-library reads. Declared here so the merger drops the
          plugin-contributed copies (camera_camerax, open_filex,
          media3, datatransport). -->
@@ -28,7 +31,6 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
-    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
      <application
         android:label="Bento"
         android:name="${applicationName}"

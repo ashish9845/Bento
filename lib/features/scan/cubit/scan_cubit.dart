@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 
+import '../../../core/error/error_reporting.dart';
+
 /// Next step after [ScanCubit.prepareScan] resolves the platform.
 ///
 /// UI switches on this — it never imports `dart:io` Platform or
@@ -105,7 +107,9 @@ class MlKitScannerGatewayImpl implements MlKitScannerGateway {
         PaintingBinding.instance.imageCache
           ..clear()
           ..clearLiveImages();
-      } on Exception catch (_) {}
+      } on Exception catch (e, s) {
+        ErrorReporting.log(e, s, context: 'scan');
+      }
       // Foreground guard: keeps the process out of the cached-app bucket
       // while the scanner owns the foreground, so MIUI/ColorOS don't kill
       // Bento mid-scan. Best effort — recovery still covers a kill.
@@ -137,8 +141,8 @@ class MlKitScannerGatewayImpl implements MlKitScannerGateway {
       // Closed separately so a close-time failure can never mask the result.
       try {
         await scanner.close();
-      } on Exception catch (e) {
-        debugPrint('[Scan] scanner.close failed (ignored): $e');
+      } on Exception catch (e, s) {
+        ErrorReporting.log(e, s, context: 'scan');
       }
       // The process is alive, so the result reached Dart (or the user
       // cancelled): drop the guard + the now-redundant stash. On process
@@ -152,16 +156,16 @@ class MlKitScannerGatewayImpl implements MlKitScannerGateway {
   Future<void> _beginScanSession() async {
     try {
       await _recoveryChannel.invokeMethod<void>('beginScanSession');
-    } on Exception catch (e) {
-      debugPrint('[Scan] scan guard start failed (ignored): $e');
+    } on Exception catch (e, s) {
+      ErrorReporting.log(e, s, context: 'scan');
     }
   }
 
   Future<void> _endScanSession() async {
     try {
       await _recoveryChannel.invokeMethod<void>('endScanSession');
-    } on Exception catch (e) {
-      debugPrint('[Scan] scan guard stop failed (ignored): $e');
+    } on Exception catch (e, s) {
+      ErrorReporting.log(e, s, context: 'scan');
     }
   }
 
@@ -172,8 +176,8 @@ class MlKitScannerGatewayImpl implements MlKitScannerGateway {
         'consumeRecoveredScan',
       );
       return pages ?? const [];
-    } on Exception catch (e) {
-      debugPrint('[Scan] recovery read failed (ignored): $e');
+    } on Exception catch (e, s) {
+      ErrorReporting.log(e, s, context: 'scan');
       return const [];
     }
   }
@@ -182,8 +186,8 @@ class MlKitScannerGatewayImpl implements MlKitScannerGateway {
   Future<void> clearRecoveredScan() async {
     try {
       await _recoveryChannel.invokeMethod<void>('clearRecoveredScan');
-    } on Exception catch (e) {
-      debugPrint('[Scan] recovery clear failed (ignored): $e');
+    } on Exception catch (e, s) {
+      ErrorReporting.log(e, s, context: 'scan');
     }
   }
 }
@@ -224,7 +228,8 @@ class ScanCubit extends Cubit<ScanState> {
         return;
       }
       emit(state.copyWith(status: ScanStatus.success, pages: images));
-    } on MlKitScannerException catch (e) {
+    } on MlKitScannerException catch (e, s) {
+      addError(e, s);
       if (!isClosed) {
         emit(
           state.copyWith(
@@ -234,7 +239,8 @@ class ScanCubit extends Cubit<ScanState> {
           ),
         );
       }
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       if (!isClosed) {
         emit(
           state.copyWith(

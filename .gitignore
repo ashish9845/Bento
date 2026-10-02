@@ -56,3 +56,5 @@ app.*.map.json
 assets/fonts/GoogleSansFlex-*.ttf
 
 command.md
+
+.vscode

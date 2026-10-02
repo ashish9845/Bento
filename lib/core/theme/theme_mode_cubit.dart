@@ -16,7 +16,9 @@ class ThemeModeCubit extends Cubit<ThemeMode> {
     try {
       final prefs = await SharedPreferences.getInstance();
       emit(_fromString(prefs.getString(_key)));
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
   }
 
   Future<void> setMode(ThemeMode mode) async {
@@ -24,7 +26,9 @@ class ThemeModeCubit extends Cubit<ThemeMode> {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_key, _toString(mode));
-    } on Exception catch (_) {}
+    } on Exception catch (e, s) {
+      addError(e, s);
+    }
   }
 
   static ThemeMode _fromString(String? v) {

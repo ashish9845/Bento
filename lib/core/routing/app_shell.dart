@@ -76,9 +76,9 @@ class _AppShellState extends State<AppShell> {
                 GlassNavItem(label: 'Files', icon: Symbols.files),
                 GlassNavItem(label: 'Tools', icon: Symbols.browse),
                 GlassNavItem(
-                  label: 'Me',
-                  icon: Icons.person_outlined,
-                  selectedIcon: Icons.person_rounded,
+                  label: 'Settings',
+                  icon: Symbols.settings,
+                  selectedIcon: Symbols.settings,
                 ),
               ],
             )

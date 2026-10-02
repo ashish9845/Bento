@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:scan/core/config/app_config.dart';
 import 'package:scan/core/storage/storage_location.dart';
 
+import 'cubit/crash_reporting_cubit.dart';
 import 'widgets/theme_settings_card.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -174,19 +176,97 @@ class SettingsScreen extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 16),
+                _SectionHeader(
+                  icon: Icons.privacy_tip_rounded,
+                  title: 'Privacy',
+                ),
+                RepaintBoundary(
+                  child: Card(
+                    child: BlocBuilder<CrashReportingCubit, bool>(
+                      builder: (context, enabled) {
+                        return ListTile(
+                          leading: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: scheme.secondaryContainer,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.bug_report_rounded,
+                              size: 20,
+                              color: scheme.onSecondaryContainer,
+                            ),
+                          ),
+                          title: const Text('Send crash reports'),
+                          subtitle: Text(
+                            enabled
+                                ? 'On — fatal errors go to Sentry'
+                                : 'Off — errors stay on this device',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          trailing: Switch(
+                            value: enabled,
+                            onChanged: (value) => context
+                                .read<CrashReportingCubit>()
+                                .setEnabled(value),
+                          ),
+                          onTap: () => context
+                              .read<CrashReportingCubit>()
+                              .setEnabled(!enabled),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Sentry probe, gated by --dart-define=IS_DEBUG=true: throws
+                // a real framework error so it flows through
+                // FlutterError.onError → ErrorReporting → Sentry, exactly
+                // like a production crash. Const-gated, so it tree-shakes
+                // out of builds without the flag.
+                if (AppConfig.isDebug) ...[
+                  const SizedBox(height: 12),
+                  Card(
+                    child: ListTile(
+                      key: const ValueKey('debug_crash_button'),
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: scheme.errorContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.bug_report_outlined,
+                          size: 20,
+                          color: scheme.onErrorContainer,
+                        ),
+                      ),
+                      title: const Text('Send test error'),
+                      subtitle: Text(
+                        'IS_DEBUG only — throws to verify Sentry reporting',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      onTap: () {
+                        throw StateError(
+                          'Bento debug test error (Settings → Send test error)',
+                        );
+                      },
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
                 _SectionHeader(icon: Icons.info_rounded, title: 'About'),
                 _AboutCard(),
                 const SizedBox(height: 12),
                 _InfoTile(
                   icon: Icons.privacy_tip_rounded,
                   title: 'Privacy',
-                  subtitle: 'On-device only — no network',
+                  subtitle: 'On-device processing, optional crash reports',
                   onTap: () => showDialog<void>(
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Privacy'),
                       content: const Text(
-                        'All PDF processing and scanning happens on-device. No file is uploaded. The native engine (pdf_manipulator, MIT) runs via FFI off the main thread — no WebView, no network.',
+                        'All PDF processing and scanning happens on-device. No file is ever uploaded. The only thing that can leave the device is an anonymous crash report — and only if you turn on “Send crash reports” above. Reports hold the error, app version and device model; never your documents.',
                       ),
                       actions: [
                         TextButton(

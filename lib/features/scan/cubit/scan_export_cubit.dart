@@ -50,7 +50,8 @@ class ScanExportCubit extends Cubit<ScanExportState> {
       emit(
         ScanExportState(status: ScanExportStatus.success, pdfPath: pdf.path),
       );
-    } on Exception catch (e) {
+    } on Exception catch (e, s) {
+      addError(e, s);
       if (!isClosed) {
         emit(
           ScanExportState(
