@@ -97,9 +97,8 @@ class Image2PdfPage extends StatelessWidget {
                               AppButton(
                                 label: 'Pick images',
                                 isOutlined: true,
-                                onPressed: () => context
-                                    .read<Image2PdfMutationBloc>()
-                                    .add(
+                                onPressed: () =>
+                                    context.read<Image2PdfMutationBloc>().add(
                                       const Image2PdfMutationEvent.pickRequested(),
                                     ),
                               ),
@@ -119,15 +118,11 @@ class Image2PdfPage extends StatelessWidget {
                             ),
                           ),
                           TextButton.icon(
-                            onPressed: () => context
-                                .read<Image2PdfMutationBloc>()
-                                .add(
+                            onPressed: () =>
+                                context.read<Image2PdfMutationBloc>().add(
                                   const Image2PdfMutationEvent.clearSelection(),
                                 ),
-                            icon: const Icon(
-                              Icons.clear_all_rounded,
-                              size: 18,
-                            ),
+                            icon: const Icon(Icons.clear_all_rounded, size: 18),
                             label: const Text('Clear all'),
                           ),
                         ],
@@ -151,9 +146,7 @@ class Image2PdfPage extends StatelessWidget {
                             path: path,
                             onRemove: () => context
                                 .read<Image2PdfMutationBloc>()
-                                .add(
-                                  Image2PdfMutationEvent.removeAt(index),
-                                ),
+                                .add(Image2PdfMutationEvent.removeAt(index)),
                           );
                           return DragTarget<String>(
                             onAcceptWithDetails: (details) {
@@ -170,9 +163,9 @@ class Image2PdfPage extends StatelessWidget {
                                   decoration: candidate.isNotEmpty
                                       ? BoxDecoration(
                                           border: Border.all(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
                                             width: 2,
                                           ),
                                           borderRadius: BorderRadius.circular(
@@ -207,30 +200,21 @@ class Image2PdfPage extends StatelessWidget {
                         icon: Icons.add_photo_alternate_outlined,
                         onPressed: () => context
                             .read<Image2PdfMutationBloc>()
-                            .add(
-                              const Image2PdfMutationEvent.pickRequested(),
-                            ),
+                            .add(const Image2PdfMutationEvent.pickRequested()),
                       ),
                     ],
                     const SizedBox(height: 16),
-                    BlocBuilder<
-                      Image2PdfMutationBloc,
-                      Image2PdfMutationState
-                    >(
+                    BlocBuilder<Image2PdfMutationBloc, Image2PdfMutationState>(
                       builder: (context, state) {
                         final isLoading =
-                            state.status ==
-                            Image2PdfMutationStatus.inProgress;
-                        if (state.status ==
-                            Image2PdfMutationStatus.failure) {
+                            state.status == Image2PdfMutationStatus.inProgress;
+                        if (state.status == Image2PdfMutationStatus.failure) {
                           return AppErrorView(
                             message: state.errorMessage ?? 'Failed',
-                            onRetry: () =>
-                                _createWithRename(context, paths),
+                            onRetry: () => _createWithRename(context, paths),
                           );
                         }
-                        if (state.status ==
-                                Image2PdfMutationStatus.success &&
+                        if (state.status == Image2PdfMutationStatus.success &&
                             state.resultPath != null) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -247,9 +231,9 @@ class Image2PdfPage extends StatelessWidget {
                                   children: [
                                     Icon(
                                       Icons.check_circle_rounded,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
                                     ),
                                     const SizedBox(width: 10),
                                     Expanded(
@@ -273,10 +257,8 @@ class Image2PdfPage extends StatelessWidget {
                                     child: AppButton(
                                       label: 'Open PDF',
                                       icon: Icons.open_in_new_rounded,
-                                      onPressed: () => openDoc(
-                                        context,
-                                        state.resultPath!,
-                                      ),
+                                      onPressed: () =>
+                                          openDoc(context, state.resultPath!),
                                     ),
                                   ),
                                   const SizedBox(width: 10),
@@ -334,9 +316,7 @@ class _ImageTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.5),
-        ),
+        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
@@ -348,10 +328,7 @@ class _ImageTile extends StatelessWidget {
               top: 4,
               left: 4,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 7,
-                  vertical: 3,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(999),

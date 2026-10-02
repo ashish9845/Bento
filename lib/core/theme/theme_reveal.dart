@@ -104,14 +104,9 @@ class _ThemeRevealOverlayState extends State<ThemeRevealOverlay>
       Offset(size.width, 0),
       Offset(0, size.height),
       Offset(size.width, size.height),
-    ].map((c) => (c - widget.origin).distance).reduce(
-      (a, b) => a > b ? a : b,
-    );
+    ].map((c) => (c - widget.origin).distance).reduce((a, b) => a > b ? a : b);
     // Steady gradual spread outward.
-    final spread = CurvedAnimation(
-      parent: _ctrl,
-      curve: Curves.easeInOutCubic,
-    );
+    final spread = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOutCubic);
     return IgnorePointer(
       child: AnimatedBuilder(
         animation: _ctrl,
@@ -142,7 +137,8 @@ class _RevealPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final full = Offset.zero & size;
-    final src = Offset.zero &
+    final src =
+        Offset.zero &
         Size(snapshot.width.toDouble(), snapshot.height.toDouble());
     if (radius <= 0) {
       canvas.drawImageRect(
@@ -170,7 +166,5 @@ class _RevealPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RevealPainter old) =>
-      old.radius != radius ||
-      old.origin != origin ||
-      old.snapshot != snapshot;
+      old.radius != radius || old.origin != origin || old.snapshot != snapshot;
 }

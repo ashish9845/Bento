@@ -8,8 +8,7 @@ abstract class ImagePickerGateway {
 }
 
 class GalleryImagePickerGateway implements ImagePickerGateway {
-  const new([ImagePicker? picker])
-    : _picker = picker;
+  const new([ImagePicker? picker]) : _picker = picker;
 
   final ImagePicker? _picker;
 

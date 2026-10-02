@@ -139,9 +139,7 @@ class _GlassTab extends StatelessWidget {
                   selected ? (item.selectedIcon ?? item.icon) : item.icon,
                   key: ValueKey(selected),
                   size: 23,
-                  color: selected
-                      ? scheme.primary
-                      : scheme.onSurfaceVariant,
+                  color: selected ? scheme.primary : scheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 2),
@@ -150,12 +148,8 @@ class _GlassTab extends StatelessWidget {
                 maxLines: 1,
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: selected
-                      ? FontWeight.w600
-                      : FontWeight.w500,
-                  color: selected
-                      ? scheme.onSurface
-                      : scheme.onSurfaceVariant,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: selected ? scheme.onSurface : scheme.onSurfaceVariant,
                 ),
               ),
             ],

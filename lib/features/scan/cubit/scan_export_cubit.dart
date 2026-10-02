@@ -13,11 +13,7 @@ enum ScanExportStatus { idle, creating, success, error }
 /// (optional override for tests, defaulting to the real service) so UI never
 /// constructs `ScannerService` directly.
 class ScanExportState {
-  const new({
-    this.status = ScanExportStatus.idle,
-    this.pdfPath,
-    this.error,
-  });
+  const new({this.status = ScanExportStatus.idle, this.pdfPath, this.error});
 
   final ScanExportStatus status;
   final String? pdfPath;
@@ -52,10 +48,7 @@ class ScanExportCubit extends Cubit<ScanExportState> {
       final pdf = await _svc.imagesToPdf(imagePaths, outputName: name);
       if (isClosed) return;
       emit(
-        ScanExportState(
-          status: ScanExportStatus.success,
-          pdfPath: pdf.path,
-        ),
+        ScanExportState(status: ScanExportStatus.success, pdfPath: pdf.path),
       );
     } on Exception catch (e) {
       if (!isClosed) {

@@ -104,10 +104,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    tester
-        .element(find.byType(ToolScaffold))
-        .read<ToolCubit>()
-        .setFiles([File('/tmp/a.pdf')]);
+    tester.element(find.byType(ToolScaffold)).read<ToolCubit>().setFiles([
+      File('/tmp/a.pdf'),
+    ]);
     await tester.pumpAndSettle();
 
     expect(find.text('p1'), findsOneWidget);
@@ -155,10 +154,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    tester
-        .element(find.byType(ToolScaffold))
-        .read<ToolCubit>()
-        .setFiles([File('/tmp/a.pdf')]);
+    tester.element(find.byType(ToolScaffold)).read<ToolCubit>().setFiles([
+      File('/tmp/a.pdf'),
+    ]);
     await tester.pumpAndSettle();
     expect(find.text('p1'), findsOneWidget);
 

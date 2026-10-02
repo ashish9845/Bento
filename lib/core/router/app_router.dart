@@ -155,9 +155,8 @@ final appRouter = GoRouter(
                       create: (_) =>
                           ToolsRepositoryImpl(PdfEngineDataSourceImpl()),
                       child: BlocProvider(
-                        create: (c) => Image2PdfMutationBloc(
-                          c.read<ToolsRepository>(),
-                        ),
+                        create: (c) =>
+                            Image2PdfMutationBloc(c.read<ToolsRepository>()),
                         child: const Image2PdfPage(),
                       ),
                     ),

@@ -387,9 +387,8 @@ class FilesPage extends StatelessWidget {
                                       Icons.share_rounded,
                                       size: 18,
                                     ),
-                                    onPressed: () => context
-                                        .read<FilesMutationBloc>()
-                                        .add(
+                                    onPressed: () =>
+                                        context.read<FilesMutationBloc>().add(
                                           FilesMutationEvent.shareFile(f.path),
                                         ),
                                     style: IconButton.styleFrom(

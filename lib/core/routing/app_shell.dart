@@ -69,15 +69,10 @@ class _AppShellState extends State<AppShell> {
       bottomNavigationBar: isTabRoot
           ? GlassNavBar(
               currentIndex: shell.currentIndex,
-              onTap: (i) => shell.goBranch(
-                i,
-                initialLocation: i == shell.currentIndex,
-              ),
+              onTap: (i) =>
+                  shell.goBranch(i, initialLocation: i == shell.currentIndex),
               items: const [
-                GlassNavItem(
-                  label: 'Home',
-                  icon: Symbols.home_app_logo,
-                ),
+                GlassNavItem(label: 'Home', icon: Symbols.home_app_logo),
                 GlassNavItem(label: 'Files', icon: Symbols.files),
                 GlassNavItem(label: 'Tools', icon: Symbols.browse),
                 GlassNavItem(

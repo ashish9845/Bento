@@ -18,9 +18,7 @@ class ScannerService {
     // JPEG decode + PDF embedding of full-res camera photos takes seconds:
     // always build in a background isolate so the UI never hangs, even for
     // a single page.
-    final built = await Isolate.run(
-      () => buildImagesToA4Pdf(imagePaths),
-    );
+    final built = await Isolate.run(() => buildImagesToA4Pdf(imagePaths));
     final saveDir = (await getSaveDirectory()).path;
     var baseName =
         outputName?.trim() ?? 'scan_${DateTime.now().millisecondsSinceEpoch}';

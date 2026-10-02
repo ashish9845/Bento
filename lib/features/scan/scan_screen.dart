@@ -73,10 +73,7 @@ Future<void> scanPressed(BuildContext context) async {
 
 /// Rename shell stays in UI — only the name string crosses to the cubit.
 /// Export work + errors live in [ScanExportCubit].
-Future<void> createPdfPressed(
-  BuildContext context,
-  List<String> images,
-) async {
+Future<void> createPdfPressed(BuildContext context, List<String> images) async {
   if (images.isEmpty) return;
   final now = DateTime.now();
   final defaultName =
@@ -166,9 +163,9 @@ class _ScanViewState extends State<_ScanView> {
                   );
                 }
               case ScanStatus.cancelled:
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Scan cancelled')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Scan cancelled')));
               case ScanStatus.idle:
               case ScanStatus.scanning:
               case ScanStatus.error:
@@ -316,9 +313,8 @@ class _ScanBody extends StatelessWidget {
                           TextButton.icon(
                             onPressed: busy || creating
                                 ? null
-                                : () => context
-                                      .read<ScanSessionCubit>()
-                                      .clear(),
+                                : () =>
+                                      context.read<ScanSessionCubit>().clear(),
                             icon: const Icon(Icons.clear_all_rounded, size: 18),
                             label: const Text('Clear all'),
                           ),
@@ -435,11 +431,7 @@ class _ScanBody extends StatelessWidget {
 }
 
 class _ErrorCard extends StatelessWidget {
-  const new({
-    required this.error,
-    required this.busy,
-    this.errorDetails,
-  });
+  const new({required this.error, required this.busy, this.errorDetails});
 
   final String error;
   final String? errorDetails;
@@ -531,11 +523,7 @@ class _PdfResultCard extends StatelessWidget {
           pdfPath.split('/').last,
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
-        subtitle: Text(
-          pdfPath,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
+        subtitle: Text(pdfPath, maxLines: 2, overflow: TextOverflow.ellipsis),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -580,9 +568,8 @@ class _PdfActions extends StatelessWidget {
           label: const Text('Open'),
         ),
         OutlinedButton.icon(
-          onPressed: () => SharePlus.instance.share(
-            ShareParams(files: [XFile(pdfPath)]),
-          ),
+          onPressed: () =>
+              SharePlus.instance.share(ShareParams(files: [XFile(pdfPath)])),
           icon: const Icon(Icons.share_rounded),
           label: const Text('Share'),
         ),

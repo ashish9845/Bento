@@ -73,9 +73,7 @@ class ScanSessionCubit extends Cubit<ScanSessionState> {
 
   void removeAt(int index) {
     if (index < 0 || index >= state.images.length || isClosed) return;
-    emit(
-      state.copyWith(images: [...state.images]..removeAt(index)),
-    );
+    emit(state.copyWith(images: [...state.images]..removeAt(index)));
     unawaited(_persist());
   }
 

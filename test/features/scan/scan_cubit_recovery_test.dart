@@ -110,8 +110,7 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(
       const MethodChannel('com.benopdf.scan/scan_recovery'),
-      (call) async =>
-          call.method == 'consumeRecoveredScan' ? ['/x.jpg'] : null,
+      (call) async => call.method == 'consumeRecoveredScan' ? ['/x.jpg'] : null,
     );
     addTearDown(() {
       messenger.setMockMethodCallHandler(
@@ -120,9 +119,6 @@ void main() {
       );
     });
 
-    expect(
-      await MlKitScannerGatewayImpl().consumeRecoveredScan(),
-      ['/x.jpg'],
-    );
+    expect(await MlKitScannerGatewayImpl().consumeRecoveredScan(), ['/x.jpg']);
   });
 }

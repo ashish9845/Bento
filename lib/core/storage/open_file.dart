@@ -115,8 +115,9 @@ Future<void> openFolder(BuildContext context, String dirPath) async {
     // manager app directly (native fallback, no extra permission).
     if (result.type == ResultType.noAppToOpen) {
       try {
-        final opened =
-            await _foldersChannel.invokeMethod<bool>('launchFileManager');
+        final opened = await _foldersChannel.invokeMethod<bool>(
+          'launchFileManager',
+        );
         if (opened == true) return;
       } on Exception catch (_) {}
     }

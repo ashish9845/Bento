@@ -93,9 +93,7 @@ class MergePage extends StatelessWidget {
                             isOutlined: true,
                             onPressed: () => context
                                 .read<MergeMutationBloc>()
-                                .add(
-                                  const MergeMutationEvent.pickRequested(),
-                                ),
+                                .add(const MergeMutationEvent.pickRequested()),
                           ),
                         ],
                       ),
@@ -115,9 +113,7 @@ class MergePage extends StatelessWidget {
                         TextButton.icon(
                           onPressed: () => context
                               .read<MergeMutationBloc>()
-                              .add(
-                                const MergeMutationEvent.clearSelection(),
-                              ),
+                              .add(const MergeMutationEvent.clearSelection()),
                           icon: const Icon(Icons.clear_all_rounded, size: 18),
                           label: const Text('Clear all'),
                         ),
@@ -132,9 +128,8 @@ class MergePage extends StatelessWidget {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: pickedPaths.length,
-                            onReorderItem: (oldIndex, newIndex) => context
-                                .read<MergeMutationBloc>()
-                                .add(
+                            onReorderItem: (oldIndex, newIndex) =>
+                                context.read<MergeMutationBloc>().add(
                                   MergeMutationEvent.reordered(
                                     oldIndex,
                                     newIndex,
@@ -173,9 +168,7 @@ class MergePage extends StatelessWidget {
                                     tooltip: 'Remove',
                                     onPressed: () => context
                                         .read<MergeMutationBloc>()
-                                        .add(
-                                          MergeMutationEvent.removeAt(i),
-                                        ),
+                                        .add(MergeMutationEvent.removeAt(i)),
                                   ),
                                   const Icon(Icons.drag_handle_rounded),
                                 ],
@@ -194,8 +187,7 @@ class MergePage extends StatelessWidget {
                       if (state.status == MergeMutationStatus.failure) {
                         return AppErrorView(
                           message: state.errorMessage ?? 'Failed',
-                          onRetry: () =>
-                              _mergeWithRename(context, pickedPaths),
+                          onRetry: () => _mergeWithRename(context, pickedPaths),
                         );
                       }
                       if (state.status == MergeMutationStatus.success &&
@@ -237,10 +229,8 @@ class MergePage extends StatelessWidget {
                                   child: AppButton(
                                     label: 'Open PDF',
                                     icon: Icons.open_in_new_rounded,
-                                    onPressed: () => openDoc(
-                                      context,
-                                      state.resultPath!,
-                                    ),
+                                    onPressed: () =>
+                                        openDoc(context, state.resultPath!),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -248,9 +238,8 @@ class MergePage extends StatelessWidget {
                                   child: AppButton(
                                     label: 'Merge more',
                                     isOutlined: true,
-                                    onPressed: () => context
-                                        .read<MergeMutationBloc>()
-                                        .add(
+                                    onPressed: () =>
+                                        context.read<MergeMutationBloc>().add(
                                           const MergeMutationEvent.clearSelection(),
                                         ),
                                   ),

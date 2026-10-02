@@ -65,16 +65,15 @@ void main() {
     final bad = File('${sandbox.path}/photo_bad.jpg');
     await bad.writeAsBytes([0, 1, 2, 3, 4, 5]);
 
-    final pdf = await ScannerService().imagesToPdf(
-      [good, bad.path],
-      outputName: 'mixed',
-    );
+    final pdf = await ScannerService().imagesToPdf([
+      good,
+      bad.path,
+    ], outputName: 'mixed');
 
     final bytes = await pdf.readAsBytes();
     expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
-    final markers = RegExp(r'/Type\s*/Page[^s]').allMatches(
-      String.fromCharCodes(bytes),
-    );
+    final markers = RegExp(r'/Type\s*/Page[^s]')
+        .allMatches(String.fromCharCodes(bytes));
     expect(markers.length, 1);
   });
 
@@ -86,9 +85,8 @@ void main() {
     final bytes = await pdf.readAsBytes();
     expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
     // One /Type /Page per input image (plus the /Pages tree object).
-    final markers = RegExp(r'/Type\s*/Page[^s]').allMatches(
-      String.fromCharCodes(bytes),
-    );
+    final markers = RegExp(r'/Type\s*/Page[^s]')
+        .allMatches(String.fromCharCodes(bytes));
     expect(markers.length, 3);
   });
 }

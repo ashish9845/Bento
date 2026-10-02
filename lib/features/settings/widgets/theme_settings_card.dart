@@ -138,14 +138,14 @@ class _ThemeSettingsCardState extends State<ThemeSettingsCard> {
                                 );
                                 return Padding(
                                   padding: const EdgeInsets.only(right: 12),
-                              child: AppThemePreview(
-                                palette: p,
-                                scheme: previewScheme,
-                                selected: p == palette,
-                                onTap: () => context
-                                    .read<AppPaletteCubit>()
-                                    .setPalette(p),
-                              ),
+                                  child: AppThemePreview(
+                                    palette: p,
+                                    scheme: previewScheme,
+                                    selected: p == palette,
+                                    onTap: () => context
+                                        .read<AppPaletteCubit>()
+                                        .setPalette(p),
+                                  ),
                                 );
                               },
                             ),

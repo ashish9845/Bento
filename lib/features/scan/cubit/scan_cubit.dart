@@ -223,9 +223,7 @@ class ScanCubit extends Cubit<ScanState> {
         emit(state.copyWith(status: ScanStatus.cancelled, pages: []));
         return;
       }
-      emit(
-        state.copyWith(status: ScanStatus.success, pages: images),
-      );
+      emit(state.copyWith(status: ScanStatus.success, pages: images));
     } on MlKitScannerException catch (e) {
       if (!isClosed) {
         emit(

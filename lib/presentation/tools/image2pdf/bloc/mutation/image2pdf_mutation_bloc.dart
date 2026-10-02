@@ -50,10 +50,7 @@ class Image2PdfMutationBloc
     emit(state.copyWith(pickedPaths: next));
   }
 
-  void _onRemoveAt(
-    ImageRemoveAt event,
-    Emitter<Image2PdfMutationState> emit,
-  ) {
+  void _onRemoveAt(ImageRemoveAt event, Emitter<Image2PdfMutationState> emit) {
     final next = [...state.pickedPaths];
     if (event.index < 0 || event.index >= next.length) return;
     next.removeAt(event.index);
